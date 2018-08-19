@@ -4,6 +4,7 @@
   * [排序对数器](#排序对数器)
   * [冒泡排序](#冒泡排序)
   * [选择排序](#选择排序)
+  * [插入排序](#插入排序)
 * [二 、复杂度估计和排序算法（下）](#二、复杂度估计和排序算法（下）)
 
 # 一、复杂度估计和算法排序（上）<br>
@@ -135,9 +136,58 @@ public class BublleSort {
 ```
 * #### 选择排序<br>
   * 时间复杂度：N的平方
-  * 原理：进行N轮，每轮把最小的元素放在最前面：0~N 找最小的元素放在0位置；1~N 找最小的元素放在1位置
+  * 原理：进行N轮，每轮把最小的元素放在最前面：0-N 找最小的元素放在0位置；1-N 找最小的元素放在1位置
   ```Java
-  
-  ```
+  public class SelectionSort {
+    public static void selectionSort(int[] arr){
+        if(arr==null || arr.length<2)
+            return;
+
+        for(int i=0; i<arr.length-1;i++){
+            int minIndex=i;
+            for(int j=i+1;j<arr.length;j++){
+                if (arr[minIndex] > arr[j])
+                    minIndex=j;
+            }
+            swap(arr,minIndex,i);
+        }
+    }
+
+    private static void swap(int[] arr, int j, int i) {
+        int temp=arr[j];
+        arr[j]=arr[i];
+        arr[i]=temp;
+    }
+}
+ ```
+ 
+* #### 插入排序<br>
+   * 时间复杂度：
+     1.如果本身已经排好序了，为N
+     2.如果是逆序，则为O(N<sub>2)
+   *原理：相当于一副牌，每抓一张，往前面正确的位置插入。第一张牌因为只有一张所以不用排序，于是依次找第二张牌、第三张、第四张、、、的位置
+ ```Java
+   public class InsertionSort {
+    public static void insertSort(int[] arr){
+        if(arr==null || arr.length<2)
+            return;
+
+        for(int i=1; i<arr.length; i++){    //将下标为i的元素插入前面的有序数组
+            int j=i;
+            while(j>0 && arr[j]<arr[j-1]){
+                swap(arr,j,j-1);
+                j--;
+            }
+        }
+    }
+
+    private static void swap(int[] arr, int j, int i) {
+        int temp=arr[j];
+        arr[j]=arr[i];
+        arr[i]=temp;
+    }
+}
+ ```
+   
 
 # 二、复杂度估计和排序算法（下）
