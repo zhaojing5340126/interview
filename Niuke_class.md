@@ -137,7 +137,8 @@ public class BublleSort {
 * #### 选择排序<br>
   * 时间复杂度：N的平方
   * 原理：进行N轮，每轮把最小的元素放在最前面：0-N 找最小的元素放在0位置；1-N 找最小的元素放在1位置
-  ```Java
+
+```Java
   public class SelectionSort {
     public static void selectionSort(int[] arr){
         if(arr==null || arr.length<2)
@@ -159,7 +160,7 @@ public class BublleSort {
         arr[i]=temp;
     }
 }
- ```
+```
  
 * #### 插入排序<br>
    * 时间复杂度：
