@@ -267,13 +267,68 @@ public class MergeSort {
      然后res+i*个数,直到最后全部归并完成，把下面的红色算式全部加起来就是小和
      ![](https://images2018.cnblogs.com/blog/978657/201804/978657-20180404133717075-1766283535.png)
      ```Java
-     
+     package day1;
+
+public class SmallSum {
+    public static int smallSum(int[] arr){
+        if(arr==null || arr.length<2)
+            return 0;           //****只有一个或者是null的时候没有小和，即为0
+        return mergeSort(arr,0,arr.length-1);
+    }
+
+    public static int mergeSort(int[] arr, int l, int r) {
+        if(l==r)
+            return 0;           //****到树梢了，只有一个元素，小和为0
+        int mid=l+((r-l)>>1);
+        return mergeSort(arr,l,mid)
+                +mergeSort(arr,mid+1,r)
+                +merge(arr,l,mid,r);    //****左边归并得到的小和+右边归并得到的小和+左右归并得到的小和
+    }
+
+    public static int merge(int[] arr,int l,int mid,int r){
+        int p1=l;
+        int p2=mid+1;
+        int i=0;
+        int[] help=new int[r-l+1];
+        int res=0;               //****用于存放小和
+        while (p1<=mid && p2<=r) {
+            /**  //****左边数小，则左边数就是小和，右边数小，因为它在右边，所以不符合小和的定义 */
+            res+=(arr[p1]<arr[p2])?(r-p2+1)*arr[p1]:0;
+            help[i++]=(arr[p1]<arr[p2])?arr[p1++]:arr[p2++];
+        }
+        while (p1<=mid){
+            help[i++]=arr[p1++];
+        }
+        while(p2<=r) {
+            help[i++] = arr[p2++];
+        }
+        for(i=0; i<help.length;i++) {
+            arr[l+i]=help[i];
+        }
+        return res;        //****返回小和
+    }
+
+    // for test，对数器=随机产生数组（generateRandomArray）+比较用的算法(comparator)
+    public static int comparator(int[] arr) { }
+    public static int[] generateRandomArray(int maxSize, int maxValue) { }
+    public static int[] copyArray(int[] arr) {}
+    public static boolean isEqual(int[] arr1, int[] arr2) { }
+    public static void printArray(int[] arr) { }
+    public static void main(String[] args) { }
+}
      ```
      
   * 逆序对问题
   ```
   在一个数组中，左边的数如果比右边的数大，则折两个数构成一个逆序对，请打印所有逆序对。
   ```
-    * 原理：实质就是对每个数找右边有多少个数比它小<br>
+    * 原理：实质就是对每个数找右边有多少个数比它小<br>，(可能maybe,没有验证过）是在小和那里改为：
+    ```Java
+    if(arr[p1]>arr[p2]){
+      for(int t=p1;t<=mid;t++)
+      System.out.printf("(%d ,%d)",arr[t],arr[p2])
+    }
+    ```
+    
     
 # 二、复杂度估计和排序算法（下）
