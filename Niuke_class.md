@@ -334,3 +334,52 @@ public class SmallSum {
     ```
     
 # 二、复杂度估计和排序算法（下）
+* ####荷兰国旗问题
+```
+问题一：（荷兰国旗问题是分为三堆（遇到‘等于’不用动），这个问题只是分成两堆而已，小于等于————大于，遇到‘大于’时不用动）
+给定一个数组arr，和一个数num，请把小于等于num的数放在数组的左边，大于num的数放在数组的右边。
+要求额外空间复杂度O(1)，时间复杂度O(N)
+
+问题二（荷兰国旗问题）（遇到‘等于’不用动）
+给定一个数组arr，和一个数num，请把小于num的数放在数组的左边，等于num的数放在数组的中间，大于num的数放在数组的右边。
+要求额外空间复杂度O(1)，时间复杂度O(N)
+```
+ * 时间复杂度：O(N)
+ * 空间复杂度：O(1)
+ * 原理:用了三个指针，less指示小于区域，more指示大于区域，cur指示当前需要判断的数
+```Java
+package day2;
+
+public class NetherlandsFlag {
+    public static int[] partition(int[] arr,int L,int R,int num){
+        int less=L-1;           //左边小于区域
+        int more=R+1;           //右边大于区域
+        int cur=L;              //当前位置，要判断它是大于等于小于，然后放在合适的位置
+        while(cur<more){        //more及其右边是已经分好的大于num的数，cur遇到more就意味着没有需要划分的数了
+            if(arr[cur] < num){ //若小于num则放在小于区(swap)，小于区less++,然后判断下一个数cur++
+                swap(arr,++less,cur++);
+            }else if(arr[cur] > num){
+                /** //若大于num则放在大于区(swap)，大于区扩大more--，从大于区交换来的cur位置的数没有判断过，所以cur不++ */
+                swap(arr,--more,cur);
+            }else cur++;        //若等于num,则不管它，然后继续判断下一个数cur++;
+        }
+        return new int[]{less+1,more-1};
+        }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp=arr[i];
+        arr[i]=arr[j];
+        arr[j]=temp;
+    }
+}
+```
+  
+* ####随机快排
+ * 时间复杂度：O(NlogN)
+ * 空间复杂度：O(logN):因为递归的时候每一层都需要记录你选择的那个点
+ * 原理：
+   * 经典快排：利用最后一个数作为分界点，小的放左边，大的放右边，可以使用荷兰国旗问题（上面）的方法优化<br>
+     随机快排：产生一个随机位置作为分界点
+   * 随机快排的优点：经典快排在遇见有序数组时：1，2，3，4，5，6；每次只能排好最后一个数，要历时N轮，时间复杂度为O(N<sup>2</sup>),<br>随机快排则不会出现此问题，其长期期望时间复杂度为O(NlogN)；<br>与归并排序相比：虽然时间复杂度都是O(NlogN),但归并排序有更多的while循环，常数时间比随机快排多，而且额外空间复杂度是O(N)，这个大于随机快排的O(logN),所以随机快排更优。
+
+  
