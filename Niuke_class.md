@@ -11,7 +11,8 @@
 * [二 、复杂度估计和排序算法（下）](#二、复杂度估计和排序算法（下）)
   * [荷兰国旗问题 [O(N), O(1)]](#荷兰国旗问题)
   * [经典快排和随机快排（基于荷兰国旗问题）[O(NlogN), O(logN)]](#经典快排和随机快排)
-  * [堆结构与堆排序](#堆结构与堆排序)
+  * [堆结构](#堆结构)
+  * [堆排序](#堆排序)
   * [排序算法的稳定性](#排序算法的稳定性)
   * [比较器](#比较器)
   * [桶排序](#桶排序)
@@ -437,8 +438,74 @@ public class QuickSort {
     }
  }
 ```
-* #### 堆结构与堆排序
-   * 堆：堆存储在`数组`中
+* #### 堆结构
+   * 堆：堆存储在`数组`中，完全二叉树只是为了帮助理解而想象出来的：<br>
+   对结点i：左节点下标为(2*i）+1；右结点为(2* i）+2；父节点为（i-1）/2；<br>
+   ![](https://images2015.cnblogs.com/blog/1024555/201612/1024555-20161217182857323-2092264199.png)<br>
+   * 堆的分类：<br>
+     * 大根堆（即优先队列）：堆中的每个结点都大于它的两个子结点
+     * 小根堆：堆中的每个结点都小于它的两个子结点
+     ![](https://images2015.cnblogs.com/blog/1024555/201612/1024555-20161217182750011-675658660.png)
+   * 大根堆的构造（上浮swim）（在数组中构造）：实质就是每添加一个数，就将它上浮，直到它不再大于其父结点
+   * 建立堆的时间复杂度：O(N)：log1+log2+log3+...logN-1【收敛于O(N)】
+* #### 堆排序
+   * 时间复杂度：O(NlogN)
+   * 额外空间复杂度：O(1)
+   * 堆排序（在数组中排序从小到大）：
+      * 1、构造大根堆（上浮）；
+      * 当while（heapSize > 0），循环执行2、3两步
+      * 2、将顶点与尾部交换，堆大小heapSize减1（因为最大的那个数已经在末尾了，不需要再排序）
+      * 3、将交换得来的顶点`下沉`到其应该的位置（即它比左右子结点都大），从而恢复堆有序
+```Java
+package day2;
+
+import java.util.Arrays;
+
+public class HeapSort {
+    public static void heapSort(int[] arr){
+        if(arr==null || arr.length<2)
+            return;
+        for (int i=0; i<arr.length ;i++){ //构造一个大根堆,依次将元素加入堆中
+            swim(arr,i);                   //将位arr[i]上浮，直到它不再大于它的父节点
+        }
+        int heapsize=arr.length;
+        while(heapsize > 0){
+            swap(arr, 0, --heapsize);       //将堆的头部和尾部交换，堆大小减一，然后下沉头部
+            sink(arr,0,heapsize);              //将0下沉，直到它比它的两边节点都大
+        }
+    }
+
+    public static void swim(int[] arr, int i){
+        while(arr[i] > arr[(i-1)/2]){
+            swap(arr, i, (i-1)/2);
+            i=(i-1)/2;
+        }
+    }
+
+    public static void sink(int[] arr, int i, int heapSize){//将位于i的元素下沉
+       int left = (2 * i)+1;
+       int right =left+1;
+       while(left < heapSize){
+           int largest = (right < heapSize && arr[right] > arr[left])?right:left;
+           largest = (arr[largest] > arr[i])?largest:i;    //找到i和其左右结点中最大的数，记录其位置
+           if(largest == i){            //位于i的元素已经比它的左右子结点都大了，不用再下沉
+               break;
+           }else {
+               swap(arr, i, largest);
+               i=largest;
+               left = (2 * i)+1;
+               right =left+1;
+           }
+       }
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp=arr[i];
+        arr[i]=arr[j];
+        arr[j]=temp;
+    }
+ }
+ ```
 * #### 排序算法的稳定性
 * #### 比较器
 * #### 桶排序
