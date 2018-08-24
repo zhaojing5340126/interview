@@ -525,12 +525,11 @@ public class HeapSort {
      Arrays.sort(students,new IdComparator());  <br>
      PriorityQueue<Student> heap=new PriorityQueue<>(new IdComparator());//****用优先队列来排<br>
      TreeSet<Student> treeSet=new TreeSet<>(new IdComparator()); <br>
-```Java
-package day2;
-
-import java.util.*;
-
-public class ComparatorTest {
+ 
+ ```Java
+ package day2;
+ 
+ public class ComparatorTest {
     public static class Student{        //静态内部类
         public String name;
         public int id;
@@ -540,34 +539,32 @@ public class ComparatorTest {
             this.id=id;
             this.age=age;
         }
-        @Override
+        
         public String toString() {
             return name+' '+id+' '+age;
         }
     }
-
     public static class IdComparator implements Comparator<Student>{    //静态内部类，比较器
         public int compare(Student num1,Student num2){
             return num1.id-num2.id;
         }
     }
-
     public static void main(String[] args) {
         Student student1 = new Student("A", 1, 23);
         Student student2 = new Student("B", 2, 21);
         Student student3 = new Student("C", 3, 22);
-
         Student[] students = new Student[] { student3, student2, student1 };
-
+        
         Arrays.sort(students,new IdComparator());        //****用数组自带的来排序，但还要给它一个比较器它才可以排序
+        
         for(int i=0;i<students.length;i++){
             System.out.println(students[i]);
         }
     }
 
 }
-
 ```
+
 * #### 桶排序
    * 此为非基于比较的排序，与被排序的样本的实际数据状况很有关系，所以实际中并不经常使用，是稳定的排序
    * 时间复杂度：O(N)
@@ -577,12 +574,91 @@ public class ComparatorTest {
 * #### 基数排序
 * #### 桶排序思想的应用：数组排序后的最大差值问题
 ```
-问题：
-给定一个数组，求如果排序之后，相邻两数的最大差值，要求时间复杂度O(N)，且要求不能用非基于比较的排序。
+ 问题：
+ 给定一个数组，求如果排序之后，相邻两数的最大差值，要求时间复杂度O(N)，且要求不能用非基于比较的排序。
 ```
+
 * #### 排序算法在工程中的应用
    * 综合排序：
       * 数组长度短（<60）：直接用插入排序，因为插入排序的常数项极低
       * 数组长度长；先判断数据类型
          * 基础类型：用快速排序，因为基础类型不用区分原始顺序（不需要稳定，因为相同值无差异）
          * 引用类型：用归并排序，因为原始顺序是有用的
+# 第三章、栈、队列、链表、数组、矩阵结构及相关常见面试题
+* #### 栈结构及面试
+   * ##### 题目一：用数组结构实现大小固定的队列和栈
+   
+```Java
+package day3;   //用数组实现栈
+
+public class Stack {
+    int[] arr;
+    int index;      //指向即将放入的位置
+
+    public Stack(int initSize){
+        if(initSize<0)
+            throw new IllegalArgumentException("the init size is less than 0");
+        arr=new int[initSize];
+        index=0;
+    }
+
+    public void push(int obj){      //压入栈
+        if(index==arr.length)
+            throw new ArrayIndexOutOfBoundsException("the stack is full");
+        arr[index++]=obj;
+    }
+
+    public int pop(){           //弹出栈
+        if(index==0)
+            throw new ArrayIndexOutOfBoundsException("the stack is empty");
+        return arr[--index];
+    }
+
+    public int peek(){          //查看栈顶元素，但不移除
+        if(index==0)
+            throw new ArrayIndexOutOfBoundsException("the stack is empty");
+        return arr[index-1];
+    }
+}
+```
+ ```Java
+ package day3;  //用数组实现队列
+
+public class Queue {
+    int[] arr;
+    int first;       //指向队头，要删除的位置
+    int last;       //指向下一个要添加的位置
+    int size;
+    public Queue(int initSize){
+        if(initSize<0)
+            throw new IllegalArgumentException("the init size is less than 0");
+        arr=new int[initSize];
+        first=0;
+        last=0;
+        size=0;
+    }
+
+    public void push(int obj){
+        if(size==arr.length)
+            throw new ArrayIndexOutOfBoundsException("the queue is full");
+        size++;
+        arr[last]=obj;
+        last=(last==arr.length-1)?0:last+1;
+    }
+    public int poll(){
+        if(size==0)
+            throw new ArrayIndexOutOfBoundsException("the queue is empty");
+        size--;
+        int tmp = first;
+        first = (first == arr.length - 1 )? 0 : first + 1;
+        return arr[tmp];
+    }
+}
+
+ ```
+   
+* #### 队列结构及面试
+* #### 链表结构及面试
+* #### 数组结构及面试
+* #### 矩阵结构及面试
+* #### 二分搜索的扩展
