@@ -14,11 +14,11 @@
   * [堆结构](#堆结构)
   * [堆排序](#堆排序)
   * [排序算法的稳定性](#排序算法的稳定性)
-  * [比较器](#比较器)
-  * [桶排序](#桶排序)
+  * [比较器（Comparator）](#比较器（Comparator）)
+  * [桶排序 [O(N), O(N)]](#桶排序)
   * [计数排序](#计数排序)
   * [基数排序](#基数排序)
-  * [数组排序后的最大差值问题](#数组排序后的最大差值问题)
+  * [（未弄透彻）桶排序思想的应用：数组排序后的最大差值问题](#桶排序思想的应用：数组排序后的最大差值问题)
   * [排序算法在工程中的应用](#排序算法在工程中的应用)
 
 
@@ -518,11 +518,68 @@ public class HeapSort {
       * 归并排序（可以稳定，只要merge的时候遇到相等，先拷贝左边，再拷贝右边即可）
       * 快速排序（不稳定，因为partition做不到稳定）
       * 堆排序（不稳定，因为交换过程中控制不住相等值）
-* #### 比较器
+* #### 比较器（Comparator）
+    * Array.sort(基础类型)：按值排序<br>
+      Array.sort(非基础类型)：按内存地址排序，所以无意义，无价值，因而有了比较器Comparator
+    * 可用的方法:<br>
+     Arrays.sort(students,new IdComparator());  <br>
+     PriorityQueue<Student> heap=new PriorityQueue<>(new IdComparator());//****用优先队列来排<br>
+     TreeSet<Student> treeSet=new TreeSet<>(new IdComparator()); <br>
+```Java
+package day2;
+
+import java.util.*;
+
+public class ComparatorTest {
+    public static class Student{        //静态内部类
+        public String name;
+        public int id;
+        public int age;
+        public Student(String name,int id,int age){
+            this.name=name;
+            this.id=id;
+            this.age=age;
+        }
+        @Override
+        public String toString() {
+            return name+' '+id+' '+age;
+        }
+    }
+
+    public static class IdComparator implements Comparator<Student>{    //静态内部类，比较器
+        public int compare(Student num1,Student num2){
+            return num1.id-num2.id;
+        }
+    }
+
+    public static void main(String[] args) {
+        Student student1 = new Student("A", 1, 23);
+        Student student2 = new Student("B", 2, 21);
+        Student student3 = new Student("C", 3, 22);
+
+        Student[] students = new Student[] { student3, student2, student1 };
+
+        Arrays.sort(students,new IdComparator());        //****用数组自带的来排序，但还要给它一个比较器它才可以排序
+        for(int i=0;i<students.length;i++){
+            System.out.println(students[i]);
+        }
+    }
+
+}
+
+```
 * #### 桶排序
+   * 此为非基于比较的排序，与被排序的样本的实际数据状况很有关系，所以实际中并不经常使用，是稳定的排序
+   * 时间复杂度：O(N)
+   * 额外空间复杂度：O(N)
+   * 桶排序：分为计数排序和基数排序，计数排序就是N个数构造N个桶，遍历数组，对相应的桶不断+1
 * #### 计数排序
 * #### 基数排序
-* #### 数组排序后的最大差值问题
+* #### 桶排序思想的应用：数组排序后的最大差值问题
+```
+问题：
+给定一个数组，求如果排序之后，相邻两数的最大差值，要求时间复杂度O(N)，且要求不能用非基于比较的排序。
+```
 * #### 排序算法在工程中的应用
    * 综合排序：
       * 数组长度短（<60）：直接用插入排序，因为插入排序的常数项极低
