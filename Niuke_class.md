@@ -32,8 +32,8 @@
 * #### 递归的时间复杂度估算-master公式<br>
 ```
     如果一个递归行为的时间复杂度公式为以下形式，即为master公式，可直接推出时间复杂度
-    T(N) = a*T(N/b) + O(N^d)
-    1) log(b,a) > d -> 复杂度为O(N^log(b,a))
+    T(N) = a*T(N/b) + O(N<sup>d</sup>)
+    1) log<sub>b</sub>a > d -> 复杂度为O(N^log(b,a))
     2) log(b,a) = d -> 复杂度为O(N^d * logN) 
     3) log(b,a) < d -> 复杂度为O(N^d)
 ```
