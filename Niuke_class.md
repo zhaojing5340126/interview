@@ -659,7 +659,135 @@ public class Queue {
 }
 
  ```
-   
+ 
+   * #### 题目二
+       * 实现一个特殊的栈，在实现栈的基本功能的基础上，再实现返回栈中最小元素的操作<br>
+【要求】<br>
+1．pop、push、getMin操作的时间复杂度都是O(1)。<br>
+2．设计的栈类型可以使用现成的栈结构。<br>
+
+  ```Java
+  package day3;
+
+import java.util.Stack;
+
+public class MyStack{
+  private Stack<Integer> stackData;
+  private Stack<Integer> stackMin;
+
+  public MyStack(){
+      stackData=new Stack<Integer>();
+      stackMin =new Stack<Integer>();
+  }
+
+  public void push(int obj){
+      stackData.push(obj);
+      if(stackMin.isEmpty()){
+          stackMin.push(obj);
+      }else if(obj <= stackMin.peek()){
+          stackMin.push(obj);
+      }else {
+          stackMin.push(stackMin.peek());
+      }
+  }
+
+  public int pop(){
+      stackMin.pop();
+      return stackData.pop();
+  }
+
+  public int getMin(){
+      if(stackMin.isEmpty())
+          throw new ArrayIndexOutOfBoundsException("the stack is empty");
+      return stackMin.peek();
+  }
+
+  ```
+
+   * #### 题目三
+        * 如何仅用队列结构实现栈结构？<br>
+          * 原理：可以用两个队列（queue、help）来实现栈,加元素时加在queue，删除时，把queue最后一位前的元素全部弹出放入help队列中，然后再弹出返回queue的最后一位元素（这就达成栈后入先出的要求了），然后交换help和queue指针即可
+          * 队列：poll(移除并返回队列的头部)，add(添加一个元素到队列尾部)，peek（返回队列的头部，不删除）
+```java
+package day3;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class TwoQueueStack {
+    private Queue<Integer> queue = new LinkedList<Integer>();  //LinkedList实现了Queue接口
+    private Queue<Integer> help = new LinkedList<Integer>();   //不能使用原始类型int,而应该用Integer
+
+    public void push(int obj){
+        queue.add(obj);
+    }
+
+    public int pop(){
+        if(queue.isEmpty())
+            throw new RuntimeException("stack is empty");
+        while (queue.size()>1){
+            help.add(queue.poll());
+        }
+        int res=queue.poll();
+        swap();
+        return res;
+    }
+
+    public int peek(){
+        if (queue.isEmpty())
+            throw new RuntimeException("stack is empty");
+        while (queue.size()!=1)
+            help.add(queue.poll());
+        int res=queue.poll();
+        help.add(res);
+        return res;
+}
+    public void swap(){
+        Queue<Integer> temp=help;
+        help=queue;
+        queue=temp;
+    }
+}
+```
+   * #### 题目四
+        * 如何仅用栈结构实现队列结构？<br>
+          * 原理：可以用两个栈（stackPush和stackPop）来实现队列 
+```Java
+	public static class TwoStacksQueue {
+		private Stack<Integer> stackPush;
+		private Stack<Integer> stackPop;
+
+		public TwoStacksQueue() {
+			stackPush = new Stack<Integer>();
+			stackPop = new Stack<Integer>();
+		}
+
+		public void push(int pushInt) {
+			stackPush.push(pushInt);   //进入时放入stackpush栈，出栈时从stackpop栈出，这样就能把顺序变为先进先出
+		}
+
+		public int poll() {
+			if (stackPop.empty() && stackPush.empty()) {
+				throw new RuntimeException("Queue is empty!");
+			} else if (stackPop.empty()) {  //只有stackPop栈不为空的时候才可以把stackPush栈的东西放进来
+				while (!stackPush.empty()) {
+					stackPop.push(stackPush.pop());
+				}
+			}
+			return stackPop.pop();
+		}
+
+		public int peek() {
+			if (stackPop.empty() && stackPush.empty()) {
+				throw new RuntimeException("Queue is empty!");
+			} else if (stackPop.empty()) {
+				while (!stackPush.empty()) {
+					stackPop.push(stackPush.pop());
+				}
+			}
+			return stackPop.peek();
+		}
+	}
+```
 * #### 队列结构及面试
 * #### 链表结构及面试
 * #### 数组结构及面试
