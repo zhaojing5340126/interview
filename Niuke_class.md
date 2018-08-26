@@ -757,7 +757,6 @@ public class TwoQueueStack {
 	  		* 图（1）：将队列中的元素“abcd”压入stack1中，此时stack2为空；<br>
 				图（2）：将stack1中的元素pop进stack2中，此时pop一下stack2中的元素，就可以达到和队列删除数据一样的顺序了；<br>
 				图（3）：可能有些人很疑惑，就像图3，当stack2只pop了一个元素a时，satck1中可能还会插入元素e,这时如果将stack1中的元				素e插入stack2中，在a之后出栈的元素就是e了，显然，这样想是不对的，我们必须规定当stack2中的元素pop完之后，也就是satck2为空时，再插入stack1中的元素。<br>
-
 ![](https://img-blog.csdn.net/20180527092623978)<br>
 	  
 ```Java
