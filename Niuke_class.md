@@ -23,6 +23,9 @@
 * [三、栈、队列、链表、数组、矩阵结构及相关常见面试题](#三、栈、队列、链表、数组、矩阵结构及相关常见面试题)
   * [栈结构及面试](#栈结构及面试)
     * [题目一：用数组结构实现大小固定的队列和栈](#题目一)
+    * [题目二：实现一个特殊的栈，具有基本栈功能和返回栈中最小元素的操作](#题目二)
+    * [题目三：如何仅用队列结构实现栈结构](#题目三)
+    * [题目四：如何仅用栈结构实现队列结构](#题目四)
 
 
 # 一、复杂度估计和算法排序（上）<br>
@@ -750,43 +753,48 @@ public class TwoQueueStack {
 ```
    * #### 题目四
         * 如何仅用栈结构实现队列结构？<br>
-          * 原理：可以用两个栈（stackPush和stackPop）来实现队列 
+          * 原理：可以用两个栈（stack1和stack2）来实现队列 ，进入时放入stack1栈，出栈时从stack2栈出，这样就能把顺序变为先进先出,( 栈：push,pop,peek)
+	  		* 图（1）：将队列中的元素“abcd”压入stack1中，此时stack2为空；<br>
+				图（2）：将stack1中的元素pop进stack2中，此时pop一下stack2中的元素，就可以达到和队列删除数据一样的顺序了；<br>
+				图（3）：可能有些人很疑惑，就像图3，当stack2只pop了一个元素a时，satck1中可能还会插入元素e,这时如果将stack1中的元				素e插入stack2中，在a之后出栈的元素就是e了，显然，这样想是不对的，我们必须规定当stack2中的元素pop完之后，也就是satck2为空时，再插入stack1中的元素。<br>
+
+![](https://img-blog.csdn.net/20180527092623978)<br>
+	  
 ```Java
-	public static class TwoStacksQueue {
-		private Stack<Integer> stackPush;
-		private Stack<Integer> stackPop;
+package day3;
 
-		public TwoStacksQueue() {
-			stackPush = new Stack<Integer>();
-			stackPop = new Stack<Integer>();
-		}
+import java.util.Stack;
 
-		public void push(int pushInt) {
-			stackPush.push(pushInt);   //进入时放入stackpush栈，出栈时从stackpop栈出，这样就能把顺序变为先进先出
-		}
+public class TwoStackQueue {
+    Stack<Integer> stack1=new Stack<Integer>();
+    Stack<Integer> stack2=new Stack<Integer>();
 
-		public int poll() {
-			if (stackPop.empty() && stackPush.empty()) {
-				throw new RuntimeException("Queue is empty!");
-			} else if (stackPop.empty()) {  //只有stackPop栈不为空的时候才可以把stackPush栈的东西放进来
-				while (!stackPush.empty()) {
-					stackPop.push(stackPush.pop());
-				}
-			}
-			return stackPop.pop();
-		}
+    public void add(int obj){
+        stack1.push(obj);
+    }
 
-		public int peek() {
-			if (stackPop.empty() && stackPush.empty()) {
-				throw new RuntimeException("Queue is empty!");
-			} else if (stackPop.empty()) {
-				while (!stackPush.empty()) {
-					stackPop.push(stackPush.pop());
-				}
-			}
-			return stackPop.peek();
-		}
-	}
+    public int poll(){
+        if (stack2.isEmpty() && stack1.isEmpty()){
+            throw new RuntimeException("queue is empty");
+        }else if(stack2.isEmpty()){
+            while (!stack1.isEmpty()){      //只有当stack2为空时，才能将stack1中的元素放进来
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.pop();       //如果stack2中有元素，那么直接弹出，要stack2中没有元素了才能从stack1中重新放
+    }
+
+    public int peek(){
+        if (stack2.isEmpty() && stack1.isEmpty()){
+            throw new RuntimeException("queue is empty");
+        }else if(stack2.isEmpty()){
+            while (!stack1.isEmpty()){
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.peek();       //和poll前面一样的判断，只是最后只需返回不需删除
+    }
+}
 ```
 * #### 队列结构及面试
 * #### 链表结构及面试
