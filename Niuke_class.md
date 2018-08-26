@@ -752,12 +752,12 @@ public class TwoQueueStack {
 }
 ```
    * #### 题目四
-        * 如何仅用栈结构实现队列结构？<br>
+        * 如何仅用栈结构实现队列结构？<br>图片地址：(https://img-blog.csdn.net/20180527092623978)<br>
           * 原理：可以用两个栈（stack1和stack2）来实现队列 ，进入时放入stack1栈，出栈时从stack2栈出，这样就能把顺序变为先进先出,( 栈：push,pop,peek)
 	  		* 图（1）：将队列中的元素“abcd”压入stack1中，此时stack2为空；<br>
 				图（2）：将stack1中的元素pop进stack2中，此时pop一下stack2中的元素，就可以达到和队列删除数据一样的顺序了；<br>
 				图（3）：可能有些人很疑惑，就像图3，当stack2只pop了一个元素a时，satck1中可能还会插入元素e,这时如果将stack1中的元				素e插入stack2中，在a之后出栈的元素就是e了，显然，这样想是不对的，我们必须规定当stack2中的元素pop完之后，也就是satck2为空时，再插入stack1中的元素。<br>
-![](https://img-blog.csdn.net/20180527092623978)<br>
+
 	  
 ```Java
 package day3;
