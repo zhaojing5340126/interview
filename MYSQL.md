@@ -1,9 +1,12 @@
-# MySQL innodb 存储引擎
 <!-- TOC -->
 
-- [MySQL innodb 存储引擎](#mysql-innodb-存储引擎)
+# MySQL技术内幕——InnoDB存储引擎
+
+<!-- TOC -->
+
+- [MySQL技术内幕——InnoDB存储引擎](#mysql技术内幕innodb存储引擎)
     - [一、day1-day3：MySQL连接、登录、安装、升级](#一day1-day3mysql连接登录安装升级)
-        - [1、连接和登录](#1连接和登录)
+        - [一、连接和登录](#一连接和登录)
         - [二、安装和升级](#二安装和升级)
             - [2.1 MySQL下载](#21-mysql下载)
             - [2.2 MySQL安装](#22-mysql安装)
@@ -11,13 +14,14 @@
         - [四. 附录-配置文件my.cnf](#四-附录-配置文件mycnf)
             - [1. 姜老师的配置文件`my.cnf`](#1-姜老师的配置文件mycnf)
             - [2. 几个重要的参数配置和说明](#2-几个重要的参数配置和说明)
-            - [my.cnf`问题](#mycnf问题)
+            - [3、my.cnf顺序问题](#3mycnf顺序问题)
+    - [二、day4：权限、Role模拟、workbench、MySQL体系结构](#二day4权限role模拟workbenchmysql体系结构)
+        - [一](#一)
 
 <!-- /TOC -->
 
-
 ## 一、day1-day3：MySQL连接、登录、安装、升级
-### 1、连接和登录
+### 一、连接和登录
 1.1 启动MySQL：/etc/init.d/mysql.server start<br>
  1.2 登录MySQL：mysql -uroot -p(密码)<br>
  1.3 退出MySQL：exit<br>
@@ -28,8 +32,8 @@
 2. `Source Code`版本主要作用是为了让开发人员研究源码使用，自己编译对性能提升不明显
 
 >*下载地址：*
-[MySQL Community Server 5.7.9 Linux Generic x86-64bit](http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.9-linux-glibc2.5-x86_64.tar.gz)
-[MySQL Community Server 5.6.27 Linux Generic x86-64bit](http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27-linux-glibc2.5-x86_64.tar.gz)
+[MySQL Community Server 5.7.9 Linux Generic x86-64bit](http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.9-linux-glibc2.5-x86_64.tar.gz)<br>
+[MySQL Community Server 5.6.27 Linux Generic x86-64bit](http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27-linux-glibc2.5-x86_64.tar.gz)<br>
 
 -----
 
@@ -211,8 +215,11 @@
 * `autocommit`,这个参数在5.5.X以后才有，安装5.6.X的时候要注意先把该参数注释掉，等安装完成后，再行打开, 5.7.X无需预先注释
 * `datadir`, `innodb_log_group_home_dir`, `innodb_undo_directory`一定要注意他的权限是 `mysql:mysql`
 
-#### my.cnf`问题
+#### 3、my.cnf顺序问题
 * 使用`mysqld --help -vv | grep my.cnf `查看mysql的配置文件读取顺序
 * 后读取的`my.cnf`中的配置，如果有相同项，会覆盖之前的配置
 * 使用`--defaults-files`可指定配置文件
     
+
+## 二、day4：权限、Role模拟、workbench、MySQL体系结构
+### 一、权限
