@@ -3,44 +3,44 @@
 <!-- TOC -->
 
 - [MySQL技术内幕——InnoDB存储引擎](#mysql技术内幕innodb存储引擎)
-    - [一、day1-3：MySQL连接、登录、安装、升级](#一day1-3mysql连接登录安装升级)
-        - [一、连接和登录](#一连接和登录)
-        - [二、安装和升级](#二安装和升级)
-            - [2.1 MySQL下载](#21-mysql下载)
-            - [2.2 MySQL安装](#22-mysql安装)
-            - [2.3 MySQL升级](#23-mysql升级)
-        - [三.附录](#三附录)
-            - [3.1 配置文件my.cnf讲解](#31-配置文件mycnf讲解)
-            - [3.2 几种登录方式（本地socket连接【方法二、四】或TCP/IP远程连接【方法三】）](#32-几种登录方式本地socket连接方法二四或tcpip远程连接方法三)
-            - [3.3. 免密码登录](#33-免密码登录)
-            - [3.4. MySQL 参数介绍和设置](#34-mysql-参数介绍和设置)
-    - [二、day4：权限、Role模拟、workbench、MySQL体系结构](#二day4权限role模拟workbenchmysql体系结构)
-        - [一、权限管理](#一权限管理)
-            - [1.1 “’用户‘ + @ + ’IP‘”=完整的用户标识](#11-用户----ip完整的用户标识)
-            - [1.2 系统表权限信息与常用权限](#12-系统表权限信息与常用权限)
-            - [1.3. 创建用户（create user ...）及授予权限（grant...to...）](#13-创建用户create-user-及授予权限grantto)
-            - [1.4 撤销权限(revoke...from...只删除权限，drop user ...删除用户)](#14-撤销权限revokefrom只删除权限drop-user-删除用户)
-            - [1.5 查看某一个用户的权限（show grants for 'perf'@'127.0.0.1';）](#15-查看某一个用户的权限show-grants-for-perf127001)
-            - [1.6 mysql库主要负责存储数据库的用户、权限设置、关键字等mysql自己需要使用的控制和管理信息](#16-mysql库主要负责存储数据库的用户权限设置关键字等mysql自己需要使用的控制和管理信息)
-            - [1.7 information_schema](#17-information_schema)
-        - [二、Role模拟](#二role模拟)
-            - [2.1 角色的定义及角色模拟操作：](#21-角色的定义及角色模拟操作)
-        - [三. Workbench与Utilities介绍](#三-workbench与utilities介绍)
-        - [四. MySQL体系结构](#四-mysql体系结构)
-            - [1.1 数据库与数据库实例](#11-数据库与数据库实例)
-            - [1.2 MySQL体系结构：单进程多线程、插件式存储引擎架构、存储引擎的对象是表](#12-mysql体系结构单进程多线程插件式存储引擎架构存储引擎的对象是表)
-            - [1.3 MySQL物理存储结构【主要文件：数据库配置文件、表结构定义文件、错误文件、慢查询日志、通用日志】](#13-mysql物理存储结构主要文件数据库配置文件表结构定义文件错误文件慢查询日志通用日志)
+- [一、day1-3：MySQL连接、登录、安装、升级](#一day1-3mysql连接登录安装升级)
+    - [1、连接和登录](#1连接和登录)
+    - [2、安装和升级](#2安装和升级)
+        - [2.1 MySQL下载](#21-mysql下载)
+        - [2.2 MySQL安装](#22-mysql安装)
+        - [2.3 MySQL升级](#23-mysql升级)
+    - [3.附录](#3附录)
+        - [3.1 配置文件my.cnf讲解](#31-配置文件mycnf讲解)
+        - [3.2 几种登录方式（本地socket连接【方法二、四】或TCP/IP远程连接【方法三】）](#32-几种登录方式本地socket连接方法二四或tcpip远程连接方法三)
+        - [3.3. 免密码登录](#33-免密码登录)
+        - [3.4. MySQL 参数介绍和设置](#34-mysql-参数介绍和设置)
+- [二、day4：权限、Role模拟、workbench、MySQL体系结构](#二day4权限role模拟workbenchmysql体系结构)
+    - [1、权限管理](#1权限管理)
+        - [1.1 “’用户‘ + @ + ’IP‘”=完整的用户标识](#11-用户----ip完整的用户标识)
+        - [1.2 系统表权限信息与常用权限](#12-系统表权限信息与常用权限)
+        - [1.3. 创建用户（create user ...）及授予权限（grant...to...）](#13-创建用户create-user-及授予权限grantto)
+        - [1.4 撤销权限(revoke...from...只删除权限，drop user ...删除用户)](#14-撤销权限revokefrom只删除权限drop-user-删除用户)
+        - [1.5 查看某一个用户的权限（show grants for 'perf'@'127.0.0.1';）](#15-查看某一个用户的权限show-grants-for-perf127001)
+        - [1.6 mysql库主要负责存储数据库的用户、权限设置、关键字等mysql自己需要使用的控制和管理信息](#16-mysql库主要负责存储数据库的用户权限设置关键字等mysql自己需要使用的控制和管理信息)
+        - [1.7 information_schema](#17-information_schema)
+    - [2、Role模拟](#2role模拟)
+        - [2.1 角色的定义及角色模拟操作：](#21-角色的定义及角色模拟操作)
+    - [3. Workbench与Utilities介绍](#3-workbench与utilities介绍)
+    - [4. MySQL体系结构](#4-mysql体系结构)
+        - [1.1 数据库与数据库实例](#11-数据库与数据库实例)
+        - [1.2 MySQL体系结构：单进程多线程、插件式存储引擎架构、存储引擎的对象是表](#12-mysql体系结构单进程多线程插件式存储引擎架构存储引擎的对象是表)
+        - [1.3 MySQL物理存储结构【主要文件：数据库配置文件、表结构定义文件、错误文件、慢查询日志、通用日志】](#13-mysql物理存储结构主要文件数据库配置文件表结构定义文件错误文件慢查询日志通用日志)
 
 <!-- /TOC -->
 
-## 一、day1-3：MySQL连接、登录、安装、升级
-### 一、连接和登录
+# 一、day1-3：MySQL连接、登录、安装、升级
+## 1、连接和登录
 **1.1 启动MySQL：** /etc/init.d/mysql.server start<br>
 **1.2 登录MySQL：** mysql -uroot -p(密码)<br>
 **1.3 退出MySQL：** exit<br>
 **1.3 关闭MySQL：** /etc/init.d/mysql.server stop<br>
-### 二、安装和升级
-#### 2.1 MySQL下载
+## 2、安装和升级
+### 2.1 MySQL下载
 1. 推荐下载`Linux-Generic`版本
 2. `Source Code`版本主要作用是为了让开发人员研究源码使用，自己编译对性能提升不明显
 
@@ -50,7 +50,7 @@
 
 -----
 
-#### 2.2 MySQL安装
+### 2.2 MySQL安装
 1. **安装通用步骤：**
     * 解压缩`mysql-VERSION-linux-glibc2.5-x86_64.tar.gz`
     * 打开`INSTALL_BINARY` 文件，按照`shell>`开头的步骤进行操作
@@ -90,7 +90,7 @@
     * `mysqld_safe --user=mysql &` 即可启动，`mysqld_safe`是一个守护`mysqld`进程的脚本程序，旨在`mysqld`意外停止时，可以重启`mysqld`进程
     * 也可以通过`INSTALL_BINARRY`中的的步骤，使用`/etc/init.d/mysql.server  start`进行启动（启动脚本以你复制的实际名字为准，通常改名为`mysqld`,即`/etc/init.d/mysqld start`）
 
-#### 2.3 MySQL升级
+### 2.3 MySQL升级
 **1. 环境说明：**
 一般说来，MySQL数据库的二进制数据文件data和我们MySQL应用程序安装的位置是分开的。仅仅通过`my.cnf`中的配置项`datadir`告诉MySQL，数据库的数据存在`datadir`这个目录下。当程序和数据分离以后，方便我们对数据库应用程序做版本的升级或者回退。
 
@@ -186,8 +186,8 @@ mysql> show databases;
 
 
 
-### 三.附录
-#### 3.1 配置文件my.cnf讲解
+## 3.附录
+### 3.1 配置文件my.cnf讲解
 **1. 配置文件`my.cnf`**   
     
     ```bash
@@ -302,7 +302,7 @@ mysql> show databases;
 * 后读取的`my.cnf`中的配置，如果有相同项，会覆盖之前的配置
 * 使用`--defaults-files`可指定配置文件
     
-#### 3.2 几种登录方式（本地socket连接【方法二、四】或TCP/IP远程连接【方法三】）
+### 3.2 几种登录方式（本地socket连接【方法二、四】或TCP/IP远程连接【方法三】）
 * 方式三 `mysql -h127.0.0.1 -uroot -p`
     - 127.0.0.1：本机地址（本机服务器），需要通过网卡传输，使用TCP/IP连接，用户为`'root'@'127.0.0.1'`
         
@@ -317,7 +317,7 @@ mysql> show databases;
     
 
 
-#### 3.3. 免密码登录
+### 3.3. 免密码登录
 * 方式一 `my.cnf`增加`[client]`标签   
     ```bash   
     [client]   
@@ -365,7 +365,7 @@ mysql> show databases;
 
 -----
     
-#### 3.4. MySQL 参数介绍和设置
+### 3.4. MySQL 参数介绍和设置
 **1. 参数的分类**
 * 全局参数：GLOBAL
     - 可修改参数
@@ -441,12 +441,12 @@ mysql> show variables like "max_%"; #查以max_开头的变量
 
 
 
-## 二、day4：权限、Role模拟、workbench、MySQL体系结构
-### 一、权限管理
-#### 1.1 “’用户‘ + @ + ’IP‘”=完整的用户标识
+# 二、day4：权限、Role模拟、workbench、MySQL体系结构
+## 1、权限管理
+### 1.1 “’用户‘ + @ + ’IP‘”=完整的用户标识
 >`bob@127.0.0.1` 和 `bob@loalhost` 以及 `bob@192.168.1.100` 这三个其实是`不同`的 **用户标识** 
 
-#### 1.2 系统表权限信息与常用权限
+### 1.2 系统表权限信息与常用权限
 
 * **系统表权限信息:**
     - **a) 用户名和IP是否允许**
@@ -473,13 +473,13 @@ mysql> show variables like "max_%"; #查以max_开头的变量
 
     ***tips:**只能精确到小时，对于部分场景不适用，可以考虑中间件方式*
   
-#### 1.3. 创建用户（create user ...）及授予权限（grant...to...）
+### 1.3. 创建用户（create user ...）及授予权限（grant...to...）
 ```sql
 mysql> create user 'pref'@'127.0.0.1' identified by '123';
 mysql> grant select on sys.* to 'perf'@'127.0.0.1';
 ```
 
-#### 1.4 撤销权限(revoke...from...只删除权限，drop user ...删除用户)
+### 1.4 撤销权限(revoke...from...只删除权限，drop user ...删除用户)
 * `revoke` 关键字，该关键字只删除用户权限，不删除用户
 * `revoke` 语法同`grant`一致, 从`grant ... to` 变为`revoke ... from`
 * **删除用户 drop user**
@@ -487,7 +487,7 @@ mysql> grant select on sys.* to 'perf'@'127.0.0.1';
 mysql> drop user 'perf'@'127.0.0.1';
 ```
 
-#### 1.5 查看某一个用户的权限（show grants for 'perf'@'127.0.0.1';）
+### 1.5 查看某一个用户的权限（show grants for 'perf'@'127.0.0.1';）
 ```sql
 mysql> show grants for 'perf'@'127.0.0.1';   
 +-----------------------------------------------+
@@ -497,7 +497,7 @@ mysql> show grants for 'perf'@'127.0.0.1';
 | GRANT SELECT ON `sys`.* TO 'perf'@'127.0.0.1' | -- 对sys库的所有表有select权限
 +-----------------------------------------------+
 ```
-#### 1.6 mysql库主要负责存储数据库的用户、权限设置、关键字等mysql自己需要使用的控制和管理信息
+### 1.6 mysql库主要负责存储数据库的用户、权限设置、关键字等mysql自己需要使用的控制和管理信息
 ```sql
 mysql> select * from mysql.user where user='perf'\G
 *************************** 1. row ***************************
@@ -579,7 +579,7 @@ Create_tmp_table_priv: N
 >**注意：**
 **`不建议`使用`INSERT`或者`GRANT`对元数据表进行修改，来达到修改权限的目的**
 
-#### 1.7 information_schema
+### 1.7 information_schema
 ```sql
 mysql> select user();
 +----------------+
@@ -608,8 +608,8 @@ ERROR 1227 (42000): Access denied; you need (at least one of) the PROCESS privil
 ```
 
 -----
-### 二、Role模拟
-#### 2.1 角色的定义及角色模拟操作：
+## 2、Role模拟
+### 2.1 角色的定义及角色模拟操作：
 >`角色`(Role)可以用来批量管理用户，同一个角色下的用户，拥有相同的权限。
 `MySQL5.7.X`以后可以模拟角色(Role)的功能
 ```sql
@@ -670,7 +670,7 @@ mysql> select * from mysql.proxies_priv;
 
 -----
 
-### 三. Workbench与Utilities介绍
+## 3. Workbench与Utilities介绍
  1. 下载
 * [Workbench-win32下载](http://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-workbench-community-6.3.5-win32.msi)
 * [Workbench-win64下载](http://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-workbench-community-6.3.5-winx64.msi)
@@ -692,8 +692,8 @@ shell> python setup.py install  # 如果安装不成功，查看一下python的�
 ```
 -----
 
-### 四. MySQL体系结构
-#### 1.1 数据库与数据库实例
+## 4. MySQL体系结构
+### 1.1 数据库与数据库实例
 >* **数据库：**（数据库文件）是一个或者一组二进制文件，通常来说存储于文件系统之上。
 
 >* **数据库实例：**用来操作数据库文件（二进制），由数据库后台进程/线程以及一个共享区域组成(程序的概念)，共享内存可以被运行的后台进程/线程所共享
@@ -701,7 +701,7 @@ shell> python setup.py install  # 如果安装不成功，查看一下python的�
 **`注意：MySQL中，数据库实例和数据库是一一对应的。【多实例：一个数据库对应多个实例，mysql通常不支持，oracle支持】`**
 
 
-#### 1.2 MySQL体系结构：单进程多线程、插件式存储引擎架构、存储引擎的对象是表
+### 1.2 MySQL体系结构：单进程多线程、插件式存储引擎架构、存储引擎的对象是表
 1. 单进程多线程结构
     - 不会影响MySQL的性能，看程序如何写。（多进程程序，进程间通信开销大于多线程）
 
@@ -740,7 +740,7 @@ MySQL Instance -----> Database ----> Schema ---> |--> table2 --- | view2 |
 MySQL中一个`Database`对应一个`Schema`,之所以要有这个`schema`, 是为了兼容其他数据库
 `information_schema`数据库不是文件夹，存在于内存中，在启动时创建
 
-#### 1.3 MySQL物理存储结构【主要文件：数据库配置文件、表结构定义文件、错误文件、慢查询日志、通用日志】
+### 1.3 MySQL物理存储结构【主要文件：数据库配置文件、表结构定义文件、错误文件、慢查询日志、通用日志】
 **1. MySQL配置文件my.cnf**
 * `datadir`
         - 存储数据二进制文件的路径
