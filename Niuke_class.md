@@ -795,6 +795,135 @@ public class TwoStackQueue {
     }
 }
 ```
+
+   * #### 题目四：猫狗队列
+```
+宠物、狗和猫的类如下：
+public class Pet { private String type;
+public Pet(String type) { this.type = type; }
+public String getPetType() { return this.type; }
+}
+public class Dog extends Pet { public Dog() { super("dog"); } }
+public class Cat extends Pet { public Cat() { super("cat"); } }
+
+实现一种狗猫队列的结构，要求如下： 
+用户可以调用add方法将cat类或dog类的实例放入队列中； 
+用户可以调用pollAll方法，将队列中所有的实例按照进队列的先后顺序依次弹出； 
+用户可以调用pollDog方法，将队列中dog类的实例按照进队列的先后顺序依次弹出； 
+用户可以调用pollCat方法，将队列中cat类的实例按照进队列的先后顺序依次弹出； 
+用户可以调用isEmpty方法，检查队列中是否还有dog或cat的实例；
+用户可以调用isDogEmpty方法，检查队列中是否有dog类的实例； 
+用户可以调用isCatEmpty方法，检查队列中是否有cat类的实例。
+```
+   * 分析：1、建一个猫狗队列，这个队列里包含 DogQ 和 CatQ 两个队列，用于分别加猫和加狗，但这个会导致在pollAll时无法判断之前猫狗的顺序，所以有了2<br>
+   2、建一个CatDog类，里面包含pet和count两个成员，pet用于记录CatDog类的这个实例是猫还是狗，count用于记录当前pet的顺序，那么就能判断猫狗的顺序了
+   ```Java
+   package day4;
+
+import java.util.*;
+
+public class CatDogQueue {
+
+    //用户给的猫和狗的类定义，定义为静态类或许只是为了代码不冗杂
+    public static class Pet {
+        private String type;
+
+        public Pet(String type) {
+            this.type = type;
+        }
+
+        public String getPetType() {
+            return this.type;
+        }
+    }
+
+    public static class Dog extends Pet {
+        public Dog() {
+            super("dog");
+        }
+    }
+
+    public static class Cat extends Pet {
+        public Cat() {
+            super("cat");
+        }
+    }
+
+    public static class CatDog{
+        private Pet pet;       //用于记录是猫还是狗
+        private long count;    //用于记录当前pet的顺序
+        public CatDog(Pet pet ,long count){
+            this.pet=pet;
+            this.count=count;
+        }
+        public Pet getPet(){
+            return this.pet;
+        }
+        public long getCount(){
+            return this.count;
+        }
+    }
+
+
+    /** CatDogQueue的正式代码 */
+    private Queue<CatDog> catQ = new LinkedList<CatDog>(); //Queue只是一个接口，其具体实现为LinkedList
+    private Queue<CatDog> dogQ = new LinkedList<CatDog>();
+    private long count = 0;
+
+    public void add(Pet pet){
+        if (pet.getPetType().equals("cat")){
+            catQ.add(new CatDog(pet,count++));
+        }else if(pet.getPetType().equals("dog")){
+            dogQ.add(new CatDog(pet,count++));
+        }else throw new RuntimeException("err,this is not dog or cat");
+    }
+
+    public Pet pollAll(){
+        if(!catQ.isEmpty()&& !dogQ.isEmpty()){
+            if (catQ.peek().count<dogQ.peek().count){
+                return catQ.poll().getPet();
+            }else {
+                return dogQ.poll().getPet();
+            }
+        }else if(!catQ.isEmpty()){
+            return catQ.poll().getPet();
+        }else if(!dogQ.isEmpty()){
+            return dogQ.poll().getPet();
+        }else {
+            throw new RuntimeException("err, queue is empty!");
+        }
+    }
+
+    public Dog pollDog(){
+        if(!dogQ.isEmpty()){
+            return (Dog)dogQ.poll().getPet();
+        }else {
+            throw new RuntimeException("the dog queue is empty");
+        }
+    }
+
+    public Cat pollCat(){
+        if(!catQ.isEmpty()){
+            return (Cat) catQ.poll().getPet();
+        }else {
+            throw new RuntimeException("the cat queue is empty");
+        }
+    }
+
+    public boolean isAllEmpty(){
+        return dogQ.isEmpty()&&catQ.isEmpty();
+    }
+
+    public boolean isDogEmpty(){
+        return dogQ.isEmpty();
+    }
+
+    public boolean isCatEmpty(){
+        return catQ.isEmpty();
+    }
+
+   ```
+	
 * #### 队列结构及面试
 * #### 链表结构及面试
 * #### 数组结构及面试
