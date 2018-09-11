@@ -2,6 +2,20 @@
 
 - [一、走进Java](#一走进java)
     - [1、Java技术体系](#1java技术体系)
+    - [2、Java发展史](#2java发展史)
+    - [3、Java虚拟机发展史：Sun和BEA被Oracle收购](#3java虚拟机发展史sun和bea被oracle收购)
+        - [Classic VM [Sun]](#classic-vm-sun)
+        - [Exact VM [Sun]](#exact-vm-sun)
+        - [`HotSpot VM [Sun]`](#hotspot-vm-sun)
+        - [KVM [Sun]](#kvm-sun)
+        - [JRockit vm [BEA]](#jrockit-vm-bea)
+        - [J9 VM [IBM]](#j9-vm-ibm)
+        - [Azul VM和BEA Liquid VM :特定硬件平台专有的虚拟机——高性能](#azul-vm和bea-liquid-vm-特定硬件平台专有的虚拟机高性能)
+        - [Dalvik VM [Google Android]——只是虚拟机，而非Java虚拟机](#dalvik-vm-google-android只是虚拟机而非java虚拟机)
+        - [Microsoft JVM及其他](#microsoft-jvm及其他)
+    - [4、附录](#4附录)
+        - [4.1 Java的优点](#41-java的优点)
+        - [4.2 编译器与解释器的区别](#42-编译器与解释器的区别)
 - [一、运行时数据区域](#一运行时数据区域)
     - [程序计数器](#程序计数器)
     - [Java 虚拟机栈](#java-虚拟机栈)
@@ -93,6 +107,58 @@
  **1.3 JRE（Java Runtime Environment）:**(支持Java程序运行的标准环境)
  * Java SE API子集
  * Java虚拟机
+
+## 2、Java发展史
+* 1995：oak语言改名为Java，提出了“write once，run any where”口号
+* 1996：JDK 1.0发布，JVM为Sun Classic VM
+* 1997: JDK 1.1发布，内部类，反射，JAR文件格式，JDBC,JavaBean,RMI
+* 1998: JDK 1.2发布，将Java技术体系拆分为三个方向：
+    - J2SE：面向桌面应用开发
+    - J2EE：面向企业级开发
+    - J2ME：面向手机等移动终端开发
+    HotSpot虚拟机发布
+* 2000：JDK 1.3发布
+* 2002: JDL1.4发布，正则表达式、异常链、NIO、日志类、XML解析器、XSLT转换器等技术特性
+* 2004：JDK1.5发布，自动装箱、泛型、动态注解、枚举、可变长参数、foreach循环等语法层面的改进
+* 2006：JDK1.6发布，命名方式变更为Java SE 6，Java EE 6，Java ME 6
+* 2009：JDK1.7发布，Oracle收购Sun
+## 3、Java虚拟机发展史：Sun和BEA被Oracle收购
+### Classic VM [Sun]
+* 世界第一款商用Java虚拟机
+* 只能用纯解释器方式来执行Java代码，所以有了“Java语言很慢”
+### Exact VM [Sun]
+
+* 准确式内存管理
+* 两级即时编译、编译器与解释器混合工作模式
+### `HotSpot VM [Sun]`
+* HotSpot VM的热点代码探测能力可以通过执行计数器找出最具有编译价值的代码，然后通知JIT编译器以方法为单位进行编译。
+* 如果一个方法被频繁调用，或方法中有效循环次数很多，将会分别触发标准编译和OSR（`栈上替换`）编译动作。
+* 通过编译器与解释器恰当的协同工作，可以在最优化的程序响应时间与最佳执行性能中取得平衡，而且无需等待本地代码输出才能执行程序，即时编译的压力也相对减小，有助于引入更多的代码优化技术，输出质量更高的本地代码。
+### KVM [Sun]
+* 强调简单、轻量、高度可移植
+* 运用于手机平台等嵌入式领域
+### JRockit vm [BEA]
+* 曾号称“世界上速度最快的Java虚拟机”
+* 专注于服务器端应用
+* 其垃圾收集器和MissionControl服务套件（用于诊断内存泄漏）处于领先水平
+### J9 VM [IBM]
+* 市场定位接近HotSpot
+* 是一款设计上从服务器端到桌面应用再到嵌入式都全面考虑的多用途虚拟机
+### Azul VM和BEA Liquid VM :特定硬件平台专有的虚拟机——高性能
+### Dalvik VM [Google Android]——只是虚拟机，而非Java虚拟机
+* 没有遵循Java虚拟机规范，不能直接执行Java的class文件，使用的是寄存器架构而不是JVM中常见的栈架构
+* 但它执行的dex文件可以通过Class文件转化而来，使用Java语法编写应用程序，可以直接使用Java API等
+### Microsoft JVM及其他
+
+## 4、附录
+### 4.1 Java的优点
+* 1）摆脱了硬件平台的束缚，实现了“一次编写，到处运行”；
+* 2）提供了一个相对安全的内存管理和访问机制，避免了绝大部分的内存泄漏和指针越界问题；
+* 3）实现了热点代码检测和运行时编译及优化，使得Java应用能随着运行时间的增加而获得更高的性能；
+* 4）拥有一套完善的应用程序接口，还有无数第三方类库来帮助它实现各种各样的功能。
+### 4.2 编译器与解释器的区别
+* 编译器：把源程序的每一条语句都编译成机器语言，并保存为二进制文件，这样运行时计算机就可以直接以机器语言来运行此程序，速度很快；
+* 解释器：只在执行程序时，才一条一条的解释成机器语言给计算机执行，所以运行速度没有编译后的程序运行的快。
 
 
 # 一、运行时数据区域
