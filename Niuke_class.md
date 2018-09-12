@@ -25,12 +25,22 @@
         - [题目一：用数组结构实现大小固定的队列和栈](#题目一用数组结构实现大小固定的队列和栈)
         - [题目二：能返回栈中最小元素的栈](#题目二能返回栈中最小元素的栈)
         - [题目三：仅用队列结构实现栈结构](#题目三仅用队列结构实现栈结构)
-        - [题目四：仅用栈结构实现队列结构](#题目四仅用栈结构实现队列结构)
-        - [题目四：猫狗队列](#题目四猫狗队列)
     - [队列结构及面试](#队列结构及面试)
+        - [题目四：仅用栈结构实现队列结构](#题目四仅用栈结构实现队列结构)
+        - [题目五：猫狗队列](#题目五猫狗队列)
     - [链表结构及面试](#链表结构及面试)
+        - [题目八：反转单向和双向链表](#题目八反转单向和双向链表)
+        - [题目十一：打印两个有序链表的公共部分](#题目十一打印两个有序链表的公共部分)
+        - [题目十二：判断一个链表是否为回文结构](#题目十二判断一个链表是否为回文结构)
+        - [题目十三：将单向链表按某值划分成左边小、中间相等、右边大的形式](#题目十三将单向链表按某值划分成左边小中间相等右边大的形式)
+        - [题目十四：复制含有随机指针节点的链表](#题目十四复制含有随机指针节点的链表)
+        - [题目十五：两个单链表相交的一系列问题](#题目十五两个单链表相交的一系列问题)
     - [数组结构及面试](#数组结构及面试)
-    - [矩阵结构及面试](#矩阵结构及面试)
+    - [矩阵结构及面试——从宏观上实现（观察局部位置太复杂）](#矩阵结构及面试从宏观上实现观察局部位置太复杂)
+        - [题目六：转圈打印矩阵【矩阵分圈处理】](#题目六转圈打印矩阵矩阵分圈处理)
+        - [题目七：旋转正方形矩阵](#题目七旋转正方形矩阵)
+        - [题目九：“之”字形打印矩阵](#题目九之字形打印矩阵)
+        - [题目十：在行列都排好序的矩阵中找数](#题目十在行列都排好序的矩阵中找数)
     - [二分搜索的扩展](#二分搜索的扩展)
 
 <!-- /TOC -->
@@ -779,6 +789,8 @@ public class TwoQueueStack {
     }
 }
 ```
+
+## 队列结构及面试
 ### 题目四：仅用栈结构实现队列结构
 
 * 如何仅用栈结构实现队列结构？<br>图片地址：(https://img-blog.csdn.net/20180527092623978)<br>
@@ -825,7 +837,7 @@ public class TwoStackQueue {
 }
 ```
 
-### 题目四：猫狗队列
+### 题目五：猫狗队列
 ```
 宠物、狗和猫的类如下：
 public class Pet { private String type;
@@ -953,8 +965,216 @@ public class CatDogQueue {
 
    ```
 	
-## 队列结构及面试
+
 ## 链表结构及面试
+### 题目八：反转单向和双向链表
+* 【题目】 分别实现反转单向链表和反转双向链表的函数。<br>
+【要求】 如果链表长度为N，时间复杂度要求为O(N)，额外空间
+复杂度要求为O(1)
+
+### 题目十一：打印两个有序链表的公共部分
+* 【题目】 给定两个有序链表的头指针head1和head2，打印两个链表的公共部分。
+
+### 题目十二：判断一个链表是否为回文结构
+* 【题目】 给定一个链表的头节点head，请判断该链表是否为回文结构。 例如： 1->2->1，返回true。 1->2->2->1，返回true。15->6->15，返回true。 1->2->3，返回false。<br>
+进阶： 如果链表长度为N，时间复杂度达到O(N)，额外空间复杂度达到O(1)。
+
+### 题目十三：将单向链表按某值划分成左边小、中间相等、右边大的形式
+【题目】 给定一个单向链表的头节点head，节点的值类型是整型，再给定一个
+整 数pivot。实现一个调整链表的函数，将链表调整为左部分都是值小于 pivot
+的节点，中间部分都是值等于pivot的节点，右部分都是值大于 pivot的节点。
+除这个要求外，对调整后的节点顺序没有更多的要求。 例如：链表9->0->4->5-
+>1，pivot=3。 调整后链表可以是1->0->4->9->5，也可以是0->1->9->5->4。总
+之，满 足左部分都是小于3的节点，中间部分都是等于3的节点（本例中这个部
+分为空），右部分都是大于3的节点即可。对某部分内部的节点顺序不做 要求。
+进阶： 在原问题的要求之上再增加如下两个要求。
+在左、中、右三个部分的内部也做顺序要求，要求每部分里的节点从左 到右的
+顺序与原链表中节点的先后次序一致。 例如：链表9->0->4->5->1，pivot=3。
+调整后的链表是0->1->9->4->5。 在满足原问题要求的同时，左部分节点从左到
+右为0、1。在原链表中也 是先出现0，后出现1；中间部分在本例中为空，不再
+讨论；右部分节点 从左到右为9、4、5。在原链表中也是先出现9，然后出现4，
+最后出现5。
+如果链表长度为N，时间复杂度请达到O(N)，额外空间复杂度请达到O(1)。
+
+### 题目十四：复制含有随机指针节点的链表
+【题目】 一种特殊的链表节点类描述如下：
+public class Node { public int value; public Node next; public
+Node rand;
+public Node(int data) { this.value = data; }
+}
+Node类中的value是节点值，next指针和正常单链表中next指针的意义
+一 样，都指向下一个节点，rand指针是Node类中新增的指针，这个指
+针可 能指向链表中的任意一个节点，也可能指向null。 给定一个由
+Node节点类型组成的无环单链表的头节点head，请实现一个 函数完成
+这个链表中所有结构的复制，并返回复制的新链表的头节点。 进阶：
+不使用额外的数据结构，只用有限几个变量，且在时间复杂度为 O(N)
+内完成原问题要实现的函数。
+
+### 题目十五：两个单链表相交的一系列问题
+【题目】 在本题中，单链表可能有环，也可能无环。给定两个
+单链表的头节点 head1和head2，这两个链表可能相交，也可能
+不相交。请实现一个函数， 如果两个链表相交，请返回相交的
+第一个节点；如果不相交，返回null 即可。 要求：如果链表1
+的长度为N，链表2的长度为M，时间复杂度请达到 O(N+M)，额外
+空间复杂度请达到O(1)。
+
 ## 数组结构及面试
-## 矩阵结构及面试
+## 矩阵结构及面试——从宏观上实现（观察局部位置太复杂）
+### 题目六：转圈打印矩阵【矩阵分圈处理】
+* 【题目】 给定一个整型矩阵matrix，请按照转圈的方式打印它。例如：
+```
+ 1  2  3  4 
+ 5  6  7  8
+ 9 10 11 12 
+ 13 14 15 16 
+ 打印结果为：1，2，3，4，8，12，16，15，14，13，9，5，6，7，11， 10
+【要求】 额外空间复杂度为O(1)。
+``` 
+* 【分析】：这是一个宏观的调度问题，使用分圈的处理方式，每次对一个矩阵的外围圈进行处理（记得考虑当圈只是一行或者一列或者一个点的情况），如图所示：
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E8%BD%AC%E5%9C%88%E6%89%93%E5%8D%B0%E7%9F%A9%E9%98%B5.JPG?raw=true)
+
+```Java
+package day4;
+
+public class PrintMatrixSpiral {
+    public static void printMatrixSpiral(int[][] matrix){
+        int a=0;        //左上角坐标(a,b),右下角坐标c(c,d)
+        int b=0;
+        int c=matrix.length-1;  //matrix.length是行长度
+        int d=matrix[0].length-1; //matrix[0].length是列长度
+        while(a<=c && b<=d){       //一个圈一个圈地打印
+            printCircle(matrix,a++,b++,c--,d--);
+        }
+    }
+
+    private static void printCircle(int[][] m, int a, int b, int c, int d) {
+        int i,j;
+        if(a==c){       //当只有一行时（包括只有一个元素的情况）
+            for (j=b ; j<=d ;j++){
+                System.out.print(m[a][j]+" ");
+            }
+        }else if(b==d){ //当只有一列时
+            for (i=a; i<=c; i++){
+                System.out.print(m[i][b]+" ");
+            }
+        }else{      //当是一个正常的矩形时
+           for (j=b; j<d; j++){
+               System.out.print(m[a][j]+" ");
+           }
+           for (i=a; i<c; i++){
+               System.out.print(m[i][d]+" ");
+           }
+           for (j=d; j>b; j--){
+               System.out.print(m[c][j]+" ");
+           }
+           for (i=c; i>a; i--){
+               System.out.print(m[i][b]+" ");
+           }
+        }
+    }
+
+    //测试
+    public static void main(String[] args) {
+        int[][] matrix = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } };
+        printMatrixSpiral(matrix);
+    }
+}
+
+```
+
+### 题目七：旋转正方形矩阵
+* 【题目】 给定一个整型`正方形`矩阵matrix，请把该矩阵调整成顺时针旋转90度的样子。
+【要求】 额外空间复杂度为O(1)。<br>
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%97%8B%E8%BD%AC%E6%AD%A3%E6%96%B9%E5%BD%A2.png)
+
+
+* 【分析】：这个也是一个宏观的调度问题，还是使用分圈的处理方式，每次对一个矩阵的外围进行处理，我们发现只要替换四个数，替换n-1次，就把外面的边界替换好了，然后我们缩小范围(左上角的(ar,ac)和右下角的(br,bc)分别减一)，就可以完成操作，如下图：<br>
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%97%8B%E8%BD%AC%E6%AD%A3%E6%96%B9%E5%BD%A2.png?raw=true)
+
+```Java
+package day4;
+
+public class RotateMatrix {
+    public static void rotateMatrix(int[][] matrix){
+        int a=0;        //左上角坐标(a,b),右下角坐标c(c,d)
+        int b=0;
+        int c=matrix.length-1;  //matrix.length是行长度
+        int d=matrix[0].length-1; //matrix[0].length是列长度
+        while(a<c){
+            rotateEdge(matrix,a++,b++,c--,d--);
+        }
+    }
+
+    private static void rotateEdge(int[][] m, int a, int b, int c, int d) {
+        int times=d-b;      //第一行有几个数据需要旋转，即一个圈要旋转几次
+        int temp;
+        for(int i=0; i<times; i++){ //自己画个图，标一下各个位置的下标就晓得了
+            temp =m[a][b+i];
+            m[a][b+i]=m[c-i][b];
+            m[c-i][b]=m[c][d-i];
+            m[c][d-i]=m[a+i][d];
+            m[a+i][d]=temp;
+        }
+    }
+}
+```
+
+### 题目九：“之”字形打印矩阵
+* 【题目】 给定一个矩阵matrix，按照“之”字形的方式打印这个矩阵，例如： 
+```
+1  2  3  4  
+5  6  7  8  
+9  10 11 12
+“之”字形打印的结果为：1，2，5，9，6，3，4，7，10，11，8，12
+【要求】 额外空间复杂度为O(1)。
+```
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E4%B9%8B%E5%AD%97%E5%BD%A2%E6%89%93%E5%8D%B0%E7%9F%A9%E9%98%B5.png?raw=true)
+
+* 【分析】：同样要从宏观来看，看成不断打印斜线，每打印了一条斜线就换方向来打印下一条斜线
+   * 刚开始时A（row2，coll2）、B(row ,coll)位于（0,0）处，然后A往右走，走到尽头就往下面走，同时B往下走，走到尽头就往右走，当两者走到末尾右下角时所有的打印都结束了。
+```Java
+package day4;
+
+public class PrintZigZagMatrix {
+    public static void printZigZag(int[][] matrix){
+        int a=0;        //A(a,b),B(c,d)
+        int b=0;
+        int c=0;
+        int d=0;
+        int endRow=matrix.length-1;     //矩阵右下角的下标（endRow,endCol)
+        int endCol=matrix[0].length-1;
+        boolean dire=true;
+        while (a<=endRow && b<=endCol){   //移动到最末尾打印后就结束，
+                printSlash(matrix,a,b,c,d,dire);
+            dire=!dire;
+            d = c >= endRow ? d+1 : d;  //d和c的顺序,a和b的顺序不能反
+            c = c < endRow ? c+1 : c;   //即c这一行和b那一行不能在前面，因为它们如果改变了值会直接影响后面的d和a
+            a = b >=endCol ? a+1:a;
+            b=b < endCol ? b+1:b;
+
+        }
+    }
+
+    private static void printSlash(int[][] m, int a,int b,int c, int d,boolean dire) {
+        if(dire){
+            for(; a<=c; c--,d++){
+                System.out.print(m[c][d]+" ");
+            }
+        }else{
+            for(;a<=c;a++,b--){
+                System.out.print(m[a][b]+" ");
+            }
+        }
+
+    }
+}
+```
+
+### 题目十：在行列都排好序的矩阵中找数
+* 【题目】 给定一个有N*M的整型矩阵matrix和一个整数K，
+matrix的每一行和每一列都是排好序的。实现一个函数，判断K
+是否在matrix中。 例如： 0 1 2 5 2 3 4 7 4
+4 4 8 5 7 7 9 如果K为7，返回true；如果K为6，返
+回false。
+【要求】 时间复杂度为O(N+M)，额外空间复杂度为O(1
 ## 二分搜索的扩展
