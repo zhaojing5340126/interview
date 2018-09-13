@@ -1085,7 +1085,7 @@ public class PrintMatrixSpiral {
 ### 题目七：旋转正方形矩阵
 * 【题目】 给定一个整型`正方形`矩阵matrix，请把该矩阵调整成顺时针旋转90度的样子。
 【要求】 额外空间复杂度为O(1)。<br>
-![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%97%8B%E8%BD%AC%E6%AD%A3%E6%96%B9%E5%BD%A2.png)
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%97%8B%E8%BD%AC%E6%AD%A3%E6%96%B9%E5%BD%A2%E7%A4%BA%E4%BE%8B.png?raw=true)
 
 
 * 【分析】：这个也是一个宏观的调度问题，还是使用分圈的处理方式，每次对一个矩阵的外围进行处理，我们发现只要替换四个数，替换n-1次，就把外面的边界替换好了，然后我们缩小范围(左上角的(ar,ac)和右下角的(br,bc)分别减一)，就可以完成操作，如下图：<br>
