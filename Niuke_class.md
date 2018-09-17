@@ -38,6 +38,9 @@
         - [题目十三：将单向链表按某值划分成左边小、中间相等、右边大的形式【荷兰国旗】](#题目十三将单向链表按某值划分成左边小中间相等右边大的形式荷兰国旗)
         - [题目十四：复制含有随机指针节点的链表](#题目十四复制含有随机指针节点的链表)
         - [题目十五：两个单链表相交的一系列问题](#题目十五两个单链表相交的一系列问题)
+            - [(1) 单链表是否有环](#1-单链表是否有环)
+            - [(2) 两无环单链表是否相交](#2-两无环单链表是否相交)
+            - [(3) 两有环单链表是否相交](#3-两有环单链表是否相交)
     - [数组结构及面试](#数组结构及面试)
     - [矩阵结构及面试——从宏观上实现（观察局部位置太复杂）](#矩阵结构及面试从宏观上实现观察局部位置太复杂)
         - [题目六：转圈打印矩阵【矩阵分圈处理】](#题目六转圈打印矩阵矩阵分圈处理)
@@ -1331,26 +1334,199 @@ public class SmallEqualBigger {
     }
 ```
 ### 题目十四：复制含有随机指针节点的链表
-【题目】 一种特殊的链表节点类描述如下：
-public class Node { public int value; public Node next; public
-Node rand;
-public Node(int data) { this.value = data; }
+* 【题目】 一种特殊的链表节点类描述如下：
+```
+public class Node { 
+    public int value; 
+    public Node next; 
+    public Node rand;
+    public Node(int data) {
+         this.value = data;
+     }
 }
-Node类中的value是节点值，next指针和正常单链表中next指针的意义
-一 样，都指向下一个节点，rand指针是Node类中新增的指针，这个指
-针可 能指向链表中的任意一个节点，也可能指向null。 给定一个由
-Node节点类型组成的无环单链表的头节点head，请实现一个 函数完成
-这个链表中所有结构的复制，并返回复制的新链表的头节点。 进阶：
-不使用额外的数据结构，只用有限几个变量，且在时间复杂度为 O(N)
-内完成原问题要实现的函数。
+    Node类中的value是节点值，next指针和正常单链表中next指针的意义一样，都指向下一个节点，rand指针是Node类中新增的指针，这个指针可能指向链表中的任意一个节点，也可能指向null。 给定一个由Node节点类型组成的无环单链表的头节点head，请实现一个函数完成这个链表中所有结构的复制，并返回复制的新链表的头节点。 
+进阶：不使用额外的数据结构，只用有限几个变量，且在时间复杂度为 O(N)内完成原问题要实现的函数。
+```
+* 【分析】：
+    * copyListWithRand1非进阶版：利用一个hashmap实现原链表结点和复制结点的映射，然后就可以把结构关系复制下来了。
+    * copyListWithRand2进阶版：因为要求不使用额外的数据结构，即不能用hashmap，只用链表，步骤如下：
+        * 1、复制结点到链表，成为1->1'->2->2'->3->3'->...->null形式；
+        * 2、复制rand结构
+        * 3、将链表拆分出来，得到原链表和复制链表。
 
+```Java
+import java.util.HashMap;
+
+public class CopyListWithRandom {
+    public static class Node{
+        int value;
+        Node rand;
+        Node next;
+        public Node(int value){
+            this.value = value;
+        }
+    }
+    public static Node copyListWithRand1(Node head){     //利用hashmap来进行元列表结点和复制结点的映射
+        HashMap<Node,Node> map = new HashMap<Node ,Node>();
+        Node cur = head;
+        while (cur != null){        //第一次遍历，形成结点与复制结点的映射
+            map.put(cur, new Node(cur.value));
+            cur = cur.next;
+        }
+        cur = head;
+        while (cur != null){        //第二次遍历，复制结点间的关系，包括next和rand
+            map.get(cur).next = map.get(cur.next);
+            map.get(cur).rand = map.get(cur.rand);
+            cur = cur.next;         //****
+        }
+        return map.get(head);       //返回复制列表的头结点
+    }
+}
+```
+* 进阶版
+```Java
+public static Node copyListWithRand2(Node head){
+        if(head == null){
+            return null;
+        }
+        Node cur = head;
+        Node temp = null;
+        while (cur != null){  //复制结点构建为1->1'->2->2'->3->3'->...->null形式
+            temp = cur.next;
+            cur.next = new Node(cur.value);
+            cur.next.next=temp;
+            cur = cur.next.next;
+        }
+        cur = head;
+        Node curCopy = head.next;
+        while (cur != null){        //复制rand结构
+            curCopy = cur.next;     //****不要遗忘了
+            curCopy.rand = (cur.rand == null) ? null : cur.rand.next;
+            cur = cur.next.next;
+        }
+        Node headCopy = head.next;
+        cur = head;
+        while (cur != null){        //拆分链表
+            curCopy = cur.next;
+            cur.next = cur.next.next;
+            curCopy.next = curCopy.next == null ? null :  curCopy.next.next;
+            cur = cur.next;
+        }
+        return headCopy;
+    }
+```
 ### 题目十五：两个单链表相交的一系列问题
-【题目】 在本题中，单链表可能有环，也可能无环。给定两个
-单链表的头节点 head1和head2，这两个链表可能相交，也可能
-不相交。请实现一个函数， 如果两个链表相交，请返回相交的
-第一个节点；如果不相交，返回null 即可。 要求：如果链表1
-的长度为N，链表2的长度为M，时间复杂度请达到 O(N+M)，额外
-空间复杂度请达到O(1)。
+```
+【题目】 在本题中，单链表可能有环，也可能无环。给定两个单链表的头节点 head1和head2，这两个链表可能相交，也可能不相交。请实现一个函数， 如果两个链表相交，请返回相交的第一个节点；如果不相交，返回null 即可。 <br>
+
+进阶：要求：如果链表1的长度为N，链表2的长度为M，时间复杂度请达到 O(N+M)，额外空间复杂度请达到O(1)。
+
+```
+* 【分析】：这道题实际是三道题的综合，要解决以下三个问题：【以下是基础版，进阶版（不使用HashSet）比较玄幻，咱策略性放弃】
+    * (1)、单链表是否有环，有环则返回入环结点，否则null
+    * (2)、两无环单链表是否相交，相交则返回相交的第一个结点，否则null
+    * (3)、两有环单链表是否相交，相交则返回相交的第一个结点，否则null
+* 主函数：
+```Java
+import sun.java2d.pipe.LoopBasedPipe;
+
+import java.util.HashSet;
+
+public class FindFirstIntersectNode {
+    public static class Node{
+        int value;
+        Node next;
+        public Node(int value){
+            this.value = value;
+        }
+    }
+
+    /*主函数*/
+    public static Node findFirstIntersectNode(Node head1,Node head2){
+        if (head1 == null || head2 == null){
+            return null;
+        }
+        Node loop1 = getLoopNode(head1);    //判断单链表是否有环：若有环，则返回入环结点，无环则返回null
+        Node loop2 = getLoopNode(head2);
+        if(loop1 == null && loop2 == null){ //两个都是无环单链表
+            return noLoop(head1 , head2);       //无环单链表是否相交：相交返回相交的第一个结点，不相交返回null
+        }else if (loop1 != null && loop2 != null){  //两个都是有环单链表
+            return bothLoop(head1,loop1,head2,loop2); //两个有环单链表是否相交：相交返回结点，不相交返回null
+        }
+        return null;        //一个有环，一个无环，不可能相交，返回null
+    }
+}
+```
+#### (1) 单链表是否有环
+```Java
+/*单链表是否有环，有环则返回入环结点，否则null*/
+public static Node getLoopNode(Node head){
+        HashSet<Node> set = new HashSet<>();
+        while (head != null){
+            if (!set.contains(head)){   //若结点不在set里，则放入set
+                set.add(head);      //*****记住是add，不是push
+                head = head.next;
+            }else {             //结点在set里面说明之前已经遇见过了，即有环，此为入环结点
+                return head;
+            }
+        }
+        return null;    //直到遍历完后都没有遇到重复的，说明无环
+    }
+```
+#### (2) 两无环单链表是否相交
+```Java
+    /** 判断两个无环单链表是否相交：相交返回相交的第一个结点，不相交返回null*/
+    public static Node noLoop(Node head1 ,Node head2){
+        HashSet<Node> set = new HashSet<>();
+        while (head1 != null){  //将head1链表放入set中
+            set.add(head1);
+            head1 = head1.next;
+        }
+        while (head2 != null){  //遍历head2，看是否与head1有重复的结点，有则返回，即为第一个相交的结点
+            if (set.contains(head2)){
+                return head2;
+            }
+            head2 = head2.next;
+        }
+        return null;        //遍历完head2都没有与head1有重复的结点，说明不相交
+    }
+```
+
+#### (3) 两有环单链表是否相交
+* 【分析】：两有环单链表相交的可能情况如下，若不相交，则是不相干的两个 6 6 。
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%9C%89%E7%8E%AF.gif?raw=true)
+```Java
+    /** 两个有环单链表是否相交： */
+    public static Node bothLoop(Node head1, Node loop1, Node head2, Node loop2){
+        // 即情况二，那么在环的上方可归结为无环单链表找相交点
+        if (loop1 == loop2){ 
+            HashSet<Node> set = new HashSet<>();
+            while (head1 != loop1){ //将head1环上部分放入set
+                set.add(head1);
+                head1 = head1.next;
+            }
+            while (head2 != loop2){ //将head2环上部分遍历，与head1比较
+                if (set.contains(head2)){   //在head1中找到一样的，则即为第一个相交点
+                    return head2;
+                }
+                head2 = head2.next;
+            }
+            return loop1;   //若直到遍历完环上部分都没有重复的，说明入环点loop1==loop2即为第一个相交点
+        }
+        
+        //即情况一或者情况三【6 6 形式】
+        else {
+            Node cur = loop1.next;
+            while (cur != loop1){       //cur从loop1开始向下遍历，若直到再次返回loop1都没有遇见loop2，说明二者不相交
+                if (cur == loop2){
+                    return loop1;       //遇见loop2，则说明相交，为情况一
+                }
+                cur = cur.next;
+            }
+            return null;        //cur遍历完它自己那个环都没遇见loop2 ，说明不相交，为6 6 这种形式
+        }
+    }
+```
 
 ## 数组结构及面试
 ## 矩阵结构及面试——从宏观上实现（观察局部位置太复杂）
