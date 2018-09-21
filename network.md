@@ -376,8 +376,10 @@
 * 以太网：用户通过双绞铜线与以太网交换机相连
 * WiFi：基于IEEE 802.11技术的无线LAN接入，通俗叫WiFi
     * 在无线LAN环境中，无线用户从/到一个接入点发送/接收分组，该接入点与企业网连接（很可能包含有线以太网），该企业再与有线因特网相连
-    ![](https://github.com/zhaojing5340126/interview/blob/master/IMG_0711(20180918-220512).jpg?raw=true)
-![](https://github.com/zhaojing5340126/interview/blob/master/picture/IMG_0710(20180918-220316).jpg?raw=true)
+    
+    ![](https://github.com/zhaojing5340126/interview/blob/master/picture/98982028B81A98CF66F0B854AD723C46.png?raw=true)<br>
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C.png?raw=true)<br>
+
 #### 5.5.1.3 广域无线接入：3G和LET
 * 通过蜂窝网提供商运营的基站来发送和接收分组【应用了与移动电话相同的基础设施】
 
