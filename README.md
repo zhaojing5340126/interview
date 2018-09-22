@@ -9,6 +9,8 @@
 ## 算法 :pencil2:
 
 ## 操作系统 :computer:
+- [后端程序员必备的Linux 基础知识](https://github.com/Snailclimb/JavaGuide/blob/master/操作系统/后端程序员必备的Linux基础知识.md)<br>
+来自SnailClimb
 
 ## 网络 :cloud:
 
