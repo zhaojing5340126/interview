@@ -12,13 +12,13 @@
 
 ## 网络 :cloud:
 
-- ![计算机网络](https://github.com/zhaojing5340126/interview/blob/master/network.md)
+- [计算机网络](https://github.com/zhaojing5340126/interview/blob/master/network.md)
 
 整理自《计算机网络——自顶向下》
 
-- ![计算机网络常见面试题](https://github.com/Snailclimb/Java_Guide/blob/master/计算机网络与数据通信/计算机网络.md)
+- [计算机网络常见面试题](https://github.com/Snailclimb/Java_Guide/blob/master/计算机网络与数据通信/计算机网络.md)
 
-来自 ![SnailClimb](https://github.com/Snailclimb/JavaGuide)
+来自SnailClimb
 
 ## 面向对象 :couple:
 
