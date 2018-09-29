@@ -7,11 +7,13 @@
 </br>
 
 ## 算法 :pencil2:
--[算法笔记](https://github.com/zhaojing5340126/interview/blob/Niuke_class/Niuke_class.md)
+- [算法笔记](https://github.com/zhaojing5340126/interview/blob/Niuke_class/Niuke_class.md)
+
 来自牛客课程
 
 ## 操作系统 :computer:
 - [后端程序员必备的Linux 基础知识](https://github.com/Snailclimb/JavaGuide/blob/master/操作系统/后端程序员必备的Linux基础知识.md)
+
 来自SnailClimb
 
 ## 网络 :cloud:
@@ -25,12 +27,12 @@
 来自SnailClimb
 
 ## 面向对象 :couple:
--[深入理解Java虚拟机(https://github.com/zhaojing5340126/interview/blob/JVM/JVM.md)
+- [深入理解Java虚拟机](https://github.com/zhaojing5340126/interview/blob/JVM/JVM.md)
 
 来自深入理解Java虚拟机和CyC2018
 
 ## 数据库 :floppy_disk:
--[MySQL课程](https://github.com/zhaojing5340126/interview/blob/databases/MYSQL.md)
+- [MySQL课程](https://github.com/zhaojing5340126/interview/blob/databases/MYSQL.md)
 
 来自姜承尧课程
 
