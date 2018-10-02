@@ -150,6 +150,60 @@
             - [2）insert into test_time values (now(), now()); //插入当前时间](#2insert-into-test_time-values-now-now-插入当前时间)
             - [3）select @@time_zone; //显示电脑时区](#3select-time_zone-显示电脑时区)
             - [4）set time_zone='+00:00'; //设置时区](#4set-time_zone0000-设置时区)
+- [九、 day9：JSON数据类型——5.7支持](#九-day9json数据类型57支持)
+    - [1. JSON：是一种轻量级的数据交换语言，并且是独立于语言的文本格式。 Key : Value 格式](#1-json是一种轻量级的数据交换语言并且是独立于语言的文本格式-key--value-格式)
+    - [2.结构化：二维表结构（行和列），使用SQL语句进行操作](#2结构化二维表结构行和列使用sql语句进行操作)
+    - [3.非结构化：使用Key-Value格式定义数据，无结构定义；Value可以嵌套Key-Value格式的数据；使用JSON进行实现](#3非结构化使用key-value格式定义数据无结构定义value可以嵌套key-value格式的数据使用json进行实现)
+    - [4. JSON操作示例](#4-json操作示例)
+        - [4.1 JSON入门](#41-json入门)
+    - [4.2 JSON函数](#42-json函数)
+        - [4.4附录](#44附录)
+            - [4.4.1 create table user ( uid int auto_increment, data json，primary key(uid) ); //创建带json字段的表](#441-create-table-user--uid-int-auto_increment-data-jsonprimary-keyuid--创建带json字段的表)
+            - [4.4.2 insert into user values (null[-- 自增长数据，可以插入null], '{ "name":"tom","age":18, "address":"SZ" }');//插入json数据](#442-insert-into-user-values-null---自增长数据可以插入null--nametomage18-addresssz-插入json数据)
+            - [4.4.3 drop table if exists User; //如果存在就删除](#443-drop-table-if-exists-user-如果存在就删除)
+            - [4.4.4 ALTER TABLE User ADD COLUMN address2 VARCHAR(512) NOT NULL; //***SQL想新增列需要ALTER TABLE](#444-alter-table-user-add-column-address2-varchar512-not-null-sql想新增列需要alter-table)
+            - [4.4.5 truncate table UserJson;](#445-truncate-table-userjson)
+            - [4.4.6 select json_object("name", "jery", "email", "jery@163.com", "age",33); //json_object 将list(K-V对)封装成json格式](#446-select-json_objectname-jery-email-jery163com-age33-json_object-将listk-v对封装成json格式)
+            - [4.4.7 SELECT uid,JSON_EXTRACT(data,'$.address2') from UserJson; //使用json_extract提取数据](#447-select-uidjson_extractdataaddress2-from-userjson-使用json_extract提取数据)
+            - [4.4.8 UPDATE UserJson set data = json_insert(data,"$.address2","HangZhou ...") where uid = 1; //json_insert 插入数据,在address2这个字段](#448-update-userjson-set-data--json_insertdataaddress2hangzhou--where-uid--1-json_insert-插入数据在address2这个字段)
+            - [4.4.9 select json_merge(JSON_EXTRACT(data,'$.address') ,JSON_EXTRACT(data,'$.address2')) //json_merge from UserJson;合并数据并返回。原数据不受影响](#449-select-json_mergejson_extractdataaddress-json_extractdataaddress2-json_merge-from-userjson合并数据并返回原数据不受影响)
+            - [4.4.10 UPDATE UserJson set data = json_array_append(data,"$.address",JSON_EXTRACT(data,'$.address2')) where JSON_EXTRACT(data,'$.address2') IS NOT NULL AND uid >0; //json_array_append 追加数据](#4410-update-userjson-set-data--json_array_appenddataaddressjson_extractdataaddress2-where-json_extractdataaddress2-is-not-null-and-uid-0-json_array_append-追加数据)
+            - [4.4.11 UPDATE UserJson set data = JSON_REMOVE(data,'$.address2') where uid>0; //json_remove 从json记录中删除数据](#4411-update-userjson-set-data--json_removedataaddress2-where-uid0-json_remove-从json记录中删除数据)
+- [十、day10：Employees 临时表的创建、外键约束](#十day10employees-临时表的创建外键约束)
+- [十一、day11：SQL语法之SELECT](#十一day11sql语法之select)
+- [十二、day012-子查询 INSERT UPDATE DELETE REPLACE](#十二day012-子查询-insert-update-delete-replace)
+- [十三、day013-作业讲解一 Rank 视图 UNION 触发器上](#十三day013-作业讲解一-rank-视图-union-触发器上)
+- [十四、day014-触发器下 存储过程 自定义函数MySQL 执行计划与优化器](#十四day014-触发器下-存储过程-自定义函数mysql-执行计划与优化器)
+- [十五、day015-索引 B+树 上](#十五day015-索引-b树-上)
+- [十六、day016-索引 B+树 下 Explain 1](#十六day016-索引-b树-下-explain-1)
+- [十七、day017-Explain 2【MySQL innodb引擎优化】](#十七day017-explain-2mysql-innodb引擎优化)
+- [十八、day018-磁盘](#十八day018-磁盘)
+- [十九、day019-磁盘测试](#十九day019-磁盘测试)
+- [二十、day020-InnoDB_1 表空间 General](#二十day020-innodb_1-表空间-general)
+- [二十一、day021-InnoDB_2 SpaceID.PageNumber 压缩表）](#二十一day021-innodb_2-spaceidpagenumber-压缩表)
+- [二十二、day022-InnoDB_3 透明表空间压缩 索引组织表](#二十二day022-innodb_3-透明表空间压缩-索引组织表)
+- [二十三、day023-InnoDB_4 页(2) 行记录](#二十三day023-innodb_4-页2-行记录)
+- [二十四、day024-InnoDB_5 – heap_number Buffer Pool](#二十四day024-innodb_5--heap_number-buffer-pool)
+- [二十五、day025-InnoDB_6 Buffer Pool与压缩页 CheckPoint LSN](#二十五day025-innodb_6-buffer-pool与压缩页-checkpoint-lsn)
+- [二十六、day026-InnoDB_7 doublewrite ChangeBuffer AHI FNP【MySQL 索引与innodb锁机制】](#二十六day026-innodb_7-doublewrite-changebuffer-ahi-fnpmysql-索引与innodb锁机制)
+- [二十七、day027-Secondary Index](#二十七day027-secondary-index)
+- [二十八、day028-join算法锁_1](#二十八day028-join算法锁_1)
+- [二十九、day029-锁_2](#二十九day029-锁_2)
+- [三十、day030-锁_3](#三十day030-锁_3)
+- [三十一、day031-锁_4](#三十一day031-锁_4)
+- [三十二、day032-锁_5](#三十二day032-锁_5)
+- [三十三、day033-锁_6 事物_1](#三十三day033-锁_6-事物_1)
+- [三十四、day034-事务_2  MySQL 性能衡量](#三十四day034-事务_2  mysql-性能衡量)
+- [三十五、day035-redo_binlog_xa](#三十五day035-redo_binlog_xa)
+- [三十六、day036-undo_sysbench](#三十六day036-undo_sysbench)
+- [三十七、day037-tpcc_mysqlslap【MySQL 备份与恢复】](#三十七day037-tpcc_mysqlslapmysql-备份与恢复)
+- [三十八、day038-purge死锁举例_MySQL backup备份_1](#三十八day038-purge死锁举例_mysql-backup备份_1)
+- [三十九、day039-MySQL backup备份恢复_2【MySQL 复制技术与高可用】](#三十九day039-mysql-backup备份恢复_2mysql-复制技术与高可用)
+- [四十、day040-MySQL 备份恢复backup_3_replication_1](#四十day040-mysql-备份恢复backup_3_replication_1)
+- [四十一、day041-backup_4-replication_2](#四十一day041-backup_4-replication_2)
+- [四十二、day042-replication_3](#四十二day042-replication_3)
+- [四十三、day043-replication_4-GTID 1](#四十三day043-replication_4-gtid-1)
+- [四十四、day044-replication_5-GTID 2](#四十四day044-replication_5-gtid-2)
 
 <!-- /TOC -->
 
@@ -2004,3 +2058,250 @@ mysql> select * from test_time;
 #### 2）insert into test_time values (now(), now()); //插入当前时间
 #### 3）select @@time_zone; //显示电脑时区
 #### 4）set time_zone='+00:00'; //设置时区
+
+
+
+# 九、 day9：JSON数据类型——5.7支持
+
+## 1. JSON：是一种轻量级的数据交换语言，并且是独立于语言的文本格式。 Key : Value 格式
+
+* JSON（JavaScript Object Notation）是一种轻量级的数据交换语言，并且是独立于语言的文本格式。一些NoSQL数据库选择JSON作为其数据存储格式，比如：MongoDB、CouchDB等。MySQL5.7.x开始支持JSON数据类型。
+
+* JSON VS BLOB
+    * JSON
+        * JSON数据可以做有效性检查;
+        * JSON使得查询性能提升;
+        * JSON支持部分属性索引，通过虚拟列的功能可以对JSON中的部分数据进行索引;
+    * BLOB
+        * BLOB类型无法在数据库层做约束性检查;
+        * BLOB进行查询，需要遍历所有字符串;
+        * BLOB做只能做指定长度的索引;
+    * 5.7之前，只能把JSON当作BLOB进行存储。数据库层面无法对JSON数据做一些操作，只能由应用程序处理。
+
+## 2.结构化：二维表结构（行和列），使用SQL语句进行操作
+```mysql
+//SQL创建User表
+
+create table user (
+    id bigint not null auto_increment,
+    user_name varchar(10),
+    age int,
+    primary key(id)
+);
+```
+## 3.非结构化：使用Key-Value格式定义数据，无结构定义；Value可以嵌套Key-Value格式的数据；使用JSON进行实现
+```mysql
+//JSON定义的User表
+
+db.user.insert({
+    user_name:"tom",
+    age:30
+})
+
+db.createCollection("user")
+```
+## 4. JSON操作示例
+
+### 4.1 JSON入门
+```mysql
+//创建带json字段的表
+mysql> create table user (
+    -> uid int auto_increment,
+    -> data json,
+    -> primary key(uid)
+    -> );
+
+//插入json数据
+mysql> insert into user values (
+    -> null,  -- 自增长数据，可以插入null
+    -> '{
+    '> "name":"tom",
+    '> "age":18,
+    '> "address":"SZ"
+    '> }'
+    -> );
+
+mysql> insert into user values (
+    -> null,
+    -> '{
+    '> "name":"jim",
+    '> "age":28,
+    '> "mail":"jim@163.com"
+    '> }'
+    -> );
+
+mysql> insert into user values ( null, "can you insert it?");  -- 无法插入，因为是JSON类型
+ERROR 3140 (22032): Invalid JSON text: "Invalid value." at position 0 in value (or column) can you insert it?.  -- 这短话有单引号，但是渲染有问题，所以这里去掉了
+
+mysql> select * from user;
++-----+---------------------------------------------------+
+| uid | data                                              |
++-----+---------------------------------------------------+
+|   1 | {"age": 18, "name": "tom", "address": "SZ"}       |  -- 这个json中有address字段
+|   2 | {"age": 28, "mail": "jim@163.com", "name": "jim"} |  -- 这个json中有mail字段
++-----+---------------------------------------------------+
+2 rows in set (0.00 sec)
+```
+
+
+## 4.2 JSON函数
+```mysql
+drop table if exists User; //如果存在就删除
+
+CREATE TABLE User (     //SQL创建表
+    uid BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(32) NOT NULL,
+    email VARCHAR(256) NOT NULL,
+    address VARCHAR(512) NOT NULL,
+    UNIQUE KEY (name),
+    UNIQUE KEY (email)
+);
+
+INSERT INTO User VALUES (NULL,'David','david@gmail','Shanghai ...');    //SQL插入数据
+INSERT INTO User VALUES (NULL,'Amy','amy@gmail','Beijing ...');
+INSERT INTO User VALUES (NULL,'Tom','tom@gmail','Guangzhou ...');
+
+SELECT * FROM User;      //显示数据
+
+ALTER TABLE User ADD COLUMN address2 VARCHAR(512) NOT NULL; //***SQL想新增列需要ALTER TABLE
+ALTER TABLE User ADD COLUMN passport VARCHAR(64) NOT NULL;
+
+DROP TABLE IF EXISTS UserJson;
+
+CREATE TABLE UserJson(      //创建带有json列的表
+	uid BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    data JSON
+);
+
+truncate table UserJson;
+
+insert into UserJson 
+SELECT 
+    uid,JSON_OBJECT('name',name,'email',email,'address',address) AS data    //json_object 将list(K-V对)封装成json格式
+FROM
+    User;
+
+//json_object 将list(K-V对)封装成json格式
+mysql> select json_object("name", "jery", "email", "jery@163.com", "age",33);
++----------------------------------------------------------------+
+| json_object("name", "jery", "email", "jery@163.com", "age",33) |
++----------------------------------------------------------------+
+| {"age": 33, "name": "jery", "email": "jery@163.com"}           |  -- 封装成了K-V对
++----------------------------------------------------------------+
+    
+SELECT * FROM UserJson; 
+
+SELECT uid,JSON_EXTRACT(data,'$.address2') from UserJson; //使用json_extract提取数据
+
+//使用json_extract提取数据
+mysql> select json_extract('[10, 20, [30, 40]]', '$[1]');                  
++--------------------------------------------+
+| json_extract('[10, 20, [30, 40]]', '$[1]') |
++--------------------------------------------+
+| 20                                         |  -- 从list中抽取 下标 为1的元素（下标从0开始）
++--------------------------------------------+
+
+    
+UPDATE UserJson 
+set data = json_insert(data,"$.address2","HangZhou ...")  //json_insert 插入数据,在address2这个字段
+where uid = 1;
+
+SELECT JSON_EXTRACT(data,'$.address[1]') from UserJson;
+
+select json_merge(JSON_EXTRACT(data,'$.address') ,JSON_EXTRACT(data,'$.address2')) //json_merge 合并数据并返回。注意：原数据不受影响
+from UserJson;
+
+//json_merge 合并数据并返回。注意：原数据不受影响
+mysql> select json_merge('{"name": "x"}', '{"id": 47}');    -- 原来有两个JSON             
++-------------------------------------------+
+| json_merge('{"name": "x"}', '{"id": 47}') |
++-------------------------------------------+
+| {"id": 47, "name": "x"}                   |  -- 合并多个JSON
++-------------------------------------------+
+
+begin;
+UPDATE UserJson
+set data = json_array_append(data,"$.address",JSON_EXTRACT(data,'$.address2'))
+where JSON_EXTRACT(data,'$.address2') IS NOT NULL AND uid >0;
+
+//json_array_append 追加数据
+//json_append 在5.7.9 中重命名为 json_array_append
+mysql> set @j = '["a", ["b", "c"], "d"]';     -- 下标为1的元素中只有["b", "c"]
+
+mysql> select json_array_append(@j, '$[1]', 1);                       
++----------------------------------+
+| json_array_append(@j, '$[1]', 1) |
++----------------------------------+
+| ["a", ["b", "c", 1], "d"]        |    --  现在插入了 数字 1
++----------------------------------+
+
+
+select JSON_EXTRACT(data,'$.address') from UserJson;
+
+UPDATE UserJson
+set data = JSON_REMOVE(data,'$.address2')
+where uid>0;
+
+//json_remove 从json记录中删除数据
+mysql> set @j = '["a", ["b", "c"], "d"]';   
+
+mysql> select json_remove(@j, '$[1]');
++-------------------------+
+| json_remove(@j, '$[1]') |
++-------------------------+
+| ["a", "d"]              |  -- 删除了下标为1的元素["b", "c"]
++-------------------------+
+
+commit;
+```
+### 4.4附录
+
+#### 4.4.1 create table user ( uid int auto_increment, data json，primary key(uid) ); //创建带json字段的表
+#### 4.4.2 insert into user values (null[-- 自增长数据，可以插入null], '{ "name":"tom","age":18, "address":"SZ" }');//插入json数据
+#### 4.4.3 drop table if exists User; //如果存在就删除
+#### 4.4.4 ALTER TABLE User ADD COLUMN address2 VARCHAR(512) NOT NULL; //***SQL想新增列需要ALTER TABLE
+#### 4.4.5 truncate table UserJson;
+#### 4.4.6 select json_object("name", "jery", "email", "jery@163.com", "age",33); //json_object 将list(K-V对)封装成json格式
+#### 4.4.7 SELECT uid,JSON_EXTRACT(data,'$.address2') from UserJson; //使用json_extract提取数据
+#### 4.4.8 UPDATE UserJson set data = json_insert(data,"$.address2","HangZhou ...") where uid = 1; //json_insert 插入数据,在address2这个字段
+#### 4.4.9 select json_merge(JSON_EXTRACT(data,'$.address') ,JSON_EXTRACT(data,'$.address2')) //json_merge from UserJson;合并数据并返回。原数据不受影响
+#### 4.4.10 UPDATE UserJson set data = json_array_append(data,"$.address",JSON_EXTRACT(data,'$.address2')) where JSON_EXTRACT(data,'$.address2') IS NOT NULL AND uid >0; //json_array_append 追加数据
+
+#### 4.4.11 UPDATE UserJson set data = JSON_REMOVE(data,'$.address2') where uid>0; //json_remove 从json记录中删除数据
+
+
+# 十、day10：Employees 临时表的创建、外键约束
+# 十一、day11：SQL语法之SELECT
+# 十二、day012-子查询 INSERT UPDATE DELETE REPLACE
+# 十三、day013-作业讲解一 Rank 视图 UNION 触发器上
+# 十四、day014-触发器下 存储过程 自定义函数MySQL 执行计划与优化器
+# 十五、day015-索引 B+树 上
+# 十六、day016-索引 B+树 下 Explain 1
+# 十七、day017-Explain 2【MySQL innodb引擎优化】
+# 十八、day018-磁盘
+# 十九、day019-磁盘测试
+# 二十、day020-InnoDB_1 表空间 General
+# 二十一、day021-InnoDB_2 SpaceID.PageNumber 压缩表）
+# 二十二、day022-InnoDB_3 透明表空间压缩 索引组织表
+# 二十三、day023-InnoDB_4 页(2) 行记录
+# 二十四、day024-InnoDB_5 – heap_number Buffer Pool
+# 二十五、day025-InnoDB_6 Buffer Pool与压缩页 CheckPoint LSN
+# 二十六、day026-InnoDB_7 doublewrite ChangeBuffer AHI FNP【MySQL 索引与innodb锁机制】
+# 二十七、day027-Secondary Index
+# 二十八、day028-join算法锁_1
+# 二十九、day029-锁_2
+# 三十、day030-锁_3
+# 三十一、day031-锁_4
+# 三十二、day032-锁_5
+# 三十三、day033-锁_6 事物_1
+# 三十四、day034-事务_2  MySQL 性能衡量
+# 三十五、day035-redo_binlog_xa
+# 三十六、day036-undo_sysbench
+# 三十七、day037-tpcc_mysqlslap【MySQL 备份与恢复】
+# 三十八、day038-purge死锁举例_MySQL backup备份_1
+# 三十九、day039-MySQL backup备份恢复_2【MySQL 复制技术与高可用】
+# 四十、day040-MySQL 备份恢复backup_3_replication_1
+# 四十一、day041-backup_4-replication_2
+# 四十二、day042-replication_3
+# 四十三、day043-replication_4-GTID 1
+# 四十四、day044-replication_5-GTID 2
