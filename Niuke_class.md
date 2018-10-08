@@ -5,16 +5,16 @@
     - [时间复杂度](#时间复杂度)
     - [递归的时间复杂度估算-master公式](#递归的时间复杂度估算-master公式)
     - [排序对数器](#排序对数器)
-    - [冒泡排序[O(N<sup>2</sup>), O(1)]](#冒泡排序onsup2sup-o1)
-    - [选择排序[O(N<sup>2</sup>), O(1)]](#选择排序onsup2sup-o1)
-    - [插入排序[O(N)-O(N<sup>2</sup>), O(1)]](#插入排序on-onsup2sup-o1)
-    - [归并排序[O(NlogN), O(N)]](#归并排序onlogn-on)
+    - [冒泡排序[O(N<sup>2</sup>), O(1)，稳定]](#冒泡排序onsup2sup-o1稳定)
+    - [选择排序[O(N<sup>2</sup>), O(1)，不稳定]](#选择排序onsup2sup-o1不稳定)
+    - [插入排序[O(N)-O(N<sup>2</sup>), O(1)，稳定]](#插入排序on-onsup2sup-o1稳定)
+    - [归并排序[O(NlogN), O(N)，可以稳定]](#归并排序onlogn-on可以稳定)
     - [归并排序的变体——小和问题和逆序对问题](#归并排序的变体小和问题和逆序对问题)
 - [二、复杂度估计和排序算法（下）](#二复杂度估计和排序算法下)
     - [荷兰国旗问题[O(N), O(1)]](#荷兰国旗问题on-o1)
-    - [经典快排和随机快排（基于荷兰国旗问题）[O(NlogN), O(logN)]](#经典快排和随机快排基于荷兰国旗问题onlogn-ologn)
+    - [经典快排和随机快排（基于荷兰国旗问题）[O(NlogN), O(logN)，不稳定]](#经典快排和随机快排基于荷兰国旗问题onlogn-ologn不稳定)
     - [堆结构](#堆结构)
-    - [堆排序](#堆排序)
+    - [堆排序【O(NlogN)，O(1)，不稳定】](#堆排序onlogno1不稳定)
     - [桶排序 [O(N), O(N)]](#桶排序-on-on)
     - [计数排序](#计数排序)
     - [基数排序](#基数排序)
@@ -47,7 +47,20 @@
         - [题目七：旋转正方形矩阵【矩阵分圈处理】](#题目七旋转正方形矩阵矩阵分圈处理)
         - [题目九：“之”字形打印矩阵【矩阵分斜线处理】](#题目九之字形打印矩阵矩阵分斜线处理)
         - [题目十：在行列都排好序的矩阵中找数【注意`都排好序`这个条件】](#题目十在行列都排好序的矩阵中找数注意都排好序这个条件)
-    - [二分搜索的扩展](#二分搜索的扩展)
+- [四、二叉树](#四二叉树)
+    - [题目一：实现二叉树的先序、中序、后序遍历，包括递归方式和非递归方式](#题目一实现二叉树的先序中序后序遍历包括递归方式和非递归方式)
+        - [1 综： 递归思想**](#1-综-递归思想)
+        - [1.1  先序、中序、后序遍历的递归版本](#11--先序中序后序遍历的递归版本)
+        - [1.2先序、中序、后序遍历的非递归版本](#12先序中序后序遍历的非递归版本)
+            - [1.2.1 先序【中左右】](#121-先序中左右)
+            - [1.2.2 后序【左右中】【两个栈，由先序变来，先序中左右->中右左->左右中】](#122-后序左右中两个栈由先序变来先序中左右-中右左-左右中)
+            - [1.2.3 中序【左中右】](#123-中序左中右)
+    - [题目二：在二叉树中找到一个节点的后继节点](#题目二在二叉树中找到一个节点的后继节点)
+    - [题目三、介绍二叉树的序列化和反序列化](#题目三介绍二叉树的序列化和反序列化)
+    - [题目四、折纸问题](#题目四折纸问题)
+    - [题目五、判断一棵二叉树是否是平衡二叉树](#题目五判断一棵二叉树是否是平衡二叉树)
+    - [题目六、判断一棵树是否是搜索二叉树、判断一棵树是否是完全二叉树](#题目六判断一棵树是否是搜索二叉树判断一棵树是否是完全二叉树)
+    - [题目七、已知一棵完全二叉树，求其节点的个数](#题目七已知一棵完全二叉树求其节点的个数)
 
 <!-- /TOC -->
 
@@ -165,7 +178,7 @@ public class Main {
 ```
 
 
-## 冒泡排序[O(N<sup>2</sup>), O(1)]
+## 冒泡排序[O(N<sup>2</sup>), O(1)，稳定]
 
   * 时间复杂度:O(N<sup>2</sup>)<br>
   * 额外空间复杂度：O(1)
@@ -193,7 +206,7 @@ public class BublleSort {
 }
 
 ```
-## 选择排序[O(N<sup>2</sup>), O(1)]
+## 选择排序[O(N<sup>2</sup>), O(1)，不稳定]
 
   * 时间复杂度：O(N<sup>2</sup>)<br>
   * 额外空间复杂度：O(1)
@@ -223,7 +236,7 @@ public class BublleSort {
 }
 ```
  
-## 插入排序[O(N)-O(N<sup>2</sup>), O(1)]
+## 插入排序[O(N)-O(N<sup>2</sup>), O(1)，稳定]
 
    * 时间复杂度：<br>
      1.如果本身已经排好序了，为O(N)<br>
@@ -252,7 +265,7 @@ public class BublleSort {
     }
 }
  ```
-## 归并排序[O(NlogN), O(N)]
+## 归并排序[O(NlogN), O(N)，可以稳定]
 
   * 时间复杂度：O(NlogN)：T(N)=2T(N/2)+O(N),其中O(N)为merge操作的时间复杂度，此递归算式符合master公式，直接得到时间复杂度为O(NlogN)
   * 额外空间复杂度：O(N)
@@ -426,7 +439,7 @@ public class NetherlandsFlag {
 }
 ```
   
-## 经典快排和随机快排（基于荷兰国旗问题）[O(NlogN), O(logN)]
+## 经典快排和随机快排（基于荷兰国旗问题）[O(NlogN), O(logN)，不稳定]
   * 时间复杂度：O(NlogN)
   * 空间复杂度：O(logN):因为递归的时候每一层都需要记录划分点（记录等于区域的位置）
   * 原理： 经典快排：利用最后一个数作为分界点，小的放左边，大的放右边，使用的是荷兰国旗问题的方法：数组分为小于，等于，大于三堆，再递归对小于，大于进行划分<br>
@@ -488,7 +501,7 @@ public class QuickSort {
      ![](https://images2015.cnblogs.com/blog/1024555/201612/1024555-20161217182750011-675658660.png)
    * 大根堆的构造（上浮swim）（在数组中构造）：实质就是每添加一个数，就将它上浮，直到它不再大于其父结点
    * 建立堆的时间复杂度：O(N)：log1+log2+log3+...logN-1【收敛于O(N)】
-## 堆排序
+## 堆排序【O(NlogN)，O(1)，不稳定】
    * 时间复杂度：O(NlogN)
    * 额外空间复杂度：O(1)
    * 堆排序（在数组中排序从小到大）：
@@ -1716,4 +1729,193 @@ public class SearchInSortedMatrix {
 }
     
 ```
-## 二分搜索的扩展
+# 四、二叉树
+## 题目一：实现二叉树的先序、中序、后序遍历，包括递归方式和非递归方式
+### 1 综： 递归思想**
+* 【分析】：必须想清楚你这一层要返回给你的上一层什么东西，这些信息需要同样的格式
+    * 左交给我信息
+    * 右交给我信息
+    * 我要交给上一层什么信息
+
+* 实际遍历的时候三者是一样的，每个结点会遇见3次，先序、中序、后序遍历只是选择在哪里打印
+### 1.1  先序、中序、后序遍历的递归版本
+```Java
+    public static class Node{
+        public int value;
+        public Node left;
+        public Node right;
+        public Node(int value){
+            this.value = value;
+        }
+    }
+
+    //递归版本【递归打印】
+        public static void preOrderRecur(Node head){
+        if(head == null)
+            return;
+        System.out.print(head.value + " ");//先序
+        preOrderRecur(head.left);
+        preOrderRecur(head.right);
+    }
+
+    public static void inOrderRecur(Node head){
+        if (head == null)
+            return;
+        inOrderRecur(head.left);
+        System.out.print(head.value + " "); //中序
+        inOrderRecur(head.right);
+    }
+
+    public static void posOrderRecur(Node head){
+        if (head == null)
+            return;
+        posOrderRecur(head.left);
+        posOrderRecur(head.right);
+        System.out.print(head.value + " " );//后序
+    }
+```
+### 1.2先序、中序、后序遍历的非递归版本
+#### 1.2.1 先序【中左右】
+* 【分析】：处理当前结点，有右先压右，有左再压左，那么这样弹出就会是先左，再右
+    * 为什么使用栈：二叉树只有从上到下的路径，所以需要一个结构让他回去，只有栈【队列只能从上到下，回不去】
+```Java
+ public static void preOrderUnRecur(Node head){
+        System.out.println("pre - order:");
+        if (head == null)
+            return;
+        Stack<Node> stack = new Stack<Node>();
+        stack.push(head);
+        while (!stack.isEmpty()){
+            head = stack.pop(); //先处理当前结点
+            System.out.print(head.value + " ");
+            if (head.right != null){ //有右先压右，有左再压左，那么弹出的时候就会是先左，再右了
+                stack.push(head.right);
+            }
+            if(head.left != null){
+                stack.push(head.left);
+            }
+        }
+        System.out.println();
+    }
+```
+#### 1.2.2 后序【左右中】【两个栈，由先序变来，先序中左右->中右左->左右中】
+* 【分析】：先序中左右，先处理当前结点，然后改为先压左孩子，再压右孩子，那么弹出的顺序就成为了右左【中右左】，利用一个栈即可变为左右中
+```Java
+  public static void posOrderUnRecur(Node head){//在先序遍历【中左右】的基础上改，中左右->中右左->利用一个新栈变成左右中
+        System.out.println("post-order:");
+        if (head == null)
+            return;
+        Stack<Node> s1= new Stack<Node>();
+        Stack<Node> s2= new Stack<Node>(); //用于将 中右左 变为 左右中【后序】
+        s1.push(head);
+        while (!s1.isEmpty()){
+            head = s1.pop();
+            s2.push(head);  //***不是直接打印，而是放入栈中
+            if (head.left != null) //***和先序相反
+                s1.push(head.left);
+            if (head.right != null) //**
+                s1.push(head.right);
+        }
+        while (!s2.isEmpty())
+            System.out.print(s2.pop().value + " ");
+    }
+```
+
+#### 1.2.3 中序【左中右】
+* 【分析】：压一绺左边界，再再从尾端依次往外弹，弹出每个结点，再去遍历其右孩子【压右孩子的左边界】的过程就模拟了左中右这个过程 
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E4%B8%AD%E5%BA%8F.jpg?raw=true)
+```Java
+  public static void inOrderUnRecur(Node head){
+        System.out.println("in-Order:");
+        if (head == null)
+            return;
+        Stack<Node> stack = new Stack<Node>();
+        /** 压一绺左边界，再再从尾端依次往外弹，弹出每个结点，再去遍历其右孩子的过程就模拟了左中右这个过程 */
+        while (!stack.isEmpty() || head != null) { //head!=null只是用于刚开始stack为空的时候，因为它没有像别的那样在循环前就push了head
+            if (head != null){ //当前结点不为空，当前结点压入栈，当前结点往左移动【一压就压一斜绺】
+                stack.push(head);
+                head=head.left;
+            }else {  //当前结点为空说明上面已经压完一绺了，弹出结点（中点），再处理右边
+                head = stack.pop();
+                System.out.print(head.value + " ");
+                head = head.right;
+            }
+        }
+        System.out.println();
+
+    }
+```
+
+## 题目二：在二叉树中找到一个节点的后继节点
+```
+【题目】 现在有一种新的二叉树节点类型如下：
+public class Node { 
+    public int value; 
+    public Node left;
+    public Node right;
+    public Node parent;
+    public Node(int data) { this.value = data; }
+}
+二叉树节点结构多了一个指向父节点的parent指针。假设有一 棵Node类型的节点组成的二叉树，
+树中每个节点的parent指针都正确地指向 自己的父节点，头节点的parent指向null。
+只给一个在二叉树中的某个节点 node，请实现返回node的后继节点的函数。
+在二叉树的中序遍历的序列中，node的下一个节点叫作node的后继节点。
+```
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%90%8E%E7%BB%A7%E7%BB%93%E7%82%B9.png?raw=true)
+
+```Java
+package day5;
+
+public class SuccessorNode {
+    public static class Node{ //带parent指针的结点定义
+        private Node left;
+        private Node right;
+        private Node parent;
+        private int value;
+        public Node(int value){
+            this.value = value;
+        }
+    }
+
+    public static Node getSuccessorNode(Node node){
+        if (node == null) 
+            return null; //不能是return；因为要求有返回值
+        if (node.right != null){
+            //情况一，如果有右子树，后继节点是右子树最左边的结点
+            return getLeftMost(node.right);
+        }else {  
+            //情况二，没有右子树，向上查找我属于哪个结点的左子树，该节点即为后继节点，整棵树只有最后一个结点没有后继结点，会查找到根节点的父节点null
+            Node parent = node.parent;
+            while (parent != null && parent.left != node){ 
+            //parent！=null是为最后一个结点设置的，若parent==null，说明是最后一个结点，其后继结点为null
+                node = parent;
+                parent = node.parent;
+            }
+            return parent;
+        }
+    }
+
+    private static Node getLeftMost(Node node) {
+        if (node == null)
+            return node;  
+        while (node.left != null)
+            node = node.left;
+        return node;
+    }
+    
+}
+```
+## 题目三、介绍二叉树的序列化和反序列化
+## 题目四、折纸问题
+【题目】 请把一段纸条竖着放在桌子上，然后从纸条的下边向
+上方对折1次，压出折痕后展开。此时 折痕是凹下去的，即折痕
+突起的方向指向纸条的背面。如果从纸条的下边向上方连续对折
+2 次，压出折痕后展开，此时有三条折痕，从上到下依次是下折
+痕、下折痕和上折痕。
+给定一 个输入参数N，代表纸条都从下边向上方连续对折N次，
+请从上到下打印所有折痕的方向。 例如：N=1时，打印： down
+N=2时，打印： down down up
+## 题目五、判断一棵二叉树是否是平衡二叉树
+## 题目六、判断一棵树是否是搜索二叉树、判断一棵树是否是完全二叉树
+## 题目七、已知一棵完全二叉树，求其节点的个数
+要求：时间复杂度低于O(N)，N为这棵树的节点个数
