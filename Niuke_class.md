@@ -59,8 +59,33 @@
     - [题目三、介绍二叉树的序列化和反序列化](#题目三介绍二叉树的序列化和反序列化)
     - [题目四、折纸问题](#题目四折纸问题)
     - [题目五、判断一棵二叉树是否是平衡二叉树](#题目五判断一棵二叉树是否是平衡二叉树)
+        - [5.1 二叉树大套路：递归很好用【每个结点会来三次，不要去想什么先、中、后序，有没有打印递归都是存在的】](#51-二叉树大套路递归很好用每个结点会来三次不要去想什么先中后序有没有打印递归都是存在的)
+        - [5.2 平衡二叉树：对任何一棵树，其左右子树高度差不超过1](#52-平衡二叉树对任何一棵树其左右子树高度差不超过1)
     - [题目六、判断一棵树是否是搜索二叉树、判断一棵树是否是完全二叉树](#题目六判断一棵树是否是搜索二叉树判断一棵树是否是完全二叉树)
+        - [6.1 搜索二叉树：没有重复结点，对任何一节点，左子树都比它小，右子树都比它大](#61-搜索二叉树没有重复结点对任何一节点左子树都比它小右子树都比它大)
+        - [6.2 完全二叉树：从左往右堆齐](#62-完全二叉树从左往右堆齐)
     - [题目七、已知一棵完全二叉树，求其节点的个数](#题目七已知一棵完全二叉树求其节点的个数)
+- [五、哈希](#五哈希)
+    - [模块一：认识哈希函数和哈希表](#模块一认识哈希函数和哈希表)
+        - [1. 哈希函数：传入一个字符串，返回一个哈希码【十六进制，十六位，FFFF FFFF FFFF FFFF】](#1-哈希函数传入一个字符串返回一个哈希码十六进制十六位ffff-ffff-ffff-ffff)
+            - [1.1 要求：](#11-要求)
+            - [1.2 哈希函数特征](#12-哈希函数特征)
+            - [1.3 如何实现1000个相互独立的哈希函数【规律不一样】 h= h1 + i * h2](#13-如何实现1000个相互独立的哈希函数规律不一样-h-h1--i--h2)
+        - [2. 哈希表 【put(key,value), get(key), remove(key)】【复杂度数学上不是O(1)，但我们默认是 O(1),因为扩容次数很少，而且可以离线扩容】](#2-哈希表-putkeyvalue-getkey-removekey复杂度数学上不是o1但我们默认是-o1因为扩容次数很少而且可以离线扩容)
+            - [2.1 离线扩容：用户有新数据，同步往新老结构放，使用get时，从老结构拿，直到扩容完毕，就启用新结构，废掉老结构【所以不需要让用户等】](#21-离线扩容用户有新数据同步往新老结构放使用get时从老结构拿直到扩容完毕就启用新结构废掉老结构所以不需要让用户等)
+            - [2.2 开放地址法，拉链法，实际实现的时候是数组+红黑树](#22-开放地址法拉链法实际实现的时候是数组红黑树)
+            - [2.3 应用：一个100T大文件，里面含字符串，要求你打印出所有重复的字符串](#23-应用一个100t大文件里面含字符串要求你打印出所有重复的字符串)
+    - [题目一：设计RandomPool结构【默认哈希表的增、删、改、查都是 O(1)】](#题目一设计randompool结构默认哈希表的增删改查都是-o1)
+    - [模块二：认识布隆过滤器【比特类型的一个Map，可以把所需内存压得很小】：解决爬虫驱虫问题、黑名单问题【检查是否处于这个集合的问题】](#模块二认识布隆过滤器比特类型的一个map可以把所需内存压得很小解决爬虫驱虫问题黑名单问题检查是否处于这个集合的问题)
+        - [1. 举例：黑名单问题](#1-举例黑名单问题)
+            - [1.1 将某个URL加入黑名单，将100亿个URL加入黑名单](#11-将某个url加入黑名单将100亿个url加入黑名单)
+            - [1.2. 查某个URL是否在黑名单](#12-查某个url是否在黑名单)
+            - [1.3 至少准备多大的容器：m = - (n * lnP) / (ln2)<sup>2</sup> 【由样本量和预期失误率决定】](#13-至少准备多大的容器m----n--lnp--ln2sup2sup-由样本量和预期失误率决定)
+            - [1.4 计算需要多少个哈希函数 ：k = ln2 * (m / n)](#14-计算需要多少个哈希函数-k--ln2--m--n)
+            - [1.5 我设计了 m 大小容器，k 个哈希函数，这种设计的真实失误率： （1 - e<sup>-(n*k)/m）</sup>）<sup>k</sup>](#15-我设计了-m-大小容器k-个哈希函数这种设计的真实失误率-1---esup-nkmsupsupksup)
+    - [模块三：认识一致性哈希](#模块三认识一致性哈希)
+    - [题目二：岛问题](#题目二岛问题)
+    - [模块四：认识并查集结构](#模块四认识并查集结构)
 
 <!-- /TOC -->
 
@@ -1825,16 +1850,18 @@ public class SearchInSortedMatrix {
 * 【分析】：压一绺左边界，再再从尾端依次往外弹，弹出每个结点，再去遍历其右孩子【压右孩子的左边界】的过程就模拟了左中右这个过程 
 ![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E4%B8%AD%E5%BA%8F.jpg?raw=true)
 ```Java
-  public static void inOrderUnRecur(Node head){
+   public static void inOrderUnRecur(Node head){
         System.out.println("in-Order:");
         if (head == null)
             return;
         Stack<Node> stack = new Stack<Node>();
         /** 压一绺左边界，再再从尾端依次往外弹，弹出每个结点，再去遍历其右孩子的过程就模拟了左中右这个过程 */
         while (!stack.isEmpty() || head != null) { //head!=null只是用于刚开始stack为空的时候，因为它没有像别的那样在循环前就push了head
-            if (head != null){ //当前结点不为空，当前结点压入栈，当前结点往左移动【一压就压一斜绺】
-                stack.push(head);
-                head=head.left;
+            if (head != null){
+                while (head != null) {//当前结点不为空，当前结点压入栈，当前结点往左移动【一压就压一斜绺】
+                    stack.push(head);
+                    head = head.left;
+                }
             }else {  //当前结点为空说明上面已经压完一绺了，弹出结点（中点），再处理右边
                 head = stack.pop();
                 System.out.print(head.value + " ");
@@ -1906,6 +1933,51 @@ public class SuccessorNode {
 }
 ```
 ## 题目三、介绍二叉树的序列化和反序列化
+* 【分析】：序列化：怎么记录下来（包括结构这些），反序列化：怎么还原结构。
+    * “_”：用于分开字符
+    * “#”：用于表示尾端null
+* 【技巧】：利用递归，怎么序列化就用同样的方式反序列化【先序、中序、后序都是一个套路】
+```Java
+package day5;
+
+import testTools.Node;
+import testTools.PrintTree;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class SerializeAndReconstruct {
+    
+    public static String serialByPre(Node head){ //利用先序来进行序列化
+        if (head == null)
+            return "#_";
+        String res = head.value + "_";
+        res += serialByPre(head.left);
+        res += serialByPre(head.right);
+        return res;
+    }
+
+    public static Node reconByPreString(String s){ //反序列化
+        String[] values = s.split("_"); //*****
+        Queue<String> queue = new LinkedList<String>();
+        for (String i: values){
+            queue.add(i);
+        }
+        return reconByPreString( queue);
+    }
+
+    private static Node reconByPreString(Queue<String> queue) {
+        String s = queue.poll();//queue利用poll
+        if (s.equals("#")){ //不能用s==“#”
+            return null;
+        }
+        Node node = new Node(Integer.valueOf(s));//*****
+        node.left = reconByPreString(queue);
+        node.right = reconByPreString(queue);
+        return node;
+    }
+    
+}
+```
 ## 题目四、折纸问题
 【题目】 请把一段纸条竖着放在桌子上，然后从纸条的下边向
 上方对折1次，压出折痕后展开。此时 折痕是凹下去的，即折痕
@@ -1916,6 +1988,391 @@ public class SuccessorNode {
 请从上到下打印所有折痕的方向。 例如：N=1时，打印： down
 N=2时，打印： down down up
 ## 题目五、判断一棵二叉树是否是平衡二叉树
+### 5.1 二叉树大套路：递归很好用【每个结点会来三次，不要去想什么先、中、后序，有没有打印递归都是存在的】
+* 【套路】：
+    * 1.列出所有可能性
+    * 2.整理出返回值的类型ReturnData【整个递归要按照同样的返回值的结构】
+    * 3.得到左右子树的信息
+    * 4.整合子树的信息
+    * 5.返回我的信息
+### 5.2 平衡二叉树：对任何一棵树，其左右子树高度差不超过1
+* 【分析】：只要每个结点的树都是平衡的，则整棵树就是平衡的
+    * 1.左子树不平衡？
+    * 2.右子树不平衡？
+    * 3.都平衡，高度差超过1？
+    * 4.都平衡，高度差不超过1，则说明是平衡树
+
+```Java
+package day5;
+
+import testTools.Node;
+
+public class IsBalance {
+
+    public static class ReturnData{ //返回值的结构
+        public boolean isB;
+        public int h;
+        public ReturnData(boolean isB,int h){
+            this.h = h;
+            this.isB = isB;
+        }
+    }
+
+    public static boolean isBalance(Node head){ //主调用
+        return process(head).isB;
+    }
+
+    private static ReturnData process(Node head){ //递归从把自己看作是一棵子树的开头来看
+        if (head == null){
+            return new ReturnData(true,0);
+        }
+        ReturnData l = process(head.left); //得到左子树的高度和是否平衡信息
+        if (l.isB == false){ //左子树不平衡，则整棵树不平衡
+            return new ReturnData(false, -1);//可以只用h就表示高度和是否平衡，加上isB只是方便记忆递归套路
+        }
+        ReturnData r = process(head.right);
+        if (r.isB == false){ //右子树不平衡，则整棵树不平衡
+            return new ReturnData(false,-1);
+        }
+
+        if (Math.abs(r.h-l.h) > 1){ //左右子树平衡，但高度差超过1，整棵树也不平衡
+           return new ReturnData(false,-1);
+        }
+
+        //左右子树都平衡，且高度差小于等于1，则此节点所引导的子树平衡，高度为左右子树最高的高度+1
+        return new ReturnData(true,Math.max(r.h,l.h) + 1);
+    }
+    
+}
+```
+
 ## 题目六、判断一棵树是否是搜索二叉树、判断一棵树是否是完全二叉树
+### 6.1 搜索二叉树：没有重复结点，对任何一节点，左子树都比它小，右子树都比它大
+* 【分析】：判断方法：实际就是中序遍历的结果如果是依次升序，就是搜索二叉树【非递归版好改一些】
+```Java
+package day5;
+
+import testTools.Node;
+import testTools.PrintTree;
+import java.util.Stack;
+
+public class IsBinarySearchTree {
+
+    public static Boolean isBinarySearchTree (Node head){
+        //基于中序遍历
+        if (head == null)
+            return true; //空树是二叉搜索树
+        int pre = Integer.MIN_VALUE; //*******不要忘记设置值，否则默认为0，而树里第一个数可能小于0，导致错误
+        Stack<Node> stack = new Stack<Node>();
+        /** 压一绺左边界，再再从尾端依次往外弹，弹出每个结点，再去遍历其右孩子的过程就模拟了左中右这个过程 */
+        while (!stack.isEmpty() || head != null) { //head!=null只是用于刚开始stack为空的时候，因为它没有像别的那样在循环前就push了head
+            if (head != null){
+                while (head != null) {//当前结点不为空，当前结点压入栈，当前结点往左移动【一压就压一斜绺】
+                    stack.push(head);
+                    head = head.left;
+                }
+            }else {  //当前结点为空说明上面已经压完一绺了，弹出结点（中点），再处理右边，对右边下一次一压就压一斜绺
+                head = stack.pop();
+                if (pre > head.value){ //*****【位置不能放错了哈】前一个数大于后一个，则一定不是二叉搜索树
+                    return false;
+                }
+                pre = head.value; // ****前一个数小于当前，则pre记录当前，即为下一个数的前一个数
+                head = head.right;
+            }
+        }
+        return true; //中序遍历完了都没有返回false，说明是二叉搜索树
+    }
+}
+```
+
+### 6.2 完全二叉树：从左往右堆齐
+* 【分析】：进行层序遍历每个结点：
+    * 情况1：左右双全，则看下一个结点
+    * 情况2：如果一个结点不是左右双全
+        * 2.1 如果一个结点无左结点，有右节点，则一定不是完全二叉树
+        * 2.2 如果一个结点有左结点，无右节点，则后面遇到的结点必须都是叶节点才能使完全二叉树，否则false
+        * 2.3 如果一个结点无左结点，无右结点，依然则后面遇到的结点必须都是叶节点才能使完全二叉树，否则false
+
+```Java
+package day5;
+
+import testTools.Node;
+import testTools.PrintTree;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class IsCompleteBT {
+    public static Boolean isCompleteBT(Node head){
+        if (head == null){ //永远的第一步
+            return true;
+        }
+        Boolean afterMustLeaf = false;
+        Queue<Node> queue = new LinkedList<Node>();
+        queue.offer(head);
+        while (! queue.isEmpty()){
+            head = queue.poll();
+            if (afterMustLeaf && (head.left!=null || head.right!=null)){
+                return false; //在这结点前已经开启后续结点必须是叶节点的要求后，此节点却不是叶节点，则一定不是完全二叉树
+            }
+            //没开启afterMustLeaf，说明之前的结点都正常，是不是完全二叉树就看我及之后的结点了
+            if (head.left == null && head.right != null){ //情况2.1，无左结点，有右节点，则一定不是完全二叉树
+                return false;
+            }
+            //压入左右结点【为了层序遍历】，并且开始判断之后是否要开启afterMustLeaf
+            if (head.left != null){
+                queue.offer(head.left);
+            }
+            if (head.right != null){
+                queue.offer(head.right);
+            }else { // 前面所有结点都是左右双全，但自己少了右结点【左结点可能有，可能无，情况2.2和2.3】，后续结点都必须是叶节点
+                afterMustLeaf = true;
+            }
+        }
+        return true; //层序遍历完了都没出现问题返回false，则说明是完全二叉树
+    }
+}
+```
 ## 题目七、已知一棵完全二叉树，求其节点的个数
-要求：时间复杂度低于O(N)，N为这棵树的节点个数
+* 已知一棵完全二叉树，求其节点的个数。 要求：时间复杂度低于O(N)，N为这棵树的节点个数
+* 【分析】：如果是按照遍历，复杂度会是O(N)，所以不可以用遍历整棵树来求，所以要利用满二叉树的性质：结点个数为2^h-1.
+    * 1）如果树为空，返回0；
+    * 2）不为空，遍历左子树左边界，得到左子树高度
+    * 3）遍历右子树左边界得到右子树高度
+        * 若右子树的高度等于左子树，说明左子树一定是满二叉树，总结点数 = 2^hl-1【左子树结点数】 +1【是父结点】+ 递归得到的右子树结点个数
+        * 若右子树的高度不等于（少1）左子树，说明右子树一定是满二叉树，总结点数 = 2^hr-1【右子树结点数】 +1【是父结点】+ 递归得到的左子树结点个数
+* 【时间复杂度分析】：总共要找到 logN 个结点【每层一个】，每个结点要找它的左子树高度+右子树高度 logN，所以时间复杂度是O[(logN)^2]
+    * 如果树有2^32个结点，用遍历是2^32，而我们的算法得到的是32^2，所以 O[(logN)^2] 小于 O(N) 
+
+```Java
+package day5;
+
+import testTools.Node;
+
+public class NodeNum {
+
+    public static int nodeNum(Node head){
+        if (head == null){
+            return 0;
+        }
+        int hl = high(head.left);   //得到左子树的高度
+        int hr = high(head.right);  //得到右子树的高度
+        if (hr == hl){
+            //如果右子树的高度等于左子树，说明左子树一定是满二叉树，结点数2^hl-1，+1加的是父结点，然后再加右子树结点个数
+            return ((1<<hl) -1 +1 +nodeNum(head.right));
+        }else { //如果不等于，肯定是少了1层【完全二叉树的性质】，则右子树一定是满二叉树
+            return ((1<<hr) -1 +1 + nodeNum(head.left));
+        }
+    }
+
+    private static int high(Node node) { //求树的高度
+        if (node == null)
+            return 0;
+        int h = 0;
+        while (node != null){
+            h++;
+            node = node.left;
+        }
+        return h;
+    }
+
+}
+```
+#  五、哈希
+## 模块一：认识哈希函数和哈希表
+### 1. 哈希函数：传入一个字符串，返回一个哈希码【十六进制，十六位，FFFF FFFF FFFF FFFF】
+#### 1.1 要求：
+ * 1）输入域无穷大
+ * 2）输出是有穷尽的
+ * 3）同一个输入，返回值一定一样
+ * 4）当输入不一样，也可能得到一样的值
+ * 5）给我很多不同的输入，我将在整个输出域S上均匀分布【离散型】
+#### 1.2 哈希函数特征
+* 1）和输入规律没有关系【所以可以用来打乱输入规律】
+* 2）哈希函数的推论：如果哈希函数返回值在整个S域上均匀分布，则返回值%m，可以把输出域限定在0~m-1，且在这个范围上也是均匀分布的
+    * 面试官不会让你实现一个哈希函数的
+#### 1.3 如何实现1000个相互独立的哈希函数【规律不一样】 h= h1 + i * h2
+* 你只有一个哈希函数，你把得到的16位结果分为两半。
+    * 把前八位作为第一个哈希函数 H1，把后八位作为第二个哈希函数 H2
+        * 因为在哈希函数内部，16位哈希码的每一位的结果也是独立的
+        * 当然如果你本身就有两个哈希函数，你直接按公式就可以
+    * H = H1 + i * H2 【i = 1,2,3,4......,可以做无数个哈希函数】
+
+
+### 2. 哈希表 【put(key,value), get(key), remove(key)】【复杂度数学上不是O(1)，但我们默认是 O(1),因为扩容次数很少，而且可以离线扩容】
+#### 2.1 离线扩容：用户有新数据，同步往新老结构放，使用get时，从老结构拿，直到扩容完毕，就启用新结构，废掉老结构【所以不需要让用户等】
+#### 2.2 开放地址法，拉链法，实际实现的时候是数组+红黑树
+
+#### 2.3 应用：一个100T大文件，里面含字符串，要求你打印出所有重复的字符串
+* 【分析】：这是一个经典的大数据的问题，用哈希来分流。
+    * 问面试官给多少台机器，大文件存在哪，按行读有没有很快的工具？
+        * 1000台机器，标好号0——999，大文件存在分布式文件系统上，有很快的工具，你直接说怎么处理吧
+    * 每行作为一个文本读出来，利用哈希函数算出一个hashcode，然后hashcode%1000，就可以把这行文本扔到该机器，我们可以知道，相同的文本一定在相同的机器上。会把n种字符串均匀地分布到这1000 台机器上。然后单独在一台机器上是统计哪些是重复的【1000台机器运行，并发】
+        * 如果这1000 台机器每台的数据你还是觉得多，就可以在每台机器上再通过哈希函数分成小文件，每台机器又可以并行？
+
+
+
+## 题目一：设计RandomPool结构【默认哈希表的增、删、改、查都是 O(1)】
+
+```
+【题目】 设计RandomPool结构
+
+设计一种结构，在该结构中有如下三个功能：
+
+insert(key)：将某个key加入到该结构，做到不重复加入。
+
+delete(key)：将原本在结构中的某个key移除。 
+
+getRandom()：等概率随机返回结构中的任何一个key。
+
+【要求】 Insert、delete和getRandom方法的时间复杂度都是 O(1)
+```
+* 【分析】：准备两张哈希表和一个size，size用于记录含有多少个元素【且0 ~ size-1 一定含有东西】
+```Java
+package day6;
+
+import java.util.HashMap;
+
+/** 可以加入数据，删除数据，且等概率随机返回结构中的任何一个数据 */
+public class RandomPool<K> { //此处的K不能忘，泛型
+
+    private HashMap<K,Integer> map1; //用Integer是因为下标是int
+    private HashMap<Integer,K> map2;
+    private int size; //用于记录有多少个元素，且保证 0~size-1 里面一定是有元素的
+
+    public RandomPool(){
+        map1 = new HashMap<K, Integer>();
+        map2 = new HashMap<Integer, K>();
+        size = 0;
+    }
+
+    public void insert(K key){ //将某个key加入到该结构，做到不重复加入。
+        if (! map1.containsKey(key)){ //**因为如果加入重复的键，则会改变value值，而不是添加一个新的，所以要判断
+            map1.put(key,size); // key->index
+            map2.put(size,key); //此表是用于等概率随机返回的,index->key
+            size++;
+        }
+    }
+
+
+    public void delete(K key){ //将原本在结构中的某个key移除。
+        //删除原本key对儿,lastIndex对儿,加入lastKey->deleteIndex这一对儿
+        if ( map1.containsKey(key)){ //如果包含才删除
+            int deleteIndex = map1.get(key); //要删除的元素的标号，我们要将最后一个元素和这个标号连在一起
+            int lastIndex = --size; //同时数据个数减1了
+            K lastKey = map2.get(lastIndex);
+            //加入已经存在的键就是更新其值，记住key才是真正的数据，index是你自己定义的，为了随机返回
+            map1.put(lastKey, deleteIndex); //加入lastKey->deleteIndex这一对儿
+            map2.put(deleteIndex,lastKey);  //加入lastKey->deleteIndex这一对儿
+            map1.remove(key); //删除元素
+            map2.remove(lastIndex); //删除元素
+        }
+    }
+
+    public K getRandom(){ //等概率随机返回结构中的任何一个key
+        if (size == 0)
+            return null; // *****不要忘记
+        //不要忘记（int），否则返回类型是double，也不要忘记 (Math.random() *size)的括号，否则出大问题
+        int index =(int) (Math.random() *size);
+        return map2.get(index);
+    }
+
+}
+```
+
+## 模块二：认识布隆过滤器【比特类型的一个Map，可以把所需内存压得很小】：解决爬虫驱虫问题、黑名单问题【检查是否处于这个集合的问题】
+* 假如有一个100亿个URL的黑名单。你给我一个URL，如果属于我返回true，否则false。
+    * 如果用哈希集合HashSet,一个URL假设是64字节，那么需要6400亿字节【640G】，需要的空间太大了【只有一台机器做不到】，所以不能用此方法
+    * 如果你用哈希表来分流到很多机器，还是需要代价
+* 所以此种类型的题应该用布隆过滤器，布隆过滤器可以只用一台机器实现查某个东西是否在集合中。
+     * 缺点：布隆过滤器一定有失误率【宁可错杀三千，不放过一个】: 一个URL在黑名单里，它一定会报true，但一个URL不在黑名单里，它也可能报true。失误率万分之一，可以容忍
+### 1. 举例：黑名单问题
+#### 1.1 将某个URL加入黑名单，将100亿个URL加入黑名单
+
+* 布隆过滤器先根据 样本大小和要求的失误率 准备一个大小为 m 的容器，比如int[] arr = new int[1000];//此容器可以表示m=32*1000个位置，因为一个int是4字节，32位
+* 然后准备 K 个相互独立的哈希函数
+* 该URL通过这 K 个哈希函数得到 K 个hashcode【这是取模后的，%m】（可能有重复）,在容器中将这些位置描黑（比特位置为1），则这个URL就进入到布隆过滤器里面来了，描黑步骤如下，比如其中一个位置index = 30000：
+    * 先 intIndex = index/32得到这个比特位来第几个整数
+    * 再 bitIndex = intIndex%32 得到来自这个整数的哪个比特位
+    * 再 arr[intIndex] =( arr[intIndex] | (1 << bitInt) ); 将该比特位改为1 ，就算是这个位置被标记了，以后查这个URL是否在黑名单就看它所属的位置是否被标记为1了
+* 重复100亿次就将这100亿个URL加入黑名单了，所以这个容器要大，否则基本所有的位置都被描黑了，那么即使不在里面，你也会查出描黑返回true，出现失误
+* 所以空间 m 越大，失误率越低
+
+
+#### 1.2. 查某个URL是否在黑名单
+* 经过 K 个哈希函数找到那 K 个位置【可能小于k，因为可能存在哈希函数得到了一样的值】
+    * 如果所有这些位置都被描黑，则返回true，表示在黑名单里
+    * 如果这些位置存在一个及以上位置没有被描黑，则一定不在黑名单里【因为如果在黑名单，进黑名单的时候这些位置就肯定全部描黑了】
+
+#### 1.3 至少准备多大的容器：m = - (n * lnP) / (ln2)<sup>2</sup> 【由样本量和预期失误率决定】
+* n 是样本量，p 是要求的预期失误率 ，比如：n=100亿 ，p=0.0001
+    * 代入公式得 m = 131571428572 大小，但这是比特，所以还要除以8 ，才能得到需要多少字节数，得到23G (而原本不用布隆过滤器要640G，所以布隆过滤器很省空间)
+#### 1.4 计算需要多少个哈希函数 ：k = ln2 * (m / n)
+* 通过1.3得到 m ,一般我们向上取整（因为越大，失误率越低），然后如果K 是带小数的，我们也向上取整【因为哈希函数不可能 几点几个】，但这样的话，失误率又变了，所以要通过 1.5 来计算失误率是否小于我们期望的值
+
+#### 1.5 我设计了 m 大小容器，k 个哈希函数，这种设计的真实失误率： （1 - e<sup>-(n*k)/m）</sup>）<sup>k</sup>
+* 计算出来大约是多少，是否小于0.0001，我的设计是否满足要求
+
+
+## 模块三：认识一致性哈希【是一种服务器设计】+ 虚拟节点技术
+### 3.1 经典的服务器的抗压结构
+#### 3.1.1 场景：放数据，查数据，这个操作很频繁，怎样让它负载均衡
+* 有很多前端，接受request；有一个后端集群组含m台机器，比如 机器1，2,3
+* 怎样放入 【“左”，1】这条数据？
+    * 所有前端都带同一个哈希函数，得到hashcode%m，是哪台机器就放在哪台机器，以此实现负载均衡，查数据也是找到这台机器
+#### 3.1.2 问题：当我想要加机器或者减机器的时候，这个结构就死了，跟哈希表扩容一样，数据需要全部重新分布【因为m变了，%m 就肯定不一样了】
+### 3.2 升级：一致性哈希结构 + 虚拟结点技术：在实现负载均衡的同时，把数据迁移的代价变得很低【有效地解决分布式存储结构下动态增加和删除节点所带来的问题】
+#### 3.2.1 一致性哈希原理：
+* 假设哈希函数得到的hashcode范围是 ：0~2^32-1；将这个范围想象成一个环 【2^32-1 的下一个位置为0】
+* 1.我们的每台机器【缓存节点node】，根据IP得到hashcode，映射到环形空间当中。
+* 2.一个数据key来，用同样的哈希函数计算出hashcode，打到环上，顺时针找到离它最近的缓存节点，就扔到里面去。所以图中key1存储于node1，key2，key3存储于node2，key4存储于node3。
+![](https://upload-images.jianshu.io/upload_images/5838771-412871a50348728f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640/format/webp)
+
+#### 3.2.2 当缓存的节点有增加或删除的时候，一致性哈希的优势就显现出来了。
+
+* 1.增加节点
+
+    * 当缓存集群的节点有所增加的时候，整个环形空间的映射仍然会保持一致性哈希的顺时针规则，所以有一小部分key的归属会受到影响。
+    * 图中加入了新节点node4，处于node1和node2之间，按照顺时针规则，从node1到node4之间的缓存不再归属于node2，而是归属于新节点node4。因此受影响的key只有key2。
+    * 最终把key2的缓存数据从node2迁移到node4，就形成了新的符合一致性哈希规则的缓存结构。
+![](https://upload-images.jianshu.io/upload_images/5838771-15dd06d340b56334.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640/format/webp)
+
+
+* 2.删除节点
+
+    * 当缓存集群的节点需要删除的时候（比如节点挂掉），整个环形空间的映射同样会保持一致性哈希的顺时针规则，同样有一小部分key的归属会受到影响。
+    * 图中删除了原节点node3，按照顺时针规则，原本node3所拥有的缓存数据就需要“托付”给node3的顺时针后继节点node1。因此受影响的key只有key4。
+    * 最终把key4的缓存数据从node3迁移到node1，就形成了新的符合一致性哈希规则的缓存结构。
+![](https://upload-images.jianshu.io/upload_images/5838771-941765990b326bcf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640/format/webp)
+
+说明：这里所说的迁移并不是直接的数据迁移，而是在查找时去找顺时针的后继节点，因缓存未命中而刷新缓存。?
+
+#### 3.2.2 一致性哈希算法引入了 虚拟节点 【需要重写】
+* 引入虚拟节点的原因：
+    * 因为可能出现分布不均匀的情况。比如下图这样，按顺时针规则，所有的key都归属于统一个节点。
+    * 为了优化这种节点太少而产生的不均衡情况。一致性哈希算法引入了 虚拟节点 的概念。
+* 所谓虚拟节点，就是基于原来的物理节点映射出 N 个子节点，最后把所有的子节点映射到环形空间上。
+
+
+
+如上图所示，假如node1的ip是192.168.1.109，那么原node1节点在环形空间的位置就是hash（“192.168.1.109”）。
+
+我们基于node1构建两个虚拟节点，node1-1 和 node1-2，虚拟节点在环形空间的位置可以利用（IP+后缀）计算，例如：
+
+hash（“192.168.1.109#1”），hash（“192.168.1.109#2”）
+
+此时，环形空间中不再有物理节点node1，node2，只有虚拟节点node1-1，node1-2，node2-1，node2-2。由于虚拟节点数量较多，缓存key与虚拟节点的映射关系也变得相对均衡了。
+
+
+## 题目二：岛问题
+```
+一个矩阵中只有0和1两种值，每个位置都可以和自己的上、下、左、右四个位置相连，如果有一片1连在一起，这个部分叫做一个岛，求一个矩阵中有多少个岛？
+举例：
+0 0 1 0 1 0
+1 1 1 0 1 0
+1 0 0 1 0 0
+0 0 0 0 0 0
+这个矩阵中有三个岛。
+```
+
+
+## 模块四：认识并查集结构
