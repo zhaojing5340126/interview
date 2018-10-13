@@ -2313,7 +2313,7 @@ public class RandomPool<K> { //此处的K不能忘，泛型
 * 计算出来大约是多少，是否小于0.0001，我的设计是否满足要求
 
 
-## 模块三：认识一致性哈希【是一种服务器设计】+ 虚拟节点技术
+## 模块三：认识一致性哈希【是一种服务器设计】+ 虚拟节点技术 
 ### 3.1 经典的服务器的抗压结构
 #### 3.1.1 场景：放数据，查数据，这个操作很频繁，怎样让它负载均衡
 * 有很多前端，接受request；有一个后端集群组含m台机器，比如 机器1，2,3
@@ -2325,7 +2325,8 @@ public class RandomPool<K> { //此处的K不能忘，泛型
 * 假设哈希函数得到的hashcode范围是 ：0~2^32-1；将这个范围想象成一个环 【2^32-1 的下一个位置为0】
 * 1.我们的每台机器【缓存节点node】，根据IP得到hashcode，映射到环形空间当中。
 * 2.一个数据key来，用同样的哈希函数计算出hashcode，打到环上，顺时针找到离它最近的缓存节点，就扔到里面去。所以图中key1存储于node1，key2，key3存储于node2，key4存储于node3。
-![](https://upload-images.jianshu.io/upload_images/5838771-412871a50348728f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640/format/webp)
+* 顺时针找的实现方法：将这些机器的hashcode从小到大排成数组，前端每台机器都有一个这个数组，来了一个request，计算其哈希值hr，在数组里找到第一个大于等于hr的值，这个值就是该request应该去的机器【优化：使用二分法来找这个机器】
+![](https://upload-images.jianshu.io/upload_images/5838771-58db181eddaec8a4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/640/format/webp)
 
 #### 3.2.2 当缓存的节点有增加或删除的时候，一致性哈希的优势就显现出来了。
 
@@ -2346,24 +2347,112 @@ public class RandomPool<K> { //此处的K不能忘，泛型
 
 说明：这里所说的迁移并不是直接的数据迁移，而是在查找时去找顺时针的后继节点，因缓存未命中而刷新缓存。?
 
-#### 3.2.2 一致性哈希算法引入了 虚拟节点 【需要重写】
+#### 3.2.2 一致性哈希算法引入了 虚拟节点 【迁移代价很低+负载均衡】
 * 引入虚拟节点的原因：
-    * 因为可能出现分布不均匀的情况。比如下图这样，按顺时针规则，所有的key都归属于统一个节点。
-    * 为了优化这种节点太少而产生的不均衡情况。一致性哈希算法引入了 虚拟节点 的概念。
+    * 因为机器节点太少，所以可能出现分布不均衡的情况【因为机器结点的位置是由IP计算hashcode得到的，哈希算法能在很多结点的时候让它们均匀分布在整个空间，但很少的时候可能让两台机器距离很近或很远，导致负载不均衡】。
+    * 即使一开始做到均匀分布，但加入和删除机器都会破坏这种均匀，所以引入了 虚拟节点 的概念。
 * 所谓虚拟节点，就是基于原来的物理节点映射出 N 个子节点，最后把所有的子节点映射到环形空间上。
 
+* 真实机器是：node1,node2,node3，准备3000个虚拟结点，每台机器分配1000个虚拟机结点，将机器和其对应的虚拟结点记录在路由表中【可以查真实的机器有哪些虚拟结点，虚拟节点属于哪个真实机器】，此时环形空间中不再有物理节点node1，node2，node3，只有虚拟节点node1-1，node1-2,...node2-1，node2-2...node3-1....。由于虚拟节点数量较多，缓存key与虚拟节点的映射关系也变得相对均衡了。将虚拟节点负责的域都扔给它属于的真实机器来处理即可。
+* 增加机器的时候，就分别从node1,2,3含有的虚拟节点取出一部分分给node4，那么只需要迁移这部分虚拟结点的数据即可【直接迁移到node4】。
+
+* 虚拟节点的实现：假如node1的ip是192.168.1.109，那么原node1节点在环形空间的位置就是hash（“192.168.1.109”）。我们基于node1构建两个虚拟节点，node1-1 和 node1-2，虚拟节点在环形空间的位置可以利用（IP+后缀）计算，例如：hash（“192.168.1.109#1”），hash（“192.168.1.109#2”）
 
 
-如上图所示，假如node1的ip是192.168.1.109，那么原node1节点在环形空间的位置就是hash（“192.168.1.109”）。
+## 模块四：认识并查集结构【时间复杂度：O(1)】
+### 4.1 并查集功能【isSameSet，union】
+#### 1） isSameSet:非常快的检查两个元素是否属于一个集合
+* a,b的头结点一样，则是一个集合，否则不是
+#### 2） union: 将两个元素所属的集合合并在一起
+* 合并，谁的元素多，就挂在谁下。
+#### 3） findHead时优化：任何一次查找头结点过程结束后，把这一条路径上的每个结点的父节点都改为头结点
+#### 4） 注意：
+##### 1.并查集结构必须一次性把数据给它，不支持流操作
+##### 2.并查集结构用两个HashMap来实现是最优的
+##### 3.样本为N，只要查询次数+合并次数 逼近于O(N)，则单次查询或合并的平均时间复杂度为O(1),即常数时间。
+### 4.2 实现并查集
+* 【分析】：
+* 第一步：初始化所有结点，将每个结点作为一个集合，一个头结点，指向自己
+* 第二步到第n步：合并或者查询，即isSameSet，或union
 
-我们基于node1构建两个虚拟节点，node1-1 和 node1-2，虚拟节点在环形空间的位置可以利用（IP+后缀）计算，例如：
+![](https://images2015.cnblogs.com/blog/715283/201609/715283-20160917221738289-52951535.png)
+```Java
+package day7;
 
-hash（“192.168.1.109#1”），hash（“192.168.1.109#2”）
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
 
-此时，环形空间中不再有物理节点node1，node2，只有虚拟节点node1-1，node1-2，node2-1，node2-2。由于虚拟节点数量较多，缓存key与虚拟节点的映射关系也变得相对均衡了。
+public class UnionFindSet { //并查集利用两个hashmap实现
+    public static class Node{ //随便你放什么都可以，并查集和结点无关
+        int i;
+        public Node(int i){
+            this.i = i;
+        }
+    }
 
+    HashMap<Node,Node> fatherMap;  //结点->father结点，father只是上一个结点，不代表就是头结点哈
+    HashMap<Node,Integer> sizeMap; //结点->集合size，实际我们会用到的只有头结点对应的集合size
+    public UnionFindSet(List<Node> list){
+        initialSet(list);
+    }
 
-## 题目二：岛问题
+    private void initialSet(List<Node> nodes) { //初始化并查集
+        fatherMap = new HashMap<Node,Node>();
+        sizeMap = new HashMap<Node,Integer>();
+        for (Node node:nodes){  //初始化，将每个结点作为一个集合，一个头结点，指向自己
+            fatherMap.put(node,node);
+            sizeMap.put(node,1);
+        }
+    }
+
+    /** 查看a,b是否属于同一个集合 */
+    public boolean isSameSet(Node a,Node b){
+        return findHead(a)==findHead(b); //比较的是地址？
+    }
+
+    /** 合并a,b所在的集合 */
+    public void union(Node a,Node b){
+        if (a == null || b == null){ 
+            return;
+        }
+        Node aHead = fatherMap.get(a);
+        Node bHead = fatherMap.get(b);
+        if (aHead != bHead){ //两个不在一个集合才需要合并
+            int aSize = sizeMap.get(aHead);
+            int bSize = sizeMap.get(bHead);
+            if (aSize <= bSize){ //即a集合小，则a挂在b集合下
+                fatherMap.put(aHead,bHead);
+                sizeMap.put(bHead,aSize+bSize);
+            }else {
+                fatherMap.put(bHead,aHead);
+                sizeMap.put(aHead,aSize + bSize);
+            }
+        }
+    }
+
+    /** 查找头节点 */
+    private Node findHead(Node cur) {
+        if (cur == null){ 
+            return null;
+        }
+        Stack<Node> stack = new Stack<>();
+        Node father = fatherMap.get(cur);
+        while (cur != father){//找头结点
+            stack.push(cur);  //不是头结点就存起来，方便之后优化：将它们的父节点直接指向头
+            cur = father;
+            father = fatherMap.get(cur);
+        }
+        while (!stack.isEmpty()){ //进行优化，将该路径上所有节点都指向头节点
+            fatherMap.put(stack.pop(),father);
+        }
+        return father;
+    }
+}
+```
+
+## 题目二：岛问题 【矩阵很大时，用分治】
 ```
 一个矩阵中只有0和1两种值，每个位置都可以和自己的上、下、左、右四个位置相连，如果有一片1连在一起，这个部分叫做一个岛，求一个矩阵中有多少个岛？
 举例：
@@ -2372,7 +2461,46 @@ hash（“192.168.1.109#1”），hash（“192.168.1.109#2”）
 1 0 0 1 0 0
 0 0 0 0 0 0
 这个矩阵中有三个岛。
+
+进阶：这个矩阵巨大无比，但你有多个CPU，怎么让它快速得出结果，设计一个分治的思路，能并行的算法，就是你把它分成几块来处理，然后合并出岛的信息
+```
+* 基础版（不分治，和并查集没有任何关系，利用的是递归）：
+    * 【分析】：利用dfs思想，遇到一个未被感染的区域，就递归感染其周围相连的（将数值变为2）
+```Java
+package day7;
+
+public class CountIslands {
+    public static int countIslands(int[][] m){
+        if (m==null || m[0]==null) //maybe因为m.length和m[0].length
+            return 0;
+        int row = m.length; //***行数
+        int column = m[0].length; //***列数
+        int countOfIslands = 0;
+        for (int i = 0;i<row ; i++){
+            for (int j = 0; j< column; j++){
+                if (m[i][j] == 1){//说明遇到了一个新的未被感染的区域
+                    countOfIslands++;
+                    inject(m,i,j,row,column);
+                }
+            }
+        }
+        return countOfIslands;
+    }
+
+    private static void inject(int[][] m, int i, int j, int row, int column) {
+        if (i<0 || i>=row || j<0 || j>=column || m[i][j]!=1){
+            return; //当超出边界，和遇到被感染区或者不相连的地方（!= 1）,就不再需要感染
+        }
+        m[i][j] = 2; //否则感染它
+        inject(m,i-1,j,row,column);//感染上面
+        inject(m,i+1,j,row,column);//感染下面
+        inject(m,i,j-1,row,column);//感染左边
+        inject(m,i,j+1,row,column);//感染右边
+    }
+}
 ```
 
 
-## 模块四：认识并查集结构
+
+* 进阶版【利用并查集】：矩阵可以分成几块，放在不同的CPU上处理，重点在于合并的逻辑。
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%B2%9B%E9%97%AE%E9%A2%98.jpg?raw=true)
