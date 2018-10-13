@@ -170,6 +170,38 @@
             - [4.4.10 UPDATE UserJson set data = json_array_append(data,"$.address",JSON_EXTRACT(data,'$.address2')) where JSON_EXTRACT(data,'$.address2') IS NOT NULL AND uid >0; //json_array_append 追加数据](#4410-update-userjson-set-data--json_array_appenddataaddressjson_extractdataaddress2-where-json_extractdataaddress2-is-not-null-and-uid-0-json_array_append-追加数据)
             - [4.4.11 UPDATE UserJson set data = JSON_REMOVE(data,'$.address2') where uid>0; //json_remove 从json记录中删除数据](#4411-update-userjson-set-data--json_removedataaddress2-where-uid0-json_remove-从json记录中删除数据)
 - [十、day10：Employees 临时表的创建、外键约束](#十day10employees-临时表的创建外键约束)
+    - [1.`Employees`数据库是一个用于学习和测试的数据库，大约`160MB`，`4百万条记录`](#1employees数据库是一个用于学习和测试的数据库大约160mb4百万条记录)
+    - [2. 表(TABLE)](#2-表table)
+        - [2.1. 表的介绍](#21-表的介绍)
+            - [1） 表是关系数据库的核心，表=关系](#1-表是关系数据库的核心表关系)
+            - [2） 表是记录的集合：集合是无序的](#2-表是记录的集合集合是无序的)
+            - [3） 二维表格模型易于人的理解](#3-二维表格模型易于人的理解)
+            - [4） MySQL默认存储引擎都是基于行(记录)存储](#4-mysql默认存储引擎都是基于行记录存储)
+            - [5） 每行记录都是基于列进行组织的](#5-每行记录都是基于列进行组织的)
+        - [2.2 临时表 create temporary table temp_a(a int);](#22-临时表-create-temporary-table-temp_aa-int)
+            - [1) 临时表是`SESSION`级别的, 当前用户logout或者其他用户登录上来，是无法看到这张表的](#1-临时表是session级别的-当前用户logout或者其他用户登录上来是无法看到这张表的)
+            - [2) 当临时表和普通表同名时，当前用户只能看到同名的临时表**](#2-当临时表和普通表同名时当前用户只能看到同名的临时表)
+            - [3) 创建表时带上`if not exists`进行表的存在性检查；同时建议在临时表的表名前面加上统一的词头：防止创建和普通表同名的临时表](#3-创建表时带上if-not-exists进行表的存在性检查同时建议在临时表的表名前面加上统一的词头防止创建和普通表同名的临时表)
+            - [4) 临时表的主要的作用：是给当前登录的用户存储临时数据或者临时结果的。不要和SQL优化器在排序过程中内部帮你创建的临时表相混淆。](#4-临时表的主要的作用是给当前登录的用户存储临时数据或者临时结果的不要和sql优化器在排序过程中内部帮你创建的临时表相混淆)
+            - [5) 临时表默认存储引擎是 InnoDB [ 5.7以后]](#5-临时表默认存储引擎是-innodb--57以后)
+            - [6) 临时表存储位置：MySQL5.7.9 把临时`表结构`放在`tmpdir`，而数据`表数据`放在`datadir`](#6-临时表存储位置mysql579-把临时表结构放在tmpdir而数据表数据放在datadir)
+        - [2.3 查看表结构](#23-查看表结构)
+        - [1) show create table test_1\G   -- 表结构](#1-show-create-table-test_1\g------表结构)
+        - [2) desc test_1\G  -- 表的描述,描述二维表信息](#2-desc-test_1\g-----表的描述描述二维表信息)
+        - [3) show table status like "test_1"\G    -- 看表结构的元数据信息](#3-show-table-status-like-test_1\g-------看表结构的元数据信息)
+        - [2.4  ALTER TABLE ：当表记录很大的时候，`alter table`会很耗时，影响性能](#24--alter-table-当表记录很大的时候alter-table会很耗时影响性能)
+            - [2.5 alter table test_1 add column b char(10);  -- 添加列 b](#25-alter-table-test_1-add-column-b-char10-----添加列-b)
+            - [2.6 alter table test_1 drop column b;  -- 删除列 b](#26-alter-table-test_1-drop-column-b-----删除列-b)
+    - [3 外键约束：可以让数据进行一致性更新，但是会有一定的`性能损耗`，线上业务使用不多。通常下述级联更新和删除都是由应用层业务逻辑进行判断并实现，而非使用外键](#3-外键约束可以让数据进行一致性更新但是会有一定的性能损耗线上业务使用不多通常下述级联更新和删除都是由应用层业务逻辑进行判断并实现而非使用外键)
+        - [3.1 外键约束三种形式：【合理模式：删除父表，子表置空；更新父表，子表做级联操作】（on delete set null on update cascade）](#31-外键约束三种形式合理模式删除父表子表置空更新父表子表做级联操作on-delete-set-null-on-update-cascade)
+            - [1） 严格模式(默认)：restrict,父表不能删除或更新一个已经被子表数据引用的记录](#1-严格模式默认restrict父表不能删除或更新一个已经被子表数据引用的记录)
+            - [2)  级联模式：cascade，父表的操作，对应子表关联的数据也跟着操作](#2--级联模式cascade父表的操作对应子表关联的数据也跟着操作)
+            - [3） 置空模式：set null，父表被操作后，子表对应的外键字段被置空。](#3-置空模式set-null父表被操作后子表对应的外键字段被置空)
+        - [3.2 外键约束的操作【maybe，外键相当于一个链接，存放在子表，链接指向父表】](#32-外键约束的操作maybe外键相当于一个链接存放在子表链接指向父表)
+            - [1) create table child (id int, parent_id INT,index(parent_id),foreign key (parent_id) references parent(id) on delete cascade on update cascade ) engine=innodb; //创建外键约束，child表的parent_id和parent表的id关联在一起了，innodb强制外键使用索引](#1-create-table-child-id-int-parent_id-intindexparent_idforeign-key-parent_id-references-parentid-on-delete-cascade-on-update-cascade--engineinnodb-创建外键约束child表的parent_id和parent表的id关联在一起了innodb强制外键使用索引)
+            - [2)  update parent set id=100 where id=1;   //级联更新级联删除，父表parent的id变为1，子表child的parent_id也会变为1](#2--update-parent-set-id100-where-id1---级联更新级联删除父表parent的id变为1子表child的parent_id也会变为1)
+            - [3）alter table child drop foreign key child_ibfk_1;  -- 删除 之前的外键，外键名字可以通过show create table 看到](#3alter-table-child-drop-foreign-key-child_ibfk_1-----删除-之前的外键外键名字可以通过show-create-table-看到)
+            - [4）  alter table child add foreign key(parent_id) references parent(id) on update cascade on delete restrict;  -- 添加外键，使用严格模式](#4--alter-table-child-add-foreign-keyparent_id-references-parentid-on-update-cascade-on-delete-restrict-----添加外键使用严格模式)
 - [十一、day11：SQL语法之SELECT](#十一day11sql语法之select)
 - [十二、day012-子查询 INSERT UPDATE DELETE REPLACE](#十二day012-子查询-insert-update-delete-replace)
 - [十三、day013-作业讲解一 Rank 视图 UNION 触发器上](#十三day013-作业讲解一-rank-视图-union-触发器上)
@@ -2271,15 +2303,307 @@ commit;
 
 
 # 十、day10：Employees 临时表的创建、外键约束
+## 1.`Employees`数据库是一个用于学习和测试的数据库，大约`160MB`，`4百万条记录`
+
+## 2. 表(TABLE)
+### 2.1. 表的介绍
+#### 1） 表是关系数据库的核心，表=关系
+#### 2） 表是记录的集合：集合是无序的
+```sql
+select * from table_name limit 1;  
+```
+集合是无序的，上面的SQL语句的意思是 **从表(集合)中`随机`选出一条数据，结果是不确定的**, 不能简单的认为是取出第一条数据。
+
+```sql
+select * from table_name order by col_name limit 1;
+```
+只有通过`order by`排序之后取出的数据，才是确定的。
+#### 3） 二维表格模型易于人的理解
+#### 4） MySQL默认存储引擎都是基于行(记录)存储
+#### 5） 每行记录都是基于列进行组织的
+
+### 2.2 临时表 create temporary table temp_a(a int);
+#### 1) 临时表是`SESSION`级别的, 当前用户logout或者其他用户登录上来，是无法看到这张表的
+#### 2) 当临时表和普通表同名时，当前用户只能看到同名的临时表**
+#### 3) 创建表时带上`if not exists`进行表的存在性检查；同时建议在临时表的表名前面加上统一的词头：防止创建和普通表同名的临时表
+#### 4) 临时表的主要的作用：是给当前登录的用户存储临时数据或者临时结果的。不要和SQL优化器在排序过程中内部帮你创建的临时表相混淆。
+
+
+```sql
+mysql> create temporary table temp_a(a int);
+
+mysql> show  create table temp_a\G
+*************************** 1. row ***************************
+       Table: temp_a
+Create Table: CREATE TEMPORARY TABLE `temp_a` (
+  `a` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4   -- 使用的是innodb 
+1 row in set (0.00 sec)
+
+mysql> show processlist\G  //查看有几个mysql进程在执行
+*************************** 1. row ***************************
+     Id: 10  -- 当前ID 是 10
+   User: root
+   Host: localhost
+     db: burn_test
+Command: Query
+   Time: 0
+  State: starting
+   Info: show processlist   -- 当前终端执行
+*************************** 2. row ***************************
+     Id: 12
+   User: root
+   Host: localhost
+     db: NULL
+Command: Sleep
+   Time: 328
+  State: 
+   Info: NULL
+*************************** 3. row ***************************
+     Id: 13
+   User: root
+   Host: localhost
+     db: burn_test
+Command: Sleep
+   Time: 16
+  State: 
+   Info: NULL
+3 rows in set (0.00 sec)
+
+
+mysql> create temporary table if not exists table_name  (a int);  -- 使用if not exists进行判断
+```
+
+
+#### 5) 临时表默认存储引擎是 InnoDB [ 5.7以后]
+#### 6) 临时表存储位置：MySQL5.7.9 把临时`表结构`放在`tmpdir`，而数据`表数据`放在`datadir`
+```bash
+#
+# MySQL 5.7
+#
+mysql> system ls -l /tmp  # 使用system 可以解析执行linux shell命令
+total 20
+drwxr-xr-x. 4 mysql mysql 4096 Dec  2 10:06 mysql_data
+srwxrwxrwx. 1 mysql mysql    0 Dec  2 21:20 mysql.sock_56
+srwxrwxrwx. 1 mysql mysql    0 Dec  2 20:51 mysql.sock_57
+-rw-------. 1 mysql mysql    5 Dec  2 20:51 mysql.sock_57.lock
+-rw-r-----. 1 mysql mysql 8554 Dec  2 22:04 #sqlf18_a_0.frm  -- temp_1 的表结构
+
+mysql> system ls -l /data/mysql_data/5.7/ | grep ib
+-rw-r-----. 1 mysql mysql       879 Dec  2 20:47 ib_buffer_pool
+-rw-r-----. 1 mysql mysql  12582912 Dec  2 22:21 ibdata1
+-rw-r-----. 1 mysql mysql 134217728 Dec  2 22:20 ib_logfile0
+-rw-r-----. 1 mysql mysql 134217728 Dec  2 21:33 ib_logfile1
+-rw-r-----. 1 mysql mysql  12582912 Dec  2 22:33 ibtmp1  -- 这个是我们的表结构对应的数据
+
+mysql> show variables like "innodb_temp%";
++----------------------------+-----------------------+
+| Variable_name              | Value                 |
++----------------------------+-----------------------+
+| innodb_temp_data_file_path | ibtmp1:12M:autoextend |
++----------------------------+-----------------------+
+1 row in set (0.00 sec)
+
+```
+
+
+### 2.3 查看表结构
+### 1) show create table test_1\G   -- 表结构
+### 2) desc test_1\G  -- 表的描述,描述二维表信息
+### 3) show table status like "test_1"\G    -- 看表结构的元数据信息
+ 
+```sql
+mysql> show create table test_1\G   -- 表结构
+*************************** 1. row ***************************
+       Table: test_1
+Create Table: CREATE TABLE `test_1` (
+  `a` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+1 row in set (0.00 sec)
+
+mysql> desc test_1\G  -- 表的描述,描述二维表信息
+*************************** 1. row ***************************
+  Field: a
+   Type: int(11)
+   Null: YES
+    Key: 
+Default: NULLdes
+  Extra: 
+1 row in set (0.00 sec)
+
+mysql> show table status like "test_1"\G    -- 看表结构的元数据信息
+*************************** 1. row ***************************
+           Name: test_1
+         Engine: InnoDB
+        Version: 10
+     Row_format: Dynamic
+           Rows: 2
+ Avg_row_length: 4096
+    Data_length: 8192
+Max_data_length: 0
+   Index_length: 0
+      Data_free: 0
+ Auto_increment: NULL
+    Create_time: 2015-12-02 22:20:19
+    Update_time: 2015-12-02 22:20:44
+     Check_time: NULL
+      Collation: utf8mb4_general_ci
+       Checksum: NULL
+ Create_options: 
+        Comment: 
+1 row in set (0.00 sec)
+
+```
+
+### 2.4  ALTER TABLE ：当表记录很大的时候，`alter table`会很耗时，影响性能
+#### 2.5 alter table test_1 add column b char(10);  -- 添加列 b
+#### 2.6 alter table test_1 drop column b;  -- 删除列 b
+```sql
+mysql> alter table test_1 add column b char(10);  -- 添加列 b
+
+mysql> select * from test_1;
++------+------+
+| a    | b    |
++------+------+
+|   23 | NULL |
+|   24 | NULL |
++------+------+
+
+
+mysql> alter table test_1 drop column b;  -- 删除列 b
+
+mysql> select * from test_1;
++------+
+| a    |
++------+
+|   23 |
+|   24 |
++------+
+
+```
+>注意，当表记录很大的时候，`alter table`会很耗时，影响性能
+-----
+
+## 3 外键约束：可以让数据进行一致性更新，但是会有一定的`性能损耗`，线上业务使用不多。通常下述级联更新和删除都是由应用层业务逻辑进行判断并实现，而非使用外键
+### 3.1 外键约束三种形式：【合理模式：删除父表，子表置空；更新父表，子表做级联操作】（on delete set null on update cascade）
+#### 1） 严格模式(默认)：restrict,父表不能删除或更新一个已经被子表数据引用的记录
+#### 2)  级联模式：cascade，父表的操作，对应子表关联的数据也跟着操作
+#### 3） 置空模式：set null，父表被操作后，子表对应的外键字段被置空。
+### 3.2 外键约束的操作【maybe，外键相当于一个链接，存放在子表，链接指向父表】
+#### 1) create table child (id int, parent_id INT,index(parent_id),foreign key (parent_id) references parent(id) on delete cascade on update cascade ) engine=innodb; //创建外键约束，child表的parent_id和parent表的id关联在一起了，innodb强制外键使用索引
+#### 2)  update parent set id=100 where id=1;   //级联更新级联删除，父表parent的id变为1，子表child的parent_id也会变为1
+#### 3）alter table child drop foreign key child_ibfk_1;  -- 删除 之前的外键，外键名字可以通过show create table 看到
+#### 4）  alter table child add foreign key(parent_id) references parent(id) on update cascade on delete restrict;  -- 添加外键，使用严格模式
+
+```sql
+
+mysql> create table parent (
+    ->     id int not null,
+    ->     primary key (id)
+    -> ) engine=innodb;
+
+mysql> create table child (
+    ->     id int, 
+    ->     parent_id INT,
+    ->     index(parent_id),
+    ->     foreign key (parent_id) 
+    ->         references parent(id)
+    ->         on delete cascade on update cascade  -- 比官网例子增加 update cascade 
+    -> ) engine=innodb;
+
+
+mysql> insert into child values(1,1);  -- 我们插入一条数据，id=1，parent_id=1
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`burn_test`.`child`, CONSTRAINT `child_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `parent` (`id`) ON DELETE CASCADE)  
+-- 直接报错了，因为此时parent表中没有任何记录
+
+mysql> insert into parent values(1);   -- 现在parent中插入记录
+Query OK, 1 row affected (0.03 sec)
+
+mysql> insert into child values(1,1);  -- 然后在child中插入记录，且parent_id是在parent中存在的
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into child values(1,2);  -- 插入parent_id=2的记录，报错。因为此时parent_id=2的记录不存在
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`burn_test`.`child`, CONSTRAINT `child_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `parent` (`id`) ON DELETE CASCADE)
+
+mysql> select * from  child;     
++------+-----------+
+| id   | parent_id |
++------+-----------+
+|    1 |         1 |  -- parent_id = 1
++------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select * from  parent;
++----+
+| id |
++----+
+|  1 |  -- 根据表结构的定义（Foreign_key），这个值就是 child表中的id
++----+
+1 row in set (0.00 sec)
+
+mysql> update parent set id=100 where id=1;       
+
+mysql> select * from parent;
++-----+
+| id  |
++-----+
+| 100 |  -- 已经设置成了100
++-----+
+
+mysql> select * from child;
++------+-----------+
+| id   | parent_id |
++------+-----------+
+|    1 |       100 |  -- 自动变化，这是on update cascade的作用，联级更新，parent更新，child也跟着更新
++------+-----------+
+
+
+mysql> delete from parent where id=100;  -- 删除这条记录
+
+mysql> select * from parent;  -- id=100的记录已经被删除了
+Empty set (0.00 sec)
+
+mysql> select * from child;  -- id=1，parent_id=100的记录跟着被删除了。on delete cascade的作用
+Empty set (0.00 sec)
+
+mysql> alter table child drop foreign key child_ibfk_1;  -- 删除 之前的外键，外键名字可以通过show create table 看到
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table child add foreign key(parent_id) 
+    -> references parent(id) on update cascade on delete restrict;  -- 使用严格模式
+
+mysql> insert into parent values(50);
+
+mysql> insert into child values(3,50); 
+
+mysql> insert into child values(3,51);  -- 和之前一样会提示错误，因为父表不存在51
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`burn_test`.`child`, CONSTRAINT `child_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `parent` (`id`) ON UPDATE CASCADE)
+
+mysql> delete from parent where id=50;  -- 删除失败了，因为是restrict模式：父表不能删除或更新一个已经被子表数据引用的记录
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`burn_test`.`child`, CONSTRAINT `child_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `parent` (`id`) ON UPDATE CASCADE)
+
+-- 注意，delete 后面说明都不写表示 no action == restrict
+```
+
 # 十一、day11：SQL语法之SELECT
+
 # 十二、day012-子查询 INSERT UPDATE DELETE REPLACE
+
 # 十三、day013-作业讲解一 Rank 视图 UNION 触发器上
+
 # 十四、day014-触发器下 存储过程 自定义函数MySQL 执行计划与优化器
+
 # 十五、day015-索引 B+树 上
+
 # 十六、day016-索引 B+树 下 Explain 1
+
 # 十七、day017-Explain 2【MySQL innodb引擎优化】
+
 # 十八、day018-磁盘
+
 # 十九、day019-磁盘测试
+
 # 二十、day020-InnoDB_1 表空间 General
 # 二十一、day021-InnoDB_2 SpaceID.PageNumber 压缩表）
 # 二十二、day022-InnoDB_3 透明表空间压缩 索引组织表
