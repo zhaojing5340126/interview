@@ -105,14 +105,16 @@
 - [六、前缀树、堆结构、贪心算法](#六前缀树堆结构贪心算法)
     - [1、前缀树Prefix Tree）,又叫字典树、Trie树，单词查找树或键树，是一种多叉树结构](#1前缀树prefix-tree又叫字典树trie树单词查找树或键树是一种多叉树结构)
         - [1.1 前缀树题目举例：一个字符串类型的数组arr1，另一个字符串类型的数组arr2。](#11-前缀树题目举例一个字符串类型的数组arr1另一个字符串类型的数组arr2)
-            - [1.1.1 arr2中有哪些字符，是arr1中出现的？请打印](#111-arr2中有哪些字符是arr1中出现的请打印)
-            - [1.1.2 arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印](#112-arr2中有哪些字符是作为arr1中某个字符串前缀出现的请打印)
-            - [1.1.3 arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印arr2中出现次数最大的前缀。](#113-arr2中有哪些字符是作为arr1中某个字符串前缀出现的请打印arr2中出现次数最大的前缀)
+            - [题目一、 arr2中有哪些字符，是arr1中出现的？请打印](#题目一-arr2中有哪些字符是arr1中出现的请打印)
+            - [题目二、arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印](#题目二arr2中有哪些字符是作为arr1中某个字符串前缀出现的请打印)
+            - [题目三、arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印arr2中出现次数最大的前缀。](#题目三arr2中有哪些字符是作为arr1中某个字符串前缀出现的请打印arr2中出现次数最大的前缀)
         - [1.2 前缀树的insert、delete、search、prefixNum方法代码:代码相似度很高，前半部分基本一样，都是从root开始遍历](#12-前缀树的insertdeletesearchprefixnum方法代码代码相似度很高前半部分基本一样都是从root开始遍历)
-    - [2、堆结构的扩展与应用](#2堆结构的扩展与应用)
-    - [3、介绍贪心算法及相关题目](#3介绍贪心算法及相关题目)
+    - [2、堆结构的扩展与应用【经常用于贪心】](#2堆结构的扩展与应用经常用于贪心)
+    - [3、贪心算法：你自己想出贪心策略，但只能感觉它对不对，理论证明放弃吧](#3贪心算法你自己想出贪心策略但只能感觉它对不对理论证明放弃吧)
         - [题目七：按最低字典序拼接字符串](#题目七按最低字典序拼接字符串)
-    - [4、在面试中如何快速地尝试出贪心策略](#4在面试中如何快速地尝试出贪心策略)
+        - [题目四：切分金条总代价最小](#题目四切分金条总代价最小)
+        - [题目五：最多做K个项目的最大利润](#题目五最多做k个项目的最大利润)
+        - [题目八：安排最多的宣讲场次](#题目八安排最多的宣讲场次)
 - [七、暴力递归和动态规划](#七暴力递归和动态规划)
     - [1. 递归](#1-递归)
     - [2. 动态规划](#2-动态规划)
@@ -2558,11 +2560,11 @@ public class CountIslands {
 
 * 前缀树的功能很强大，比如有一个字符串数据，我们要从查找其中以“hell”开头的(设置一个passN)，或者以"ive"结尾的字符的个数(?)等等操作。我们只需要在定义前缀树的时候加上相应得数据项就OK了。下面来简单通俗易懂的解释一下前缀树。
 ### 1.1 前缀树题目举例：一个字符串类型的数组arr1，另一个字符串类型的数组arr2。
-#### 1.1.1 arr2中有哪些字符，是arr1中出现的？请打印
+#### 题目一、 arr2中有哪些字符，是arr1中出现的？请打印
 * /** 返回树中有多少个要求查找的单词 */ public int search(String word) 的变体
-#### 1.1.2 arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印
+#### 题目二、arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印
 * /** 有多少单词以pre为前缀 */ public int prefixNumber(String pre)的变体
-#### 1.1.3 arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印arr2中出现次数最大的前缀。
+#### 题目三、arr2中有哪些字符，是作为arr1中某个字符串前缀出现的？请打印arr2中出现次数最大的前缀。
 *  /** 有多少单词以pre为前缀 */ public int prefixNumber(String pre)，找最大的个
 
 ### 1.2 前缀树的insert、delete、search、prefixNum方法代码:代码相似度很高，前半部分基本一样，都是从root开始遍历
@@ -2675,9 +2677,10 @@ public class TrieTree {
 
 ```
 
-## 2、堆结构的扩展与应用
-## 3、介绍贪心算法及相关题目
-* 所谓贪心算法是指，在对问题求解时，总是做出在当前看来是最好的选择。也就是说，不从整体最优上加以考虑，他所做出的仅是在某种意义上的局部最优解。 
+## 2、堆结构的扩展与应用【经常用于贪心】
+* 堆：用于在一群数据中拿出最好的那个（根据比较器），默认建的是小根堆（优先级小的放前面）
+## 3、贪心算法：你自己想出贪心策略，但只能感觉它对不对，理论证明放弃吧
+* 所谓贪心算法是指，在对问题求解时，**总是做出在当前看来是最好的选择(最小，最大，最优等等)。**也就是说，不从整体最优上加以考虑，他所做出的仅是在某种意义上的局部最优解。 
 * 贪心策略适用的前提是：局部最优策略能导致产生全局最优解。 【不要去理论证明你选择的贪心策略的正确性，因为太复杂，你最好直接看结果对不对就好】
 * 3.1 贪心算法的基本思路： 
     * 1.建立数学模型来描述问题。 
@@ -2730,9 +2733,187 @@ public class Lowest {
 }
 
 ```
-## 4、在面试中如何快速地尝试出贪心策略
 
- 
+### 题目四：切分金条总代价最小
+```
+一块金条切成两半，是需要花费和长度数值一样的铜板的。比如
+长度为20的 金条，不管切成长度多大的两半，都要花费20个铜
+板。一群人想整分整块金条，怎么分最省铜板？
+
+例如,给定数组{10,20,30}，代表一共三个人，整块金条长度为
+10+20+30=60. 金条要分成10,20,30三个部分。 如果， 先把长
+度60的金条分成10和50，花费60，再把长度50的金条分成20和30，
+花费50，一共花费110铜板。
+
+但是如果先把长度60的金条分成30和30，花费60，再把长度30
+金条分成10和20，花费30 一共花费90铜板。
+输入一个数组，返回分割的最小代价。
+```
+* 【分析】：贪心：每次合并代价最小的，设总代价为cost=0
+    * 1）把数组的元素放入优先队列（堆）中
+    * 2）每次弹出最小的两个数【使其代价最小】，然后相加的结果为c，总代价加上c，并且将c放入堆中
+    * 3）重复1）、2）步骤，直到堆中只剩有一个数结束
+* 【注意】： 优先队列是小根堆，你认为谁该在前面，就通过比较器把它的优先级设小【并不是实际数值小就在前面，也可能实际数值大在前面，看你比较器怎么弄了，返回负数：表示o1小于o2】
+
+```Java
+package day7;
+
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+public class LowestMoney {
+
+    public static class MinComparator implements Comparator<Integer>{
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            return o1-o2;  // 谁大谁小是你规定的，-表示o1小
+        }
+    }
+
+    public static int lowestMoney(int[] arr){
+        //优先队列是小根堆，你认为谁该在前面，就把它的优先级设小
+        PriorityQueue<Integer> pq = new PriorityQueue<>(new MinComparator());
+        for (int i: arr){
+            pq.add(i);
+        }
+        int costTotal = 0; //总花费
+        int costOne=0;  //合并一次的开销
+        while (pq.size()>1){ //等于1时说明只有一根金条，即已经合并完成了
+            costOne = pq.poll() + pq.poll();
+            costTotal += costOne;
+            pq.add(costOne);
+        }
+        return costTotal;
+    }
+}
+
+```
+
+### 题目五：最多做K个项目的最大利润
+```
+costs[]：花费 ，costs[i] 表示i号项目的花费 
+profits[]：利润， profits[i]表示i号项目在扣除花费之后还能挣到的钱(利润)
+一次只能做一个项目，最多做k个项目，m表示你初始的资金
+说明：你每做完一个项目，马上获得的收益，可以支持你去做下一个项目。
+求你最后获得的最大钱数。
+```
+
+* 【分析】贪心：每次总是做能够做的项目中利润最大的
+    * 准备一个小根堆和大根堆，小根堆放着全部的项目，按谁花费（成本）最低就在头部
+    * 1）若小根堆不为空，项目也没做完 K 个，则每次先从小根堆解锁能够做的项目，放入大根堆（大根堆按照谁的利润最大放在头部）
+    * 2）大根堆不为空，从大根堆弹出项目来做（即利润最大的项目）
+    * 3）把 m 加上利润，再重复1)、2）步骤
+
+```Java
+package day7;
+
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+public class IPO_test {
+
+    public static class Node { //项目
+        public int p;
+        public int c;
+
+        public Node(int p, int c) {
+            this.p = p;
+            this.c = c;
+        }
+    }
+        
+    public static int findMaximizedCapital(int k, int W, int[] Profits, int[] Capital) {
+        Node[] nodes = new Node[Profits.length];
+        for (int i = 0; i < Profits.length; i++) {
+            nodes[i] = new Node(Profits[i], Capital[i]);
+        }
+        //优先队列是谁小谁放在前面，比较器决定谁小
+        PriorityQueue<Node> minCostQ = new PriorityQueue<>(new MinCostComparator()); //按花费
+        PriorityQueue<Node> maxProfitQ = new PriorityQueue<>(new MaxProfitComparator());//按利润
+        for (int i = 0; i < nodes.length; i++) {
+            minCostQ.add(nodes[i]); //包含了所有项目，你想做项目要到此堆解锁项目放入大根堆
+        }
+        for (int i = 0; i < k; i++) {
+            while (!minCostQ.isEmpty() && minCostQ.peek().c <= W) { //还剩有项目&&这个项目你有能力做
+                maxProfitQ.add(minCostQ.poll()); //那么解锁此项目
+            }
+            if (maxProfitQ.isEmpty()) { //为空说明没有你能解锁的新项目，之前解锁的项目也做完了，总体就是你没有项目可做了
+                return W;  //你就只能赚这么多了
+            }
+            W += maxProfitQ.poll().p; //我现在的本金
+        }
+        return W;  //做完 K 个项目了
+    }
+
+    public static class MinCostComparator implements Comparator<Node> {
+
+        @Override
+        public int compare(Node o1, Node o2) {
+            return o1.c - o2.c;
+        }
+
+    }
+
+    public static class MaxProfitComparator implements Comparator<Node> {
+
+        @Override
+        public int compare(Node o1, Node o2) {
+            return o2.p - o1.p;
+        }  //****
+
+    }
+}
+```
+
+### 题目八：安排最多的宣讲场次
+```
+一些项目要占用一个会议室宣讲，会议室不能同时容纳两个项目的宣讲。 
+给你每一个项目开始的时间和结束的时间(给你一个数组，里面是一个个具体项目)，
+你来安排宣讲的日程，要求会议室进行的宣讲的场次最多。返回这个最多的宣讲场次。
+```
+* 【分析】：贪心：按哪个宣讲先结束来排【不要试图去理论证明它，靠直觉吧】
+
+```Java
+package class_07;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class BestArrange {
+
+	public static class Program {
+		public int start;
+		public int end;
+
+		public Program(int start, int end) {
+			this.start = start;
+			this.end = end;
+		}
+	}
+	
+	public static int bestArrange(Program[] programs, int cur) {
+		Arrays.sort(programs, new ProgramComparator());
+		int result = 0;
+		for (int i = 0; i < programs.length; i++) {
+			if (cur <= programs[i].start) {
+				result++;
+				cur = programs[i].end;
+			}
+		}
+		return result;
+	}
+
+	public static class ProgramComparator implements Comparator<Program> {
+
+		@Override
+		public int compare(Program o1, Program o2) {
+			return o1.end - o2.end;
+		}
+
+	}
+}
+
+```
 
 # 七、暴力递归和动态规划
 ## 1. 递归
