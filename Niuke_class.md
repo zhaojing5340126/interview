@@ -115,10 +115,38 @@
         - [题目四：切分金条总代价最小](#题目四切分金条总代价最小)
         - [题目五：最多做K个项目的最大利润](#题目五最多做k个项目的最大利润)
         - [题目八：安排最多的宣讲场次](#题目八安排最多的宣讲场次)
+        - [题目六：一个数据流中，随时可以取得中位数【未】](#题目六一个数据流中随时可以取得中位数未)
 - [七、暴力递归和动态规划](#七暴力递归和动态规划)
     - [1. 递归](#1-递归)
-    - [2. 动态规划](#2-动态规划)
+        - [1.1 暴力递归的步骤](#11-暴力递归的步骤)
+        - [题目二：汉诺塔问题](#题目二汉诺塔问题)
+        - [题目二：打印一个字符串的全部子序列，包括空字符串【每个结点i：有 要 和 不要 两种选择，之后的随意选择要或不要】](#题目二打印一个字符串的全部子序列包括空字符串每个结点i有-要-和-不要-两种选择之后的随意选择要或不要)
+        - [题目三：](#题目三)
+            - [3.1 打印一个字符串的全部排列【每个结点i：有i~n-1种选择，之后的随意排序】](#31-打印一个字符串的全部排列每个结点i有in-1种选择之后的随意排序)
+            - [3.2 进阶：打印一个字符串的全部排列，要求不要出现重复的排列](#32-进阶打印一个字符串的全部排列要求不要出现重复的排列)
+        - [题目四：](#题目四)
+            - [4.1 母牛每年生一只母牛，新出生的母牛成长三年后也能每年生一只母牛，假设不会死。求N年后，母牛的数量。（O(N)）](#41-母牛每年生一只母牛新出生的母牛成长三年后也能每年生一只母牛假设不会死求n年后母牛的数量on)
+            - [4.2 如果每只母牛只能活10年，求N年后，母牛的数量。](#42-如果每只母牛只能活10年求n年后母牛的数量)
+        - [题目六：给你一个栈，请你逆序这个栈，不能申请额外的数据结构，只能使用递归函数。如何实现？](#题目六给你一个栈请你逆序这个栈不能申请额外的数据结构只能使用递归函数如何实现)
+    - [2. 动态规划（动态规划是从basecase往上推得到 n ，而递归是从 n 推到basecase再一个一个的返回来得到 n 的结果）](#2-动态规划动态规划是从basecase往上推得到-n-而递归是从-n-推到basecase再一个一个的返回来得到-n-的结果)
+        - [1.2 动态规划的特点:](#12-动态规划的特点)
     - [3. 如何把暴力递归套路变为动态规划](#3-如何把暴力递归套路变为动态规划)
+        - [题目七：矩阵最小路径和](#题目七矩阵最小路径和)
+            - [7.1 递归版本](#71-递归版本)
+            - [7.2 记忆化搜索版本，即加一个缓存，记录所有的子状态，每次递归前先看子状态之前算过没有](#72-记忆化搜索版本即加一个缓存记录所有的子状态每次递归前先看子状态之前算过没有)
+            - [7.3 动态规划版本：考虑状态之间的依赖关系](#73-动态规划版本考虑状态之间的依赖关系)
+        - [题目八（背包问题）：从数组任意选择数字，能不能累加得到aim](#题目八背包问题从数组任意选择数字能不能累加得到aim)
+            - [8.1 递归版本](#81-递归版本)
+            - [8.2 动态规划版本](#82-动态规划版本)
+        - [题目九（背包问题）： 重量不超过bag](#题目九背包问题-重量不超过bag)
+            - [9.1 递归版本](#91-递归版本)
+            - [9.2 动态规划版本](#92-动态规划版本)
+    - [总结（自己）：对每个位置进行选择，有 N 个位置，递归处理这类问题，它们所有可能结果都会出现在叶节点***，可以把递归想象成一棵树，每次basecase返回的时候就出现了一个叶节点，它的上一次递归就是其父节点，父节点会对递归返回来其叶节点信息进行决策这些（或不返回信息，父结点可能有1个2个3个。。。叶节点等等），不断的把决策一层层的返回根节点，最后 根 对比其子节点，进行决策，结果返回给我们。这类型的题目有：](#总结自己对每个位置进行选择有-n-个位置递归处理这类问题它们所有可能结果都会出现在叶节点可以把递归想象成一棵树每次basecase返回的时候就出现了一个叶节点它的上一次递归就是其父节点父节点会对递归返回来其叶节点信息进行决策这些或不返回信息父结点可能有1个2个3个叶节点等等不断的把决策一层层的返回根节点最后-根-对比其子节点进行决策结果返回给我们这类型的题目有)
+        - [题目二：打印一个字符串的全部子序列，包括空字符串【每个结点i：有 要 和 不要 两种选择；叶节点不用返回给父节点信息，它直接打印每个叶节点结果】；](#题目二打印一个字符串的全部子序列包括空字符串每个结点i有-要-和-不要-两种选择叶节点不用返回给父节点信息它直接打印每个叶节点结果)
+        - [题目三：打印一个字符串的全部排列（不出现重复的排列）【每个结点i：有i~n-1种选择；叶节点不用返回给父节点信息，它直接打印每个叶节点结果】；](#题目三打印一个字符串的全部排列不出现重复的排列每个结点i有in-1种选择叶节点不用返回给父节点信息它直接打印每个叶节点结果)
+        - [题目七：矩阵最小路径和【每个位置有右和下两种选择，除了最后一行和最后一列；叶节点的结果是它这个情况的路径和，向父结点返回这个路径和，父结点比较子节点的结果，选择最小的作为自己的路径和，向其父结点返回...】](#题目七矩阵最小路径和每个位置有右和下两种选择除了最后一行和最后一列叶节点的结果是它这个情况的路径和向父结点返回这个路径和父结点比较子节点的结果选择最小的作为自己的路径和向其父结点返回)
+        - [题目八：从数组任意选择数字，能不能累加得到aim【每个位置有 要和不要 两种选择；叶节点的结果是true或false（叶节点会看自己这里的结果是不是aim，从而向父结点返回true或false），父结点比较子节点的结果，根据子节点相或得到true或false作为自己的值，向其父结点返回...；】](#题目八从数组任意选择数字能不能累加得到aim每个位置有-要和不要-两种选择叶节点的结果是true或false叶节点会看自己这里的结果是不是aim从而向父结点返回true或false父结点比较子节点的结果根据子节点相或得到true或false作为自己的值向其父结点返回)
+        - [题目九：重量不超过bag【每个东西有 要和不要 两种选择；叶节点的结果是它这个情况的价值和，向父结点返回这个价值和，父结点比较子节点的结果，根据子节点选择最大的作为自己的价值和，向其父结点返回...】](#题目九重量不超过bag每个东西有-要和不要-两种选择叶节点的结果是它这个情况的价值和向父结点返回这个价值和父结点比较子节点的结果根据子节点选择最大的作为自己的价值和向其父结点返回)
 
 <!-- /TOC -->
 
@@ -2915,7 +2943,537 @@ public class BestArrange {
 
 ```
 
+### 题目六：一个数据流中，随时可以取得中位数【未】
+
 # 七、暴力递归和动态规划
 ## 1. 递归
-## 2. 动态规划
+### 1.1 暴力递归的步骤
+* 1，把问题转化为规模缩小了的同类问题的子问题
+* 2，有明确的不需要继续进行递归的条件(base case)
+* 3，有当得到了子问题的结果之后的决策过程
+* 4，不记录每一个子问题的解  *****
+### 题目二：汉诺塔问题
+* 打印n层汉诺塔从最左边移动到最右边的全部过程
+```
+在一根柱子上从下往上按照大小顺序摞着 n 片黄金圆盘。把圆盘从下面开始按大小顺序重新摆放在另一根柱子上。
+并且规定，任何时候，在小圆盘上都不能放大圆盘，且在三根柱子之间一次只能移动一个圆盘。打印出全过程
+```
+![](https://images0.cnblogs.com/blog/341593/201309/23095111-6018590fcd7241ec8f9c388175248e7d.png)
+
+* 【分析】：给三根柱子分别命名为 “left”、“mid”、“right”，from代表此次需要移动的圆盘所在的位置，to代表这些圆盘要去的地方，help是用于辅助的，分三步走：
+   * 1）n-1个圆盘从from到help
+   * 2）第 n 个圆盘从from到to
+   * 3) 把那n-1个圆盘从help移动到to上面来
+* 时间复杂度：f(n) = 2f(n-1) +1，是2<sup>(n-1)</sup>
+
+```Java
+package day8;
+
+public class Hanoi {
+    public static void hanoi(int n) {
+        if (n > 0) {
+            hanoi(n, "left", "mid", "right");
+        }
+    }
+
+    /**
+     * from代表此次需要移动的圆盘所在的位置，to代表这些圆盘要去的地方，help是用于辅助的，
+     * 它们的具体值是在变化的，因为每次递归，起始位置不一样，目的位置也不一样
+     */
+    public static void hanoi(int n, String from, String to, String help) {
+        if (n == 1) {//只有一个时，直接源地方移动到目的地即可
+            System.out.println(n + ":" + from + "->" + to);
+            return;//不要忘记返回
+        }
+        hanoi(n - 1, from, help, to); //第一步，n-1个圆盘从源位置移动到辅助位置
+        System.out.println(n + ":" + from + "->" + to); //那么第n个圆盘就可以直接到目的位置了
+        hanoi(n - 1, help, to, from); //第三步，把在辅助位置的圆盘移到目的位置，那么全部n个圆盘就移动好了
+    }
+
+}
+
+```
+### 题目二：打印一个字符串的全部子序列，包括空字符串【每个结点i：有 要 和 不要 两种选择，之后的随意选择要或不要】
+```
+子序列顺序不能变
+输入：
+
+abc
+
+输出：
+    // 第一个是空串
+c
+b
+bc
+a
+ac
+ab
+abc
+```
+
+```Java
+package day8;
+
+public class PrintAllSubString {
+    public static void printAllSub(String str){
+        if (str == null){
+            return;
+        }
+        char[] chars = str.toCharArray();
+        if (chars.length > 0){
+            String pre = new String("");
+            f(0,pre,chars);
+        }else {
+            System.out.println(""); //认为“”也会打印“”
+        }
+    }
+
+    /** pre：表示i之前的位置即 0~i-1 形成的结果，从 i 开始可以自由选（pre也是递归自由选择出来的，
+     * 为了获得pre，前面已经存在很多很多函数栈了）
+     * 这个函数是递归判断第 i 位置的数字到底要不要 ,获得i及其后面的字符串
+     * maybe可以想象成一棵二叉树，每个结点有要和不要，那么所有情况都会在叶节点出现了，
+     * maybe所以每打印一种情况其实都遍历了一次chars数组*/
+    private static void f(int i,String pre,char[] chars){
+        if (i == chars.length){  //所以每打印一种情况其实都遍历了一次chars数组
+            System.out.println(pre);
+            return;
+        }
+        //它会一直递归，每到一个结点就会又分两种情况，其下所有递归都结束于if那个条件,然后打印
+        f(i+1,pre,chars);//不要当前结点
+        f(i+1,pre + String.valueOf(chars[i]),chars);//要当前结点
+    }
+
+}
+
+```
+
+### 题目三：
+#### 3.1 打印一个字符串的全部排列【每个结点i：有i~n-1种选择，之后的随意排序】
+* 你也可以同题目二一样用pre，思想是一样的，这里的i有 n-i 总选择，而题目二因为求的是子序列，只有 2 种选择【要或者不要】
+    * 差别：题目二不是所有字母都在，而且字母建不能乱序，所以不能用打印chars这种方法，而要用额外的pre来记录
+
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%85%A8%E6%8E%92%E5%BA%8F.jpg?raw=true)
+```Java
+package day8;
+
+public class PrintAllSort {
+    public static void printAllSort(String str){
+        if (str == null)
+            return;
+        char[] chars = str.toCharArray();
+        if (chars.length>0){
+            f(0,chars);
+        }
+    }
+
+    private static void f(int i,char[] chars){ //对i及其后面的字符进行全排序
+        if (i == chars.length){
+            System.out.println(String.valueOf(chars));
+            return;
+        }
+        for (int j=i; j<chars.length; j++){ //第 i 个位置可能有 i~n-1这些选择
+            swap(i,j,chars);  //对 i 位置放置不同的选择，i这个位置就定好了
+            f(i+1,chars);     //对 i+1 及其后面的字符进行全排序，类似题目二的话就用f(i+1,pre+String.valueOf(chars[i]),chars),只不过显得多余，因为chars本身就能表示，你用pre并不能减少什么
+            swap(i,j,chars);  //****必须有
+        }
+    }
+
+    private static void swap(int i, int j, char[] chars) {
+        char temp = chars[i];
+        chars[i] =chars[j];
+        chars[j] = temp;
+    }
+}
+
+```
+
+#### 3.2 进阶：打印一个字符串的全部排列，要求不要出现重复的排列
+```
+什么是不重复的字符串全排列，如果是普通字符串全排列，那么
+
+输入：
+
+acc
+
+输出：【即认为后面两个c是不一样的，3.1的做法】
+
+acc
+acc
+cac
+cca
+cca
+cac
+要求写出的去重的，也就是会输出：
+
+acc
+cac
+cca
+【即认为后面两个c是一样的】
+```
+* 【分析】：和3.1基本一样，只是增加了一个hashset，用于保证重复字符不会被再次交换，***即代码不一样的地方
+```Java
+    public static void printAllSort(String str){//完全一样，只是名字改为了f2
+        if (str == null)
+            return;
+        char[] chars = str.toCharArray();
+        if (chars.length>0){
+            f2(0,chars);
+        }
+    }
+
+
+  private static void f2(int i,char[] chars){
+        if (i == chars.length){
+            System.out.println(String.valueOf(chars));
+            return;
+        }
+        HashSet<Character> set = new HashSet<>();  //***用于保证每次交换的字符不存在重复字符
+        for (int j=i; j<chars.length; j++){ //第 i 个位置可能有 i~n-1这些选择
+            if (!set.contains(chars[j])) { //***只有之前没交换过这个字符，才会交换
+                set.add(chars[j]); //***
+                swap(i, j, chars);  //对 i 位置放置不同的选择
+                f2(i + 1, chars);//i位置选择好了
+                swap(i, j, chars);//必须有
+            }
+        }
+    }
+```
+
+### 题目四：
+####　4.1 母牛每年生一只母牛，新出生的母牛成长三年后也能每年生一只母牛，假设不会死。求N年后，母牛的数量。（O(N)）
+* 【分析】：第一年：1只；第二年：2只（生了1只）；第三年：3只（又生了1只）
+    * cowNum(n) = cowNum(n-1) + cowNum(n-1)；即今年的牛等于去年的牛加上三年前的牛（因为三年前的牛能够生新牛了）
+
+```Java
+package day8;
+
+public class CowNum {
+    public static int cowNum(int n){//求第n年的牛
+        if (n == 1)
+            return 1;
+        if (n == 2)
+            return 2;
+        if (n == 3)
+            return 3;
+        return cowNum(n-1) + cowNum(n-3);
+    }
+}
+
+```
+
+#### 4.2 如果每只母牛只能活10年，求N年后，母牛的数量。
+* 【分析】 cowNum(n) = cowNum(n-1) + cowNum(n-1) -cowNum(n-10)；即今年的牛等于去年的牛加上三年前的牛（因为三年前的牛能够生新牛了）,然后再减去十年前的牛
+```Java
+package day8;
+
+public class CowNum {
+    public static int cowNum(int n){//求第n年的牛
+        if (n < 1)
+            return 0; //没有牛
+        if (n == 1)
+            return 1;
+        if (n == 2)
+            return 2;
+        if (n == 3)
+            return 3;
+        return cowNum(n-1) + cowNum(n-3) - cowNum(n-10);
+    }
+}
+```
+
+### 题目六：给你一个栈，请你逆序这个栈，不能申请额外的数据结构，只能使用递归函数。如何实现？
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%8F%8D%E8%BD%AC%E6%A0%88.jpg?raw=true)
+
+```Java
+package day8;
+
+import java.util.Stack;
+
+public class ReverseStackUsingRecursive {
+    public static void reverse(Stack<Integer> stack){
+        if (stack.isEmpty()){
+            return;
+        }
+        int i = getAndRemoveLast(stack);//弹出最后一个元素
+        reverse(stack);
+        stack.push(i);
+    }
+
+    private static int getAndRemoveLast(Stack<Integer> stack){
+        int temp = stack.pop();
+        if (stack.isEmpty()){ //判断temp是不是最后一个元素
+            return temp;
+        }
+        int last = getAndRemoveLast(stack);//找到最后一个元素。它会直到栈空才找到
+        stack.push(temp);//然后递归的把之前递归弹出的元素再放回栈中（除了最后一个）
+        return last;
+    }
+    
+}
+```
+
+## 2. 动态规划（动态规划是从basecase往上推得到 n ，而递归是从 n 推到basecase再一个一个的返回来得到 n 的结果）
+### 1.2 动态规划的特点:
+* 1，从暴力递归中来
+* 2，将每一个子问题的解记录下来，避免重复计算【记录每个子问题的解】
+* 3，把暴力递归的过程，抽象成了状态表达
+* 4，并且存在化简状态表达，使其更加简洁的可能
 ## 3. 如何把暴力递归套路变为动态规划
+* 【前提】：问题必须是无后效性问题，即我怎么到达子状态的路径不影响子状态的返回值
+* 套路化步骤：
+    * 1）分析可变参数（解空间）【可变参数就是，当参数固定了，返回值（状态）就固定了】
+    * 2）确定最终状态（即目标状态）
+    * 3）根据basecase确定确定初始状态
+    * 4）分析一个普遍位置依赖哪些位置
+    * 5）根据依赖顺序逆序求整个表
+### 题目七：矩阵最小路径和
+```
+给你一个二维数组，二维数组中的每个数都是正数，要求从左上
+角走到右下角，每一步只能向右或者向下。沿途经过的数字要累
+加起来。返回最小的路径和。
+```
+#### 7.1 递归版本
+* 如果矩阵为 n x n，那么时间复杂度为 O（2<sup>n<sup>2</sup></sup>
+
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E9%80%92%E5%BD%92.jpg?raw=true)
+
+```Java
+package day8;
+
+public class MinPath {
+    public static int minPath(int[][] m){
+        if (m == null || m.length == 0 || m[0] == null || m[0].length == 0) {
+            return 0;
+        }
+        return process(m,0,0);
+    }
+    /** 返回当前位置（i，j）到右下角的最短距离 */
+    private static int process(int[][] m,int i,int j){
+        if (i == m.length-1 && j==m[0].length-1){ //注意要减1 
+            return m[i][j];  //到达右下角，那么右下角到右下角的路径大小为其本身
+        }
+        if (i == m.length-1){ //到达最后一行，那么之后只能忘右走
+            return m[i][j] + process(m,i,j+1);
+        }
+        if (j == m[0].length-1){//到达最后一列，那么之后只能忘下面走
+            return m[i][j] + process(m,i+1,j);
+        }
+        return m[i][j] + Math.min(process(m,i,j+1),process(m,i+1,j));
+        //正常情况下既能往右走，又能往下走，选择两者中的最小的一个
+    }
+
+}
+
+```
+
+#### 7.2 记忆化搜索版本，即加一个缓存，记录所有的子状态，每次递归前先看子状态之前算过没有
+* 矩阵为 n x n，那么时间复杂度为O(n<sup>2</sup>)
+```Java
+
+    public static HashMap<String, Integer> cache = new HashMap<>();//增加的缓存
+
+    private static int process2(int[][] m, int i, int j) {
+        if (i == m.length - 1 && j == m[0].length - 1) { //注意要减1
+            return m[i][j];  //到达右下角，那么右下角到右下角的路径大小为其本身
+        }
+        if (i == m.length - 1) { //到达最后一行，那么之后只能忘右走
+            if (cache.containsKey(i+"_"+(j+1))){ //每次决定要不要递归前先查看之前是否对其递归过
+                return m[i][j] + cache.get(i+"_"+(j+1));
+            }else { 
+                return m[i][j] + process(m, i, j + 1);
+            }
+        }
+        if (j == m[0].length - 1) {//到达最后一列，那么之后只能忘下面走
+            if (cache.containsKey((i+1)+"_" + j)){//
+                return m[i][j] + cache.get((i+1)+"_" + j);
+            }else{
+                return m[i][j] + process(m, i + 1, j);
+            }
+        }
+        return m[i][j] + Math.min(process(m, i, j + 1), process(m, i + 1, j));
+        //正常情况下既能往右走，又能往下走，选择两者中的最小的
+        //如果有被递归过，那么即使进去了，也会马上返回来，所以我没管他，你可以管一管
+  
+    }
+
+
+```
+
+#### 7.3 动态规划版本：考虑状态之间的依赖关系
+
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.jpg?raw=true)
+
+```Java
+    public static int minPath2(int[][] m){
+        if (m == null || m.length == 0 || m[0] == null || m[0].length == 0) {
+            return 0;
+        }
+        int lastRow = m.length-1;
+        int lastCol = m[0].length-1;
+        int[][] dp = new int[lastRow+1][lastCol+1];
+        dp[lastRow][lastCol] = m[lastRow][lastCol]; //basecase,右下角到右下角的路径大小为其本身
+
+        for (int i = lastRow,j=lastCol-1; j>=0; j--){//因为最后一行，只能忘右走，所以可以从右推出左
+            dp[i][j] = m[i][j]+dp[i][j+1];
+        }
+
+        for (int j = lastCol,i=lastRow-1; i>=0; i--){//因为最后一列，只能忘下面走，所以可以从下推出上
+            dp[i][j]= m[i][j] + dp[i+1][j];
+        }
+
+        for (int i = lastRow-1;i>=0 ; i--){
+            for (int j = lastCol-1; j>=0; j--){
+                dp[i][j] = m[i][j] +Math.min(dp[i+1][j],dp[i][j+1]);
+                //正常情况就从右和下选出最小的
+            }
+        }
+        return dp[0][0];//返回目标
+
+    }
+```
+
+### 题目八（背包问题）：从数组任意选择数字，能不能累加得到aim
+```
+给你一个数组arr，和一个整数aim。如果可以任意选择arr中的
+数字，能不能累加得到aim，返回true或者false
+```
+#### 8.1 递归版本
+* 【分析】：每个位置 i :有 要和不要 两种选择；叶节点会看自己这里的结果是不是aim，从而向父结点返回true或false，父结点比较子节点的结果，有一个为true就一直返回true，否则返回false
+```Java
+package day8;
+
+public class SumToAim {
+    public static boolean IsSumToAim(int[] arr,int aim){
+        if (arr == null)
+            return false;
+        return process(arr,0,0,aim);//为什么不直接写成递归呢？为了让使用者只传入很少的参数，并且进行上方的边界判断
+    }
+
+/** 用于判断pre+i及其后面的数字随意选择相加，是否能得到aim
+* pre：是0~i-1 随意相加形成的结果*/
+    private static boolean process(int[] arr,int i,int pre,int aim){
+        if (i == arr.length){//全部位置都选择结束，叶节点已经形成，于是可以进行判断了
+            return pre == aim;
+        }
+        return process(arr,i+1 ,pre,aim) || process(arr, i+1, pre + arr[i] , aim);
+        //非叶节点的结果是其子节点的结果进行或，只要子节点有一个为真就返回真，否则false
+        //位置 i 有两种选择，要 还是 不要，所以每个非叶节点都有两个子节点。
+    }
+    
+}
+
+```
+
+####　8.2 动态规划版本
+* 按照递归版本一步一步地改就好
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E7%B4%AF%E5%8A%A0%E5%92%8C%E4%B8%BAaim.jpg?raw=true)
+
+```Java
+ public static boolean isSumToAim2(int[] arr,int aim){
+        if (arr == null || arr.length == 0){
+            return false;
+        }
+        boolean[][] dp = new boolean[arr.length+1][aim+1];
+        for (int i = arr.length,pre = 0 ; pre<=aim ; pre++) {//i为横坐标，pre是纵坐标,填好最后一行
+            if (pre == aim){
+                dp[i][pre] = true;
+            }else {
+                dp[i][pre] = false;
+            }
+        }
+
+        for (int i = arr.length-1; i>=0; i--){ //按递归填好每一个位置
+            for (int pre = aim; pre>=0; pre--){
+                if (pre + arr[i] > aim){
+                    dp[i][pre] =dp[i+1][pre];
+                }else {
+                    dp[i][pre]=dp[i+1][pre] || dp[i+1][pre+arr[i]];
+                }
+            }
+        }
+
+        return dp[0][0];
+    }
+```
+
+### 题目九（背包问题）： 重量不超过bag
+```
+给定两个数组w和v，两个数组长度相等，w[i]表示第i件商品的重量，v[i]表示第i件商品的价值。
+再给定一个整数bag，要求你挑选商品的重量加起来一定不能超过bag，
+返回满足这个条件下，你能获得的最大价值。
+```
+
+#### 9.1 递归版本
+* 【分析】：每个商品 i ：要 还是 不要，每种尝试我都试一次，就得到了所有情况的叶节点，叶节点的结果是它这个情况的价值和，向父结点返回这个价值和，父结点比较子节点的结果，选择最大的作为自己的价值和，向其父结点返回...
+    * 优化（少了一些递归）：当某个结点的preWeight>bag，说明这个结点原本连接的叶节点这些情况是无效的,因为它们的重量肯定超过bag了，所以我们直接在中途（超过bag的结点）结束这条路的递归，直接返回Integer.MIN_VALUE，直接以此结点作为叶节点,Integer.MIN_VALUE即为其值
+* process 函数的意思是，从 i 位置开始（包括 i ）随机选择，得到的最大价值和
+    * preWeight：0~i-1做的选择形成的重量
+
+```Java
+package day8;
+
+public class LessBag {
+    public static int maxValue(int[] w, int[] v,int bag){ //用户只需传入w,v.bag
+        if (w == null || v == null || w.length == 0 ||v.length == 0 || bag < 0)
+            return 0;
+        return process(w,v,0,0,bag); //递归求解
+    }
+
+    /** 返回从 i 位置开始随机选择得到的最大价值 */
+    private static int process(int[] w, int[] v, int i, int preWeight, int bag) {
+        //优化，对不符合的分支直接返回系统最小，不再继续向下递归，当然你也可以不选择优化，在最后遍历完再进行判断
+        if (preWeight > bag){
+            return Integer.MIN_VALUE;
+        }
+        if (i == w.length){
+            return 0; //已经到最尾巴了，没有商品存在了，所以肯定为0；**basecase
+        }
+        return Math.max(process(w,v,i+1,preWeight,bag),
+                v[i] + process(w,v,i+1,w[i]+preWeight,bag));
+        //返回 i 这个商品要和不要两种情况获得最大的价值和
+    }
+}
+
+```
+
+#### 9.2 动态规划版本
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E8%83%8C%E5%8C%85%E6%9C%80%E5%A4%A7%E5%80%BC%E9%97%AE%E9%A2%98.jpg?raw=true)
+
+```Java
+ public static int maxValue2(int[] w ,int[] v, int bag){
+        if (w == null || v == null || w.length == 0 ||v.length == 0 || bag < 0)
+            return 0;
+
+        //使用动态规划
+        int[][] dp = new int[w.length+1][bag+1]; //动态规划解空间
+
+        for (int i =w.length,j=0; j< dp[0].length; j++){ //basecase，也可以不写？因为初始默认值为0？
+            dp[i][j] = 0;
+        }
+
+        for (int i = w.length-1; i>=0 ;i--){
+            for (int j = bag; j>=0 ;j--){ //j 即为preWeight，为纵坐标
+                if (w[i] + j <= bag){
+                    dp[i][j] = Math.max(dp[i+1][j] , v[i]+dp[i+1][w[i]+j]);
+                }else {
+                    dp[i][j] = dp[i+1][j];
+                }
+            }
+        }
+
+        return dp[0][0];
+    }
+```
+
+
+## 总结（自己）：对每个位置进行选择，有 N 个位置，递归处理这类问题，它们所有可能结果都会出现在叶节点***，可以把递归想象成一棵树，每次basecase返回的时候就出现了一个叶节点，它的上一次递归就是其父节点，父节点会对递归返回来其叶节点信息进行决策这些（或不返回信息，父结点可能有1个2个3个。。。叶节点等等），不断的把决策一层层的返回根节点，最后 根 对比其子节点，进行决策，结果返回给我们。这类型的题目有：
+
+### 题目二：打印一个字符串的全部子序列，包括空字符串【每个结点i：有 要 和 不要 两种选择；叶节点不用返回给父节点信息，它直接打印每个叶节点结果】；
+
+### 题目三：打印一个字符串的全部排列（不出现重复的排列）【每个结点i：有i~n-1种选择；叶节点不用返回给父节点信息，它直接打印每个叶节点结果】；
+
+### 题目七：矩阵最小路径和【每个位置有右和下两种选择，除了最后一行和最后一列；叶节点的结果是它这个情况的路径和，向父结点返回这个路径和，父结点比较子节点的结果，选择最小的作为自己的路径和，向其父结点返回...】
+
+### 题目八：从数组任意选择数字，能不能累加得到aim【每个位置有 要和不要 两种选择；叶节点的结果是true或false（叶节点会看自己这里的结果是不是aim，从而向父结点返回true或false），父结点比较子节点的结果，根据子节点相或得到true或false作为自己的值，向其父结点返回...；】
+
+### 题目九：重量不超过bag【每个东西有 要和不要 两种选择；叶节点的结果是它这个情况的价值和，向父结点返回这个价值和，父结点比较子节点的结果，根据子节点选择最大的作为自己的价值和，向其父结点返回...】
