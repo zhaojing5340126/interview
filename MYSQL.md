@@ -203,39 +203,170 @@
             - [3）alter table child drop foreign key child_ibfk_1;  -- 删除 之前的外键，外键名字可以通过show create table 看到](#3alter-table-child-drop-foreign-key-child_ibfk_1-----删除-之前的外键外键名字可以通过show-create-table-看到)
             - [4）  alter table child add foreign key(parent_id) references parent(id) on update cascade on delete restrict;  -- 添加外键，使用严格模式](#4--alter-table-child-add-foreign-keyparent_id-references-parentid-on-update-cascade-on-delete-restrict-----添加外键使用严格模式)
 - [十一、day11：SQL语法之SELECT](#十一day11sql语法之select)
-- [十二、day012-子查询 INSERT UPDATE DELETE REPLACE](#十二day012-子查询-insert-update-delete-replace)
+    - [1. SELECT语法介绍](#1-select语法介绍)
+    - [2. LIMIT 和 ORDER BY](#2-limit-和-order-by)
+        - [2.1 order by col_name ：`ORDER BY` 是把已经查询好的结果集进行排序， asc ：升序(默认), desc：降序。](#21-order-by-col_name-order-by-是把已经查询好的结果集进行排序-asc-升序默认-desc降序)
+            - [1）emp_no 是主键，order by 主键 不会创建临时表的，主键(索引)本身有序](#1emp_no-是主键order-by-主键-不会创建临时表的主键索引本身有序)
+            - [2）select * from employees order by emp_no asc limit 5,5;  -- 从第5条 开始取，取5条出来](#2select--from-employees-order-by-emp_no-asc-limit-55-----从第5条-开始取取5条出来)
+            - [3）select * from employees where emp_no > 20000 order by emp_no limit 5; --取出5条](#3select--from-employees-where-emp_no--20000-order-by-emp_no-limit-5---取出5条)
+    - [3. WHERE：`WHERE`是将查询出来的结果，通过`WHERE`后面的条件，对结果进行过滤](#3-wherewhere是将查询出来的结果通过where后面的条件对结果进行过滤)
+        - [3.1 逻辑：and、or、not](#31-逻辑andornot)
+            - [1） select * from employees where emp_no > 40000 and hire_date > '1991-01-01' order by emp_no limit 4;  //也可以加双引号“1991-01-01”](#1-select--from-employees-where-emp_no--40000-and-hire_date--1991-01-01-order-by-emp_no-limit-4--也可以加双引号1991-01-01)
+            - [2） select * from employees where (emp_no > 40000 and birth_date > '1961-01-01')  or (emp_no > 40000 and hire_date > '1991-01-01') order by emp_no limit 5;](#2-select--from-employees-where-emp_no--40000-and-birth_date--1961-01-01--or-emp_no--40000-and-hire_date--1991-01-01-order-by-emp_no-limit-5)
+    - [4. JOIN](#4-join)
+        - [4.1. INNER JOIN -内联](#41-inner-join--内联)
+            - [1）select * from employees,titles where employees.emp_no = titles.emp_no limit 5;](#1select--from-employeestitles-where-employeesemp_no--titlesemp_no-limit-5)
+            - [2）select e.emp_no, concat(last_name,' ', first_name) as emp_name, gender, title from employees as e,titles as t  where e.emp_no = t.emp_no limit 5;   -- 使用别名as，也可以不使用](#2select-eemp_no-concatlast_name--first_name-as-emp_name-gender-title-from-employees-as-etitles-as-t--where-eemp_no--temp_no-limit-5------使用别名as也可以不使用)
+            - [3) select e.emp_no, concat(last_name,' ', first_name) as emp_name, gender, title from employees as e join titles as t  on e.emp_no = t.emp_no limit 5;  //inner join...on...](#3-select-eemp_no-concatlast_name--first_name-as-emp_name-gender-title-from-employees-as-e-join-titles-as-t--on-eemp_no--temp_no-limit-5--inner-joinon)
+        - [4.2. OUTER JOIN：包括left join 和 right join 【outer是省略了的】， ON 参与outer join的结果的生成，而where只是对结果的一个过滤](#42-outer-join包括left-join-和-right-join-outer是省略了的-on-参与outer-join的结果的生成而where只是对结果的一个过滤)
+            - [4.2.1 left join ： 左表 left join 右表 on 条件](#421-left-join--左表-left-join-右表-on-条件)
+                - [1) select * from  t1 left join t2 on t1.a = t2.b;  //左表t1全部显示，右表满足这个匹配条件的才显示，不满足则显示null](#1-select--from--t1-left-join-t2-on-t1a--t2b--左表t1全部显示右表满足这个匹配条件的才显示不满足则显示null)
+            - [4.2.2  right join ： 左表 right join 右表 on 条件](#422--right-join--左表-right-join-右表-on-条件)
+                - [2) select * from  t1 right join t2 on t1.a = t2.b;  //右表t2全部显示，左表满足这个匹配条件的才显示，不满足则显示null](#2-select--from--t1-right-join-t2-on-t1a--t2b--右表t2全部显示左表满足这个匹配条件的才显示不满足则显示null)
+            - [4.2.3 题目： 查找在t1表，而不在t2表的数据](#423-题目-查找在t1表而不在t2表的数据)
+                - [3）select * from t1 left join t2 on t1.a = t2.b where t2.b is null;  //**判断是否为null用 is](#3select--from-t1-left-join-t2-on-t1a--t2b-where-t2b-is-null--判断是否为null用-is)
+            - [4.2.5 题目：查找哪些员工不是经理](#425-题目查找哪些员工不是经理)
+                - [4）select e.emp_no,concat(last_name,' ', first_name) as emp_name, gender, d.dept_no from employees as e left join dept_manager as d on e.emp_no = d.emp_no where d.emp_no is null limit 5;](#4select-eemp_noconcatlast_name--first_name-as-emp_name-gender-ddept_no-from-employees-as-e-left-join-dept_manager-as-d-on-eemp_no--demp_no-where-demp_no-is-null-limit-5)
+        - [4.3. GROUP BY：分组](#43-group-by分组)
+            - [4.3.1 题目：选出部门人数 > 50000](#431-题目选出部门人数--50000)
+                - [1） select dept_no, count(dept_no) from dept_emp group by dept_no having count(dept_no) > 50000;  -- 通过 dept_no部门分组，count是计算数量， 如果是对分组的聚合函数做过滤，使用having，用where报语法错误](#1-select-dept_no-countdept_no-from-dept_emp-group-by-dept_no-having-countdept_no--50000-----通过-dept_no部门分组count是计算数量-如果是对分组的聚合函数做过滤使用having用where报语法错误)
+- [十二、day12：子查询 INSERT UPDATE DELETE REPLACE](#十二day12子查询-insert-update-delete-replace)
+    - [1.子查询：指在一个select语句中嵌套另一个select语句。同时，子查询必须包含括号。](#1子查询指在一个select语句中嵌套另一个select语句同时子查询必须包含括号)
+        - [1.1.  ANY / SOME](#11--any--some)
+            - [1）select a from t1 where a > any(select a from t2);  //t1表内a列的值 大于 t2表中a列的任意(any)一个值（t1.a > any(t2.a) == true）,则返回t1.a的记录](#1select-a-from-t1-where-a--anyselect-a-from-t2--t1表内a列的值-大于-t2表中a列的任意any一个值t1a--anyt2a--true则返回t1a的记录)
+                - [1. `select a from t1` 是外部查询(outer query)](#1-select-a-from-t1-是外部查询outer-query)
+                - [2. `(select a from t2)` 是子查询](#2-select-a-from-t2-是子查询)
+                - [3.ANY和some是一个意思，必须与一个`比较操作符`一起使用： `=`, `>`, `<`, `>=`, `<=`, `<>` ,其中<>表示不等于](#3any和some是一个意思必须与一个比较操作符一起使用-------其中表示不等于)
+        - [1.2. IN：`in`是`ANY`的一种特殊情况：**`"in"`** 的结果等同于  **`"= any"`**](#12-inin是any的一种特殊情况in-的结果等同于---any)
+            - [1） select a from t1 where a in (select a from t2);](#1-select-a-from-t1-where-a-in-select-a-from-t2)
+        - [1.3. ALL](#13-all)
+            - [1）truncate t1;   -- 清空t1](#1truncate-t1------清空t1)
+            - [2）select a from t1 where a > all(select a from t2); //`ALL`关键词必须与一个`比较操作符`一起使用，NOT IN 是 <> ALL 的别名](#2select-a-from-t1-where-a--allselect-a-from-t2-all关键词必须与一个比较操作符一起使用not-in-是--all-的别名)
+        - [1.4. 子查询的分类](#14-子查询的分类)
+            - [1.4.1 独立子查询：不依赖外部查询而运行的子查询](#141-独立子查询不依赖外部查询而运行的子查询)
+            - [1.4.2 相关子查询：引用了外部查询列的子查询](#142-相关子查询引用了外部查询列的子查询)
+            - [1.4.3.和 null比较，使用is和is not， 而不是 = 和 <>](#143和-null比较使用is和is-not-而不是--和-)
+    - [2. INSERT (select 比 values强大)](#2-insert-select-比-values强大)
+        - [1）insert into t1 values(2),(3),(-1);  -- 插入多个值，MySQL独有](#1insert-into-t1-values23-1-----插入多个值mysql独有)
+        - [2）insert into t3(a) select 8;  -- 指定列a，以下这些方法values都不能用](#2insert-into-t3a-select-8-----指定列a以下这些方法values都不能用)
+        - [3) insert into t3 select 8, 9;  -- 不指定列，但是插入值匹配列的个数和类型](#3-insert-into-t3-select-8-9-----不指定列但是插入值匹配列的个数和类型)
+        - [4) insert into t3(b) select a from t2;  -- 从t2表中查询数据并插入到t3(a)中，注意指定列](#4-insert-into-t3b-select-a-from-t2-----从t2表中查询数据并插入到t3a中注意指定列)
+    - [3. DELETE](#3-delete)
+        - [1）delete from t3 where a is null;  -- 根据过滤条件删除](#1delete-from-t3-where-a-is-null-----根据过滤条件删除)
+        - [2）delete from t3;   -- 删除整个表](#2delete-from-t3------删除整个表)
+    - [4. UPDATE【update...set...】](#4-updateupdateset)
+        - [1）update t3 set a=10 where a=1;](#1update-t3-set-a10-where-a1)
+        - [2）update t1 join t2 on t1.a = t2.a set t1.a=100;  -- 先得到t1.a=t2.a的结果集， 然后将结果集中的t1.a设置为100](#2update-t1-join-t2-on-t1a--t2a-set-t1a100-----先得到t1at2a的结果集-然后将结果集中的t1a设置为100)
+    - [5. REPLACE: replace的原理是：先delete，再insert，没有替换对象时，类似插入效果insert](#5-replace-replace的原理是先delete再insert没有替换对象时类似插入效果insert)
+        - [1) replace into t4 values(1, 100); -- 替换该主键对应的值](#1-replace-into-t4-values1-100----替换该主键对应的值)
+    - [6. 其他知识点](#6-其他知识点)
+        - [6.1 更新有关系的值](#61-更新有关系的值)
+        - [6.2 显示行号(RowNumber)](#62-显示行号rownumber)
+            - [1) set @rn:=0;  -- 冒号是赋值，产生 SESSION(会话)级别的变量,这是MySQL自定义的变量](#1-set-rn0-----冒号是赋值产生-session会话级别的变量这是mysql自定义的变量)
+            - [2）select @rn:=@rn+1 as rownumber, emp_no, gender from employees limit 10;  -- ：= 是赋值的意思](#2select-rnrn1-as-rownumber-emp_no-gender-from-employees-limit-10------是赋值的意思)
 - [十三、day013-作业讲解一 Rank 视图 UNION 触发器上](#十三day013-作业讲解一-rank-视图-union-触发器上)
-- [十四、day014-触发器下 存储过程 自定义函数MySQL 执行计划与优化器](#十四day014-触发器下-存储过程-自定义函数mysql-执行计划与优化器)
+    - [1. 作业讲解](#1-作业讲解)
+        - [1）select datediff('1971-01-01', '1970-01-05');  //971-01-01 减去 1970-01-5 为361天](#1select-datediff1971-01-01-1970-01-05--971-01-01-减去-1970-01-5-为361天)
+        - [2) select datediff('1971-01-01', '1970-01-05') / 7;  -- 求周数](#2-select-datediff1971-01-01-1970-01-05--7-----求周数)
+        - [3) select floor(5.4); //向下取整](#3-select-floor54-向下取整)
+        - [4）select round(5.4); //ROUND(X, D) 返回值是对数字X保留到小數点后D位，进行四舍五入，D默认为0；如果D为负数，则保留小数点左边（整数）的位数](#4select-round54-roundx-d-返回值是对数字x保留到小數点后d位进行四舍五入d默认为0如果d为负数则保留小数点左边整数的位数)
+        - [5）select adddate('1970-01-05', interval 7 day);   //使用adddate函数，在1970-01-05的基础上，增加7天](#5select-adddate1970-01-05-interval-7-day---使用adddate函数在1970-01-05的基础上增加7天)
+    - [2. Rank 排名问题的步骤：](#2-rank-排名问题的步骤)
+        - [1）set @prev_value := NULL;  //prev_value可以理解为是临时保存第N-1行的score的变量](#1set-prev_value--null--prev_value可以理解为是临时保存第n-1行的score的变量)
+        - [2) set @rank_count := 0;   ///用于存放当前的排名](#2-set-rank_count--0---用于存放当前的排名)
+        - [3)  select  id, score,](#3--select--id-score)
+        - [case](#case)
+        - [when @prev_value = score then @rank_count  // 相等则prev_value不变， 并返回rank_count（第一次为NULL，不会相等，所以跳转到下一个when语句）](#when-prev_value--score-then-rank_count---相等则prev_value不变-并返回rank_count第一次为null不会相等所以跳转到下一个when语句)
+        - [when @prev_value := score then @rank_count := @rank_count + 1   // 不等，则第N行的score赋值(:=)给prev_value。且rank_count增加1](#when-prev_value--score-then-rank_count--rank_count--1----不等则第n行的score赋值给prev_value且rank_count增加1)
+        - [end as rank_column   -- case 开始的，end结尾](#end-as-rank_column------case-开始的end结尾)
+        - [from test_rank order by score desc;](#from-test_rank-order-by-score-desc)
+    - [3. 视图：视图在mysql是虚拟表，视图在创建的瞬间，便确定了结构（每次查询视图，实际上还是去查询的原来的表，只是查询的规则是在视图创建时经过定义的。），其作用是，可以对开发人员是透明的，可以隐藏部分关键的列。](#3-视图视图在mysql是虚拟表视图在创建的瞬间便确定了结构每次查询视图实际上还是去查询的原来的表只是查询的规则是在视图创建时经过定义的其作用是可以对开发人员是透明的可以隐藏部分关键的列)
+        - [1) create view view_rank as select * from test_rank;  //创建视图view_rank](#1-create-view-view_rank-as-select--from-test_rank--创建视图view_rank)
+        - [2) show create table test_rank\G   //视图是以一张表的形式存在的，可通过show tables看到，和真正的表不同的是，这里show出来的是视图的定义](#2-show-create-table-test_rank\g---视图是以一张表的形式存在的可通过show-tables看到和真正的表不同的是这里show出来的是视图的定义)
+        - [3）select * from view_rank;       //可以直接查询该视图得结果](#3select--from-view_rank-------可以直接查询该视图得结果)
+        - [3.1 视图的算法(`ALGORITHM`)有三种方式：](#31-视图的算法algorithm有三种方式)
+            - [1.`UNDEFINED` 默认方式，由MySQL来判断使用下面的哪种算法【我们一般选择默认方式，让MySQL自己判断】](#1undefined-默认方式由mysql来判断使用下面的哪种算法我们一般选择默认方式让mysql自己判断)
+            - [2. `MERGE` ： `每次`通过`物理表`查询得到结果，把结果merge(合并)起来返回](#2-merge--每次通过物理表查询得到结果把结果merge合并起来返回)
+            - [3.`TEMPTABLE` ： 产生一张`临时表`，把数据放入临时表后，客户端再去临时表取数据（`不会缓存`）](#3temptable--产生一张临时表把数据放入临时表后客户端再去临时表取数据不会缓存)
+                - [3.1 `TEMPTABLE 特点`：即使访问条件一样，第二次查询还是会去读取物理表中的内容，并重新生成一张临时表,并不会取缓存之前的表。*（临时表是Memory存储引擎，默认放内存，超过配置大小放磁盘）*](#31-temptable-特点即使访问条件一样第二次查询还是会去读取物理表中的内容并重新生成一张临时表并不会取缓存之前的表临时表是memory存储引擎默认放内存超过配置大小放磁盘)
+                - [3.2 当查询有一个较大的结果集时，使用`TEMPTABLE`可以快速的结束对该物理表的访问，从而可以快速释放这张物理表上占用的资源。然后客户端可以对临时表上的数据做一些耗时的操作，而不影响原来的物理表。](#32-当查询有一个较大的结果集时使用temptable可以快速的结束对该物理表的访问从而可以快速释放这张物理表上占用的资源然后客户端可以对临时表上的数据做一些耗时的操作而不影响原来的物理表)
+    - [4. UNION：作用是将两个查询的结果集进行合并。](#4-union作用是将两个查询的结果集进行合并)
+        - [4.1 UNION必须由`两条或两条以上`的SELECT语句组成，语句之间用关键字`UNION`分隔。](#41-union必须由两条或两条以上的select语句组成语句之间用关键字union分隔)
+        - [4.2 UNION中的每个查询必须包含相同的列（`类型相同或可以隐式转换`）、表达式或聚集函数。](#42-union中的每个查询必须包含相同的列类型相同或可以隐式转换表达式或聚集函数)
+        - [1）select a, b from t1 union select * from t2;  //使用union会去重，导致性能下降](#1select-a-b-from-t1-union-select--from-t2--使用union会去重导致性能下降)
+        - [2）select a, b from t1 union all select * from t2;  //使用 union all 可以不去重， 如果知道数据本身具有唯一性，没有重复，则建议使用`union all`](#2select-a-b-from-t1-union-all-select--from-t2--使用-union-all-可以不去重-如果知道数据本身具有唯一性没有重复则建议使用union-all)
+    - [5. 触发器：触发器的对象是`表`，当表上出现`特定的事件`时`触发`该程序的执行](#5-触发器触发器的对象是表当表上出现特定的事件时触发该程序的执行)
+        - [5.1 触发器的类型](#51-触发器的类型)
+            - [5.1.1 `UPDATE`触发器：用于 update 操作](#511-update触发器用于-update-操作)
+            - [5.1.2 `DELETE`触发器：用于delete 操作、replace 操作](#512-delete触发器用于delete-操作replace-操作)
+                - [注意：drop，truncate等DDL操作`不会触发`DELETE](#注意droptruncate等ddl操作不会触发delete)
+            - [5.1.3 `INSERT`触发器：insert 操作、 load data 操作、replace 操作](#513-insert触发器insert-操作-load-data-操作replace-操作)
+        - [5.2 注意：`replace`操作会`触发两次`，一次是`UPDATE`类型的触发器，一次是`INSERT`类型的触发器](#52-注意replace操作会触发两次一次是update类型的触发器一次是insert类型的触发器)
+        - [5.3 注意：触发器只触发DML(Data Manipulation Language )操作，不会触发DDL(Data Definition Language)操作（create,drop等操作）](#53-注意触发器只触发dmldata-manipulation-language-操作不会触发ddldata-definition-language操作createdrop等操作)
+        - [5.4 触发器总结](#54-触发器总结)
+            - [1）触发器对性能有损耗，应当非常慎重使用；](#1触发器对性能有损耗应当非常慎重使用)
+            - [2）对于事务表，`触发器执行失败则整个语句回滚`；](#2对于事务表触发器执行失败则整个语句回滚)
+            - [3）Row格式主从复制，`触发器不会在从库上执行`；](#3row格式主从复制触发器不会在从库上执行)
+            - [4）使用触发器时应防止递归执行；](#4使用触发器时应防止递归执行)
+        - [5.5 触发器模拟物化视图](#55-触发器模拟物化视图)
+            - [5.5.1 物化视图的概念](#551-物化视图的概念)
+                - [1）不是基于基表的虚表](#1不是基于基表的虚表)
+                - [2）根据基表实际存在的实表](#2根据基表实际存在的实表)
+                - [3）预先计算并保存耗时较多的SQL操作结果（如多表链接(join)或者group by等）](#3预先计算并保存耗时较多的sql操作结果如多表链接join或者group-by等)
+        - [5.5 MySQL内建函数演示：ifnull、select into](#55-mysql内建函数演示ifnullselect-into)
+            - [1）select ifnull(@test, 100);   // 如果test为NULL，则ifnull返回100,test不为null,则返回test的值](#1select-ifnulltest-100----如果test为null则ifnull返回100test不为null则返回test的值)
+            - [2) select * from test_rank_2 where id=1 into @id_1, @score_1;  //选择id=1的记录，将对应的id和score赋值给变量 id_1 和 score_1](#2-select--from-test_rank_2-where-id1-into-id_1-score_1--选择id1的记录将对应的id和score赋值给变量-id_1-和-score_1)
+- [十四、day014：存储过程 自定义函数MySQL 执行计划与优化器](#十四day014存储过程-自定义函数mysql-执行计划与优化器)
+    - [1. 存储过程](#1-存储过程)
+        - [1.1 存储过程介绍:](#11-存储过程介绍)
+            - [1) 存储在数据库端的一组SQL语句集；](#1-存储在数据库端的一组sql语句集)
+            - [2) 用户可以通过存储过程名和传参多次调用的程序模块；](#2-用户可以通过存储过程名和传参多次调用的程序模块)
+        - [1.2 存储过程的特点：](#12-存储过程的特点)
+            - [1) 使用灵活，可以使用流控语句、自定义变量等完成复杂的业务逻辑；](#1-使用灵活可以使用流控语句自定义变量等完成复杂的业务逻辑)
+            - [2) 提高数据安全性，屏蔽应用程序直接对表的操作，易于进行审计；](#2-提高数据安全性屏蔽应用程序直接对表的操作易于进行审计)
+            - [3) 减少网络传输；//因为只需要调用就好](#3-减少网络传输因为只需要调用就好)
+            - [4) 提高代码维护的复杂度，实际使用需要结合业务评估；](#4-提高代码维护的复杂度实际使用需要结合业务评估)
+    - [2. 自定义函数](#2-自定义函数)
+        - [2.1 自定义函数和存储过程很类似，但是必须要有返回值；](#21-自定义函数和存储过程很类似但是必须要有返回值)
+        - [2.2 与内置的函数(sum(), max()等)使用方法类似: select fun(val);](#22-与内置的函数sum-max等使用方法类似-select-funval)
+        - [2.3 自定义函数可能在遍历每条记录中使用；](#23-自定义函数可能在遍历每条记录中使用)
 - [十五、day015-索引 B+树 上](#十五day015-索引-b树-上)
-- [十六、day016-索引 B+树 下 Explain 1](#十六day016-索引-b树-下-explain-1)
-- [十七、day017-Explain 2【MySQL innodb引擎优化】](#十七day017-explain-2mysql-innodb引擎优化)
+    - [一. 索引](#一-索引)
+        - [1. 索引的定义](#1-索引的定义)
+        - [2. 二分查找](#2-二分查找)
+    - [二. 二叉树(Binary Tree)](#二-二叉树binary-tree)
+        - [1. 二叉树的定义](#1-二叉树的定义)
+        - [2. 平衡二叉树（AVL-树）](#2-平衡二叉树avl-树)
+    - [三. B树/B+树](#三-b树b树)
+        - [1. B树的定义](#1-b树的定义)
+        - [2. B+树的定义](#2-b树的定义)
+        - [3. B+树的作用](#3-b树的作用)
+        - [3. B+树的操作](#3-b树的操作)
+        - [3. B+树的扇出(fan out)](#3-b树的扇出fan-out)
+        - [4. B+树存储数据举例](#4-b树存储数据举例)
+    - [四. MySQL索引](#四-mysql索引)
+        - [1. MySQL 创建索引](#1-mysql-创建索引)
+        - [2. MySQL 查看索引](#2-mysql-查看索引)
+        - [3. Cardinality（基数）](#3-cardinality基数)
+        - [4. 复合索引](#4-复合索引)
+    - [五. information_schema（一）](#五-information_schema一)
+    - [6. EXPLAIN： explain是解释SQL语句的执行计划，即显示该SQL语句怎么执行的，但不会真的去执行。也可以使用desc，等价于explain](#6-explain-explain是解释sql语句的执行计划即显示该sql语句怎么执行的但不会真的去执行也可以使用desc等价于explain)
+        - [6.1 Explain输出介绍](#61-explain输出介绍)
+            - [（1）. id：执行计划的id标志](#1-id执行计划的id标志)
+            - [（2）. select_type：SELECT的类型](#2-select_typeselect的类型)
+                - [比如：SIMPLE ：简单SELECT(不使用UNION或子查询等)](#比如simple-简单select不使用union或子查询等)
+            - [（3）. table：通常是用户操作的用户表](#3-table通常是用户操作的用户表)
+            - [（4）. type](#4-type)
+            - [（5）. extra](#5-extra)
 - [十八、day018-磁盘](#十八day018-磁盘)
-- [十九、day019-磁盘测试](#十九day019-磁盘测试)
-- [二十、day020-InnoDB_1 表空间 General](#二十day020-innodb_1-表空间-general)
-- [二十一、day021-InnoDB_2 SpaceID.PageNumber 压缩表）](#二十一day021-innodb_2-spaceidpagenumber-压缩表)
-- [二十二、day022-InnoDB_3 透明表空间压缩 索引组织表](#二十二day022-innodb_3-透明表空间压缩-索引组织表)
-- [二十三、day023-InnoDB_4 页(2) 行记录](#二十三day023-innodb_4-页2-行记录)
-- [二十四、day024-InnoDB_5 – heap_number Buffer Pool](#二十四day024-innodb_5--heap_number-buffer-pool)
-- [二十五、day025-InnoDB_6 Buffer Pool与压缩页 CheckPoint LSN](#二十五day025-innodb_6-buffer-pool与压缩页-checkpoint-lsn)
-- [二十六、day026-InnoDB_7 doublewrite ChangeBuffer AHI FNP【MySQL 索引与innodb锁机制】](#二十六day026-innodb_7-doublewrite-changebuffer-ahi-fnpmysql-索引与innodb锁机制)
-- [二十七、day027-Secondary Index](#二十七day027-secondary-index)
-- [二十八、day028-join算法锁_1](#二十八day028-join算法锁_1)
-- [二十九、day029-锁_2](#二十九day029-锁_2)
-- [三十、day030-锁_3](#三十day030-锁_3)
-- [三十一、day031-锁_4](#三十一day031-锁_4)
-- [三十二、day032-锁_5](#三十二day032-锁_5)
-- [三十三、day033-锁_6 事物_1](#三十三day033-锁_6-事物_1)
-- [三十四、day034-事务_2  MySQL 性能衡量](#三十四day034-事务_2  mysql-性能衡量)
-- [三十五、day035-redo_binlog_xa](#三十五day035-redo_binlog_xa)
-- [三十六、day036-undo_sysbench](#三十六day036-undo_sysbench)
-- [三十七、day037-tpcc_mysqlslap【MySQL 备份与恢复】](#三十七day037-tpcc_mysqlslapmysql-备份与恢复)
-- [三十八、day038-purge死锁举例_MySQL backup备份_1](#三十八day038-purge死锁举例_mysql-backup备份_1)
-- [三十九、day039-MySQL backup备份恢复_2【MySQL 复制技术与高可用】](#三十九day039-mysql-backup备份恢复_2mysql-复制技术与高可用)
-- [四十、day040-MySQL 备份恢复backup_3_replication_1](#四十day040-mysql-备份恢复backup_3_replication_1)
-- [四十一、day041-backup_4-replication_2](#四十一day041-backup_4-replication_2)
-- [四十二、day042-replication_3](#四十二day042-replication_3)
-- [四十三、day043-replication_4-GTID 1](#四十三day043-replication_4-gtid-1)
-- [四十四、day044-replication_5-GTID 2](#四十四day044-replication_5-gtid-2)
+    - [1. iostat](#1-iostat)
+    - [2. 磁盘【MySQL配SSD】](#2-磁盘mysql配ssd)
+        - [1. 磁盘的访问模式](#1-磁盘的访问模式)
+        - [3. 磁盘的分类](#3-磁盘的分类)
+        - [4. 提升IOPS性能的手段【因为很早之前还没有SSD】](#4-提升iops性能的手段因为很早之前还没有ssd)
+        - [5. RAID类别](#5-raid类别)
+        - [6. RAID卡的构造](#6-raid卡的构造)
+        - [7. 文件系统和操作系统](#7-文件系统和操作系统)
 
 <!-- /TOC -->
 
@@ -2587,45 +2718,3002 @@ ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constrai
 ```
 
 # 十一、day11：SQL语法之SELECT
+## 1. SELECT语法介绍
 
-# 十二、day012-子查询 INSERT UPDATE DELETE REPLACE
+>[SELECT语法官方文档](http://dev.mysql.com/doc/refman/5.7/en/select.html)
+
+```sql
+SELECT
+-- -------------------------不推荐使用--------------------------
+    [ALL | DISTINCT | DISTINCTROW ]
+      [HIGH_PRIORITY]
+      [MAX_STATEMENT_TIME = N]
+      [STRAIGHT_JOIN]
+      [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
+      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+-- -------------------------------------------------------------
+    select_expr [, select_expr ...]
+    [FROM table_references  
+      [PARTITION partition_list]
+    [WHERE where_condition] 
+    [GROUP BY {col_name | expr | position}  
+      [ASC | DESC], ... [WITH ROLLUP]] 
+    [HAVING where_condition] 
+    [ORDER BY {col_name | expr | position} 
+      [ASC | DESC], ...]
+    [LIMIT {[offset,] row_count | row_count OFFSET offset}]  
+    [PROCEDURE procedure_name(argument_list)]
+    [INTO OUTFILE 'file_name'
+        [CHARACTER SET charset_name]
+        export_options
+      | INTO DUMPFILE 'file_name'
+      | INTO var_name [, var_name]]
+    [FOR UPDATE | LOCK IN SHARE MODE]]
+```
+
+## 2. LIMIT 和 ORDER BY
+### 2.1 order by col_name ：`ORDER BY` 是把已经查询好的结果集进行排序， asc ：升序(默认), desc：降序。
+#### 1）emp_no 是主键，order by 主键 不会创建临时表的，主键(索引)本身有序
+#### 2）select * from employees order by emp_no asc limit 5,5;  -- 从第5条 开始取，取5条出来
+#### 3）select * from employees where emp_no > 20000 order by emp_no limit 5; --取出5条
+```sql
+mysql> select * from employees limit 1;  -- 从employees中 随机 取出一条数据，结果是不确定的
+
+-- order by col_name 根据某列的值进行排序
+-- asc ： 升序(default)
+-- desc： 降序
+
+mysql> show create table employees\G
+*************************** 1. row ***************************
+       Table: employees
+Create Table: CREATE TABLE `employees` (
+  `emp_no` int(11) NOT NULL,
+  `birth_date` date NOT NULL,
+  `first_name` varchar(14) NOT NULL,
+  `last_name` varchar(16) NOT NULL,
+  `gender` enum('M','F') NOT NULL,
+  `hire_date` date NOT NULL,
+  PRIMARY KEY (`emp_no`)    -- emp_no 是主键，order by 主键 不会创建临时表的，主键(索引)本身有序
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+1 row in set (0.00 sec)
+
+mysql> select * from employees order by emp_no asc limit 5,5;  -- limit start, offset
+                                                               -- 从第5条 开始取，取5条出来
++--------+------------+------------+-----------+--------+------------+
+| emp_no | birth_date | first_name | last_name | gender | hire_date  |
++--------+------------+------------+-----------+--------+------------+
+|  10006 | 1953-04-20 | Anneke     | Preusig   | F      | 1989-06-02 |
+|  10007 | 1957-05-23 | Tzvetan    | Zielinski | F      | 1989-02-10 |
+|  10008 | 1958-02-19 | Saniya     | Kalloufi  | M      | 1994-09-15 |
+|  10009 | 1952-04-19 | Sumant     | Peac      | F      | 1985-02-18 |
+|  10010 | 1963-06-01 | Duangkaew  | Piveteau  | F      | 1989-08-24 |
++--------+------------+------------+-----------+--------+------------+
+5 rows in set (0.00 sec)
+
+-- 以上这个语法有一种分页的效果，但是会随着start的增加，性能会下降，因为会扫描表(从 1 到 start)
+
+-- 相对比较推荐的方法
+mysql> select * from employees where emp_no > 20000 order by emp_no limit 5;
++--------+------------+------------+-----------+--------+------------+
+| emp_no | birth_date | first_name | last_name | gender | hire_date  |
++--------+------------+------------+-----------+--------+------------+
+|  20001 | 1962-05-16 | Atreye     | Eppinger  | M      | 1990-04-18 |
+|  20002 | 1955-12-25 | Jaber      | Brender   | M      | 1988-01-26 |
+|  20003 | 1953-04-11 | Munehiko   | Coors     | F      | 1991-02-07 |
+|  20004 | 1952-03-07 | Radoslaw   | Pfau      | M      | 1995-11-24 |
+|  20005 | 1956-02-20 | Licheng    | Przulj    | M      | 1992-07-17 |
++--------+------------+------------+-----------+--------+------------+
+5 rows in set (0.00 sec)
+-- （当然推荐把热数据放cache里,比如Redis）
+```
+>`ORDER BY` 是把已经查询好的结果集进行排序
+
+## 3. WHERE：`WHERE`是将查询出来的结果，通过`WHERE`后面的条件，对结果进行过滤
+### 3.1 逻辑：and、or、not
+#### 1） select * from employees where emp_no > 40000 and hire_date > '1991-01-01' order by emp_no limit 4;  //也可以加双引号“1991-01-01”
+#### 2） select * from employees where (emp_no > 40000 and birth_date > '1961-01-01')  or (emp_no > 40000 and hire_date > '1991-01-01') order by emp_no limit 5;
+```sql
+mysql> select * from employees  
+    -> where emp_no > 40000
+    -> and hire_date > '1991-01-01'   -- 可以用 and 进行 逻辑与 
+    -> order by emp_no limit 4;
++--------+------------+------------+------------+--------+------------+
+| emp_no | birth_date | first_name | last_name  | gender | hire_date  |
++--------+------------+------------+------------+--------+------------+
+|  40003 | 1960-01-26 | Jacopo     | Marshall   | F      | 1991-09-30 |
+|  40005 | 1961-02-27 | Zsolt      | Fairtlough | F      | 1991-07-08 |
+|  40012 | 1955-02-07 | Chinhyun   | Ozeri      | F      | 1995-08-12 |
+|  40015 | 1964-10-08 | Ioana      | Lemarechal | M      | 1997-08-07 |
++--------+------------+------------+------------+--------+------------+
+
+
+mysql> select * from employees
+    -> where (emp_no > 40000 and birth_date > '1961-01-01') -- 使用()明确条件的逻辑规则
+    ->    or (emp_no > 40000 and hire_date > '1991-01-01')  -- 可以使用 or 做 逻辑或
+    -> order by emp_no limit 5;
++--------+------------+------------+------------+--------+------------+
+| emp_no | birth_date | first_name | last_name  | gender | hire_date  |
++--------+------------+------------+------------+--------+------------+
+|  40003 | 1960-01-26 | Jacopo     | Marshall   | F      | 1991-09-30 |
+|  40005 | 1961-02-27 | Zsolt      | Fairtlough | F      | 1991-07-08 |
+|  40006 | 1962-11-07 | Basim      | Panienski  | F      | 1986-12-27 |
+|  40012 | 1955-02-07 | Chinhyun   | Ozeri      | F      | 1995-08-12 |
+|  40015 | 1964-10-08 | Ioana      | Lemarechal | M      | 1997-08-07 |
++--------+------------+------------+------------+--------+------------+
+```
+
+## 4. JOIN
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/123.png?raw=true)
+
+### 4.1. INNER JOIN -内联
+#### 1）select * from employees,titles where employees.emp_no = titles.emp_no limit 5;
+#### 2）select e.emp_no, concat(last_name,' ', first_name) as emp_name, gender, title from employees as e,titles as t  where e.emp_no = t.emp_no limit 5;   -- 使用别名as，也可以不使用
+####3) select e.emp_no, concat(last_name,' ', first_name) as emp_name, gender, title from employees as e join titles as t  on e.emp_no = t.emp_no limit 5;  //inner join...on...
+```sql
+--
+-- ANSI SQL 89
+-- 关联employees表和titles表
+-- 要求是 employees的emp_no 等于 titles的emp_no
+--
+mysql> select * from employees,titles where employees.emp_no = titles.emp_no limit 5;
++--------+------------+------------+-----------+--------+------------+--------+-----------------+------------+------------+
+| emp_no | birth_date | first_name | last_name | gender | hire_date  | emp_no | title           | from_date  | to_date    |
++--------+------------+------------+-----------+--------+------------+--------+-----------------+------------+------------+
+|  10001 | 1953-09-02 | Georgi     | Facello   | M      | 1986-06-26 |  10001 | Senior Engineer | 1986-06-26 | 9999-01-01 |
+|  10002 | 1964-06-02 | Bezalel    | Simmel    | F      | 1985-11-21 |  10002 | Staff           | 1996-08-03 | 9999-01-01 |
+|  10003 | 1959-12-03 | Parto      | Bamford   | M      | 1986-08-28 |  10003 | Senior Engineer | 1995-12-03 | 9999-01-01 |
+|  10004 | 1954-05-01 | Chirstian  | Koblick   | M      | 1986-12-01 |  10004 | Engineer        | 1986-12-01 | 1995-12-01 |
+|  10004 | 1954-05-01 | Chirstian  | Koblick   | M      | 1986-12-01 |  10004 | Senior Engineer | 1995-12-01 | 9999-01-01 |
++--------+------------+------------+-----------+--------+------------+--------+-----------------+------------+------------+
+
+
+--
+-- 在上面的基础上只显示emp_no，名字，性别和职位名称
+--
+mysql> select emp_no, concat(last_name,' ', first_name), gender, title 
+    -> from employees,titles
+    -> where employees.emp_no = titles.emp_no limit 5;
+ERROR 1052 (23000): Column 'emp_no' in field list is ambiguous  -- 报错了，原因是emp_no两个表都有
+
+mysql> select employees.emp_no, -- 指定了employees
+    -> concat(last_name,' ', first_name), gender, title
+    -> from employees,titles
+    -> where employees.emp_no = titles.emp_no limit 5;
++--------+-----------------------------------+--------+-----------------+
+| emp_no | concat(last_name,' ', first_name) | gender | title           |
++--------+-----------------------------------+--------+-----------------+
+|  10001 | Facello Georgi                    | M      | Senior Engineer |
+|  10002 | Simmel Bezalel                    | F      | Staff           |
+|  10003 | Bamford Parto                     | M      | Senior Engineer |
+|  10004 | Koblick Chirstian                 | M      | Engineer        |
+|  10004 | Koblick Chirstian                 | M      | Senior Engineer |
++--------+-----------------------------------+--------+-----------------+    
+
+
+mysql> select e.emp_no,  -- 使用表的别名
+    -> concat(last_name,' ', first_name) as emp_name, gender, title  -- 对名字的列取一个别名叫emp_name
+    -> from employees as e,titles as t      -- 对表做别名
+    -> where e.emp_no = t.emp_no limit 5;   -- 使用报表的别名
++--------+-------------------+--------+-----------------+
+| emp_no | emp_name          | gender | title           |
++--------+-------------------+--------+-----------------+
+|  10001 | Facello Georgi    | M      | Senior Engineer |
+|  10002 | Simmel Bezalel    | F      | Staff           |
+|  10003 | Bamford Parto     | M      | Senior Engineer |
+|  10004 | Koblick Chirstian | M      | Engineer        |
+|  10004 | Koblick Chirstian | M      | Senior Engineer |
++--------+-------------------+--------+-----------------+
+
+
+--
+-- ANSI SQL 92
+-- inner join ... on ...语法
+--
+mysql> select e.emp_no,
+    -> concat(last_name,' ', first_name) as emp_name, gender, title
+    -> from employees as e join titles as t  -- inner join 可以省略inner关键字
+    -> on e.emp_no = t.emp_no limit 5;             -- 配合join使用on
++--------+-------------------+--------+-----------------+
+| emp_no | emp_name          | gender | title           |
++--------+-------------------+--------+-----------------+
+|  10001 | Facello Georgi    | M      | Senior Engineer |
+|  10002 | Simmel Bezalel    | F      | Staff           |
+|  10003 | Bamford Parto     | M      | Senior Engineer |
+|  10004 | Koblick Chirstian | M      | Engineer        |
+|  10004 | Koblick Chirstian | M      | Senior Engineer |
++--------+-------------------+--------+-----------------+
+
+
+-- 通过explain看两条语句的执行计划，发现是一样的，所以性能上是一样的，只是语法的不同
+```
+
+### 4.2. OUTER JOIN：包括left join 和 right join 【outer是省略了的】， ON 参与outer join的结果的生成，而where只是对结果的一个过滤
+#### 4.2.1 left join ： 左表 left join 右表 on 条件
+##### 1) select * from  t1 left join t2 on t1.a = t2.b;  //左表t1全部显示，右表满足这个匹配条件的才显示，不满足则显示null
+#### 4.2.2  right join ： 左表 right join 右表 on 条件
+##### 2) select * from  t1 right join t2 on t1.a = t2.b;  //右表t2全部显示，左表满足这个匹配条件的才显示，不满足则显示null
+#### 4.2.3 题目： 查找在t1表，而不在t2表的数据
+##### 3）select * from t1 left join t2 on t1.a = t2.b where t2.b is null;  //**判断是否为null用 is
+#### 4.2.5 题目：查找哪些员工不是经理
+##### 4）select e.emp_no,concat(last_name,' ', first_name) as emp_name, gender, d.dept_no from employees as e left join dept_manager as d on e.emp_no = d.emp_no where d.emp_no is null limit 5;
+
+```sql
+--
+-- 左连接 left join
+--
+
+mysql> select * from test_left_join_1;
++------+
+| a    |
++------+
+|    1 |
+|    2 |
++------+
+
+
+mysql> select * from test_left_join_2;
++------+
+| b    |
++------+
+|    1 |
++------+
+
+
+mysql> select * from 
+    -> test_left_join_1 as t1 
+    -> left join   -- 使用left join
+    -> test_left_join_2 as t2 
+    -> on t1.a = t2.b;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    1 |  -- 满足条件的，显示t2中该条记录的值
+|    2 | NULL |  -- 不满足条件的，用NULL填充
++------+------+
+
+-- left join ： 左表 left join 右表 on 条件；
+--              左表全部显示，右表是匹配表，
+--              如果右表的某条记录满足 [on 条件] 匹配，则该记录显示
+--              如果右表的某条记录 不 满足 匹配，则该记录显示NULL
+
+
+
+
+--
+-- 右连接 right join 
+--
+mysql> select * from
+    -> test_left_join_1 as t1
+    -> right join   -- 使用right join
+    -> test_left_join_2 as t2
+    -> on t1.a = t2.b;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    1 |   -- 右表（t2）全部显示
++------+------+
+
+-- right join ： 左表 right join 右表 on 条件
+--               右表全部显示，左边是匹配表
+--               同样和left join，满足则显示，不满足且右表中有值，则填充NULL
+
+
+
+
+
+-- 题目：查找在t1表，而不在t2表的数据
+--
+mysql> select * from 
+    -> test_left_join_1 as t1 
+    -> left join
+    -> test_left_join_2 as t2 
+    -> on t1.a = t2.b where t2.b is null;
++------+------+
+| a    | b    |
++------+------+
+|    2 | NULL |  -- 数据1 在t1和t2中都有，所以不显示
++------+------+
+
+
+
+-- left join ： left outer join , outer关键字可以省略
+-- right join： right outer join , outer 关键字可以省略
+
+-- join无论inner还是outer，列名不需要一样，甚至列的类型也可以不一样，会进行转换。
+-- 一般情况下，表设计合理，需要关联的字段类型应该是一样的，这样才有实际意义
+
+
+--
+-- 查找哪些员工不是经理
+--
+mysql> select e.emp_no,
+    -> concat(last_name,' ', first_name) as emp_name, gender, d.dept_no
+    -> from employees as e left join dept_manager as d
+    -> on e.emp_no = d.emp_no
+    -> where d.emp_no is null limit 5;
++--------+-------------------+--------+---------+
+| emp_no | emp_name          | gender | dept_no | -- dept_no是dept_manager的字段，一定要有一个dept_manager里的字段，不然哪里来的null
++--------+-------------------+--------+---------+
+|  10001 | Facello Georgi    | M      | NULL    |
+|  10002 | Simmel Bezalel    | F      | NULL    |
+|  10003 | Bamford Parto     | M      | NULL    |
+|  10004 | Koblick Chirstian | M      | NULL    |
+|  10005 | Maliniak Kyoichi  | M      | NULL    |
++--------+-------------------+--------+---------+
+
+
+
+-- 在 inner join中，过滤条件放在where或者on中都是可以的
+-- 在 outer join中 条件放在where和on中是不一样的
+mysql> select * from 
+    -> test_left_join_1 as t1
+    -> left join
+    -> test_left_join_2 as t2
+    -> on t1.a = t2.b
+    -> where t2.b is null;
++------+------+
+| a    | b    |
++------+------+
+|    2 | NULL |
++------+------+
+1 row in set (0.00 sec)
+
+mysql> select * from 
+    -> test_left_join_1 as t1
+    -> left join
+    -> test_left_join_2 as t2
+    -> on t1.a = t2.b
+    -> and t2.b is null;  -- 除了a=b, 还要找到b=null的，但是b里面没有null，所有a全部显示，b全为null
++------+------+
+| a    | b    |
++------+------+
+|    1 | NULL |
+|    2 | NULL |
++------+------+
+2 rows in set (0.00 sec)
+
+-- ON 参与outer join的结果的生成，而where只是对结果的一个过滤
+
+```
+
+### 4.3. GROUP BY：分组
+#### 4.3.1 题目：选出部门人数 > 50000 
+##### 1） select dept_no, count(dept_no) from dept_emp group by dept_no having count(dept_no) > 50000;  -- 通过 dept_no部门分组，count是计算数量， 如果是对分组的聚合函数做过滤，使用having，用where报语法错误
+```sql
+--
+-- 找出同一个部门的员工数量
+--
+mysql> select dept_no, count(dept_no)  -- count是得到数量，这里就是分组函数
+    -> from dept_emp
+    -> group by dept_no;  -- 通过 dept_no 分组
++---------+----------------+
+| dept_no | count(dept_no) |
++---------+----------------+
+| d001    |          20211 |
+| d002    |          17346 |
+| d003    |          17786 |
+| d004    |          73485 |
+| d005    |          85707 |
+| d006    |          20117 |
+| d007    |          52245 |
+| d008    |          21126 |
+| d009    |          23580 |
++---------+----------------+
+
+
+--
+-- 选出部门人数 > 50000 
+-- 
+mysql> select dept_no, count(dept_no)
+    -> from dept_emp
+    -> group by dept_no
+    -> having count(dept_no) > 50000;  -- 如果是对分组的聚合函数做过滤，使用having，用where报语法错误
++---------+----------------+
+| dept_no | count(dept_no) |
++---------+----------------+
+| d004    |          73485 |
+| d005    |          85707 |
+| d007    |          52245 |
++---------+----------------+
+
+```
+
+# 十二、day12：子查询 INSERT UPDATE DELETE REPLACE
+
+## 1.子查询：指在一个select语句中嵌套另一个select语句。同时，子查询必须包含括号。
+### 1.1.  ANY / SOME
+#### 1）select a from t1 where a > any(select a from t2);  //t1表内a列的值 大于 t2表中a列的任意(any)一个值（t1.a > any(t2.a) == true）,则返回t1.a的记录
+##### 1. `select a from t1` 是外部查询(outer query)
+##### 2. `(select a from t2)` 是子查询
+##### 3.ANY和some是一个意思，必须与一个`比较操作符`一起使用： `=`, `>`, `<`, `>=`, `<=`, `<>` ,其中<>表示不等于
+
+* 如果外部查询的列的结果和子查询的列的结果比较得到为True的话，则返回比较值为True的（外查询）的记录
+
+```sql
+
+mysql> insert into t2 values(12),(13),(5);  //赋值可以这样赋值
+
+
+mysql> select a from t1;
++------+
+| a    |
++------+
+|   10 |
+|    4 |
++------+
+
+
+mysql> select * from t2;
++------+
+| a    |
++------+
+|   12 |   
+|   13 |  
+|    5 |  
++------+
+
+mysql> select a from t1  
+    -> where a > any
+    -> (select a from t2); -- 返回(12，13，4)
+                           -- t1中a列的值，只要大于(12,13,4)中任意一值
+                           -- 即t1.a > t2.a为True，则返回对应的t1.a
++------+
+| a    |
++------+
+|   10 | 
++------+
+1 row in set (0.00 sec)
+
+-- 这个查询可以解释为，t1表内a列的值 大于 t2表中a列的任意(any)一个值（t1.a > any(t2.a) == true）,则返回t1.a的记录
+```
+
+
+### 1.2. IN：`in`是`ANY`的一种特殊情况：**`"in"`** 的结果等同于  **`"= any"`**
+#### 1） select a from t1 where a in (select a from t2);
+
+```sql
+
+mysql> select a from t1 where a in (select a from t2); -- in的结果等同于 =any 的结果
++------+
+| a    |
++------+
+|    5 |
++------+
+
+```
+
+
+### 1.3. ALL
+#### 1）truncate t1;   -- 清空t1
+#### 2）select a from t1 where a > all(select a from t2); //`ALL`关键词必须与一个`比较操作符`一起使用，NOT IN 是 <> ALL 的别名 
+```sql
+mysql> truncate t1;   -- 清空t1
+
+mysql> truncate t2;   -- 清空t2
+
+mysql> insert into t1 values(10),(4);
+
+mysql> insert into t2 values(5),(4),(3);  
+
+mysql> select a from t1 where a > all(select a from t2);
++------+
+| a    |
++------+
+|   10 |  
++------+
+
+```
+>`ALL`关键词必须与一个`比较操作符`一起使用
+>`NOT IN` 是 `<> ALL`的别名 
+
+### 1.4. 子查询的分类
+#### 1.4.1 独立子查询：不依赖外部查询而运行的子查询
+    ```sql
+    mysql> select a from t1 where a in (1,2,3,4,5);
+    +------+
+    | a    |
+    +------+
+    |    4 |  
+    +------+
+
+    ```
+
+#### 1.4.2 相关子查询：引用了外部查询列的子查询
+    ```sql
+    -- 在这个例子中，子查询中使用到了外部的列t1.a 
+    mysql> select a from t1 where a in (select * from t2 where t1.a = t2.a);
+    +------+
+    | a    |
+    +------+
+    |    4 |
+    +------+
+
+    ```
+#### 1.4.3.和 null比较，使用is和is not， 而不是 = 和 <>
+```sql
+--
+-- SQL语句一 使用 EXISTS
+--
+select customerid, companyname 
+    from customers as A
+    where country = 'Spain' 
+        and not exists
+            ( select * from orders as B
+              where A.customerid = B.customerid );
+              
+--
+-- SQL语句二 使用 IN
+--
+select customerid, companyname 
+    from customers as A
+    where country = 'Spain' 
+        and customerid not in (select customerid from orders);
+              
+-----
+-- 当结果集合中没有NULL值时，上述两条SQL语句查询的结果是一致的 
+-----
+
+--
+-- 插入一个NULL值
+--
+insert into orders(orderid) values (null);
+
+-----
+-- SQL语句1 : 返回和之前一致
+-- SQL语句2 : 返回为空表，因为子查询返回的结果集中存在NULL值。not in null 永远返回False或者NULL
+--            此时 where (country = 'Spain' and (False or NULL)) 为 False OR NULL，条件永远不匹配
+-----
+
+--
+-- SQL语句2 改写后
+--
+select customerid, companyname 
+    from customers as A
+    where country = 'Spain' 
+        and customerid not in (select customerid from orders 
+                                where customerid is not null);  -- 增加这个过滤条件，使用is not，而不是<>
+
+
+--
+-- 和 null比较，使用is和is not， 而不是 = 和 <>
+--
+mysql> select null = null; 
++-------------+
+| null = null |
++-------------+
+|        NULL |
++-------------+
+
+
+mysql> select null <> null;
++--------------+
+| null <> null |
++--------------+
+|         NULL |
++--------------+
+
+
+mysql> select null is null; 
++--------------+
+| null is null |
++--------------+
+|            1 |  -- 返回 True
++--------------+
+
+
+mysql> select null is not  null;
++-------------------+
+| null is not  null |
++-------------------+
+|                 0 |  -- 返回 False
++-------------------+
+
+```
+
+----
+
+## 2. INSERT (select 比 values强大)
+### 1）insert into t1 values(2),(3),(-1);  -- 插入多个值，MySQL独有
+### 2）insert into t3(a) select 8;  -- 指定列a，以下这些方法values都不能用
+### 3) insert into t3 select 8, 9;  -- 不指定列，但是插入值匹配列的个数和类型
+### 4) insert into t3(b) select a from t2;  -- 从t2表中查询数据并插入到t3(a)中，注意指定列
+```sql
+mysql> insert into t1 values(1);  -- 插入一个值
+
+mysql> insert into t1 values(2),(3),(-1);  -- 插入多个值，MySQL独有
+
+mysql> insert into t1 select 8;   -- insert XXX select XXX 语法，MySQ独有
+
+mysql> create table t3 (a int, b int); -- 有多个列
+
+mysql> insert into t3 select 8;  -- 没有指定列，报错
+ERROR 1136 (21S01): Column count doesnt match value count at row 1
+
+mysql> insert into t3(a) select 8;  -- 指定列a
+
+mysql> insert into t3 select 8, 9;  -- 不指定列，但是插入值匹配列的个数和类型
+
+mysql> select * from t3;
++------+------+
+| a    | b    |
++------+------+
+|    8 | NULL |
+|    8 |    9 |
++------+------+
+2 rows in set (0.00 sec)
+
+mysql> insert into t3(b) select a from t2;  -- 从t2表中查询数据并到t3(a)中，注意指定列
+
+
+mysql> select * from t3;
++------+------+
+| a    | b    |
++------+------+
+|    8 | NULL |
+|    8 |    9 |
+| NULL |    5 |
+| NULL |    4 |
+| NULL |    3 |
++------+------+
+5 rows in set (0.00 sec)
+
+```
+
+-----
+
+## 3. DELETE
+### 1）delete from t3 where a is null;  -- 根据过滤条件删除
+### 2）delete from t3;   -- 删除整个表
+```sql
+mysql> delete from t3 where a is null;  -- 根据过滤条件删除
+
+mysql> select * from t3;               
++------+------+
+| a    | b    |
++------+------+
+|    8 | NULL |
+|    8 |    9 |
+|    8 | NULL |
+|    8 |    9 |
+|    8 | NULL |
+|    8 |    9 |
+|    8 | NULL |
+|    8 |    9 |
++------+------+
+
+mysql> delete from t3;   -- 删除整个表
+
+
+```
+
+-----
+
+## 4. UPDATE【update...set...】
+### 1）update t3 set a=10 where a=1;
+### 2）update t1 join t2 on t1.a = t2.a set t1.a=100;  -- 先得到t1.a=t2.a的结果集， 然后将结果集中的t1.a设置为100
+```sql
+mysql> insert into t3 select 1,2;
+
+mysql> select * from t3;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    2 |
++------+------+
+
+mysql> update t3 set a=10 where a=1;
+
+mysql> select * from t3;
++------+------+
+| a    | b    |
++------+------+
+|   10 |    2 |
++------+------+
+
+--
+-- 关联后更新
+--
+mysql> select * from t1;
++------+
+| a    |
++------+
+|   10 |
+|    4 |  -- 和t2中的4相等
+|    1 |
+|    2 |
+|    3 |  -- 和t2中的3相等
+|   -1 |
+|    8 |
++------+
+
+mysql> select * from t2;
++------+
+| a    |
++------+
+|    5 |
+|    4 |  -- 和t1中的4相等
+|    3 |  -- 和t1中的3相等
++------+
+
+mysql> update t1 join t2 on t1.a = t2.a set t1.a=100;  -- 先得到t1.a=t2.a的结果集
+                                                       -- 然后将结果集中的t1.a设置为100
+
+mysql> select * from t1;
++------+
+| a    |
++------+
+|   10 |
+|  100 |  -- 该行被更新成100
+|    1 |
+|    2 |
+|  100 |  -- 该行被更新成100
+|   -1 |
+|    8 |
++------+
+```
+
+-----
+
+## 5. REPLACE: replace的原理是：先delete，再insert，没有替换对象时，类似插入效果insert
+### 1) replace into t4 values(1, 100); -- 替换该主键对应的值  
+```sql
+mysql> create table t4(a int primary key auto_increment, b int);
+
+mysql> insert into t4 values(NULL, 10);
+
+mysql> insert into t4 values(NULL, 11);
+
+mysql> insert into t4 values(NULL, 12);
+
+mysql> select * from t4;
++---+------+
+| a | b    |
++---+------+
+| 1 |   10 |
+| 2 |   11 |
+| 3 |   12 |
++---+------+
+
+mysql> insert into t4 values(1, 100);  -- 报错，说存在重复的主键记录 "1"
+ERROR 1062 (23000): Duplicate entry '1' for key 'PRIMARY'
+
+mysql> replace into t4 values(1, 100); -- 替换该主键对应的值  
+Query OK, 2 rows affected (0.03 sec)   -- 两行记录受到影响
+
+mysql> select * from t4;
++---+------+
+| a | b    |
++---+------+
+| 1 |  100 |  -- 已经被替换
+| 2 |   11 |
+| 3 |   12 |
++---+------+
+
+-- replace的原理是：先delete，在insert
+-----
+
+mysql> replace into t4 values(5, 50);  -- 没有替换对象时，类似插入效果
+Query OK, 1 row affected (0.03 sec)    -- 只影响1行
+
+mysql> select * from t4;
++---+------+
+| a | b    |
++---+------+
+| 1 |  100 |
+| 2 |   11 |
+| 3 |   12 |
+| 5 |   50 |  -- 插入了1行
++---+------+
+4 rows in set (0.00 sec)
+
+--
+-- replace原理更明显的例子 
+--
+
+mysql> create table t6 
+    -> (a int primary key, 
+    -> b int auto_increment,   -- b是auto_increment的int型数据
+    -> c int, key(b));
+Query OK, 0 rows affected (0.15 sec)
+
+mysql> insert into t6 values(10, NULL, 100),(20,NULL,200);  -- b自增长
+
+mysql> select * from t6;
++----+---+------+
+| a  | b | c    |
++----+---+------+
+| 10 | 1 |  100 |  -- b为1
+| 20 | 2 |  200 |  -- b为2
++----+---+------+
+
+mysql> replace into t6 values(10,NULL,150);  -- 将a=10的替换掉
+
+mysql> select * from t6;
++----+---+------+
+| a  | b | c    |
++----+---+------+
+| 10 | 3 |  150 |  -- 替换后b从1变成了3，说明是先删除，再插入
+| 20 | 2 |  200 |
++----+---+------+
+
+-----
+
+```
+-----
+
+## 6. 其他知识点
+
+### 6.1 更新有关系的值
+
+```sql
+mysql> create table t5 (a int, b int);
+
+mysql> insert into t5 values(1,1);
+
+mysql> select * from t5;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    1 |
++------+------+
+
+mysql> update t5 set a=a+1, b=a where a=1;
+
+
+mysql> select * from t5;
++------+------+
+| a    | b    |
++------+------+
+|    2 |    2 |  -- SQL Server和Oracle中得到的值是2, 1
++------+------+
+
+```
+
+### 6.2 显示行号(RowNumber)
+#### 1) set @rn:=0;  -- 冒号是赋值，产生 SESSION(会话)级别的变量,这是MySQL自定义的变量
+#### 2）select @rn:=@rn+1 as rownumber, emp_no, gender from employees limit 10;  -- ：= 是赋值的意思
+```sql
+--
+-- 方法一
+--
+mysql> use employees ;
+
+mysql> set @rn:=0;  -- 冒号是赋值，产生 SESSION(会话)级别的变量
+
+mysql> select @rn:=@rn+1 as rownumber, emp_no, gender from employees limit 10;  -- ：= 是赋值的意思
++-----------+--------+--------+
+| rownumber | emp_no | gender |
++-----------+--------+--------+
+|        11 |  10001 | M      |
+|        12 |  10002 | F      |
+|        13 |  10003 | M      |
+|        14 |  10004 | M      |
+|        15 |  10005 | M      |
+|        16 |  10006 | F      |
+|        17 |  10007 | F      |
+|        18 |  10008 | M      |
+|        19 |  10009 | F      |
+|        20 |  10010 | F      |
++-----------+--------+--------+
+10 rows in set (0.00 sec)
+
+--
+-- 方法二 （推荐）
+--
+mysql> select @rn1:=@rn1+1 as rownumber, emp_no, gender from employees, (select @rn1:=0) as a limit 10;
++-----------+--------+--------+
+| rownumber | emp_no | gender |
++-----------+--------+--------+
+|         1 |  10001 | M      |
+|         2 |  10002 | F      |
+|         3 |  10003 | M      |
+|         4 |  10004 | M      |
+|         5 |  10005 | M      |
+|         6 |  10006 | F      |
+|         7 |  10007 | F      |
+|         8 |  10008 | M      |
+|         9 |  10009 | F      |
+|        10 |  10010 | F      |
++-----------+--------+--------+
+
+
+-- MySQL 自定义变量，根据每一记录进行变化的,冒号是赋值
+
+mysql> select @rn1:=0;
++---------+
+| @rn1:=0 |
++---------+
+|       0 |  -- 只有一行记录
++---------+
+
+-- 相当于 把 employees 和 (select @rn1:=0)做了笛卡尔积，然后使用@rn1:=@rn + 1，根据每行进行累加
+
+
+--
+-- ":=" 和 "="
+--
+
+mysql> set @a:=10;  -- 赋值为10
+
+mysql> select @a;
++------+
+| @a   |
++------+
+|   10 |
++------+
+
+mysql> select @a=9;  -- 进行比较
++------+
+| @a=9 |
++------+
+|    0 |  -- 返回为False
++------+
+
+```
+
 
 # 十三、day013-作业讲解一 Rank 视图 UNION 触发器上
 
-# 十四、day014-触发器下 存储过程 自定义函数MySQL 执行计划与优化器
+## 1. 作业讲解
+### 1）select datediff('1971-01-01', '1970-01-05');  //971-01-01 减去 1970-01-5 为361天
+### 2) select datediff('1971-01-01', '1970-01-05') / 7;  -- 求周数
+### 3) select floor(5.4); //向下取整
+### 4）select round(5.4); //ROUND(X, D) 返回值是对数字X保留到小數点后D位，进行四舍五入，D默认为0；如果D为负数，则保留小数点左边（整数）的位数
+### 5）select adddate('1970-01-05', interval 7 day);   //使用adddate函数，在1970-01-05的基础上，增加7天
+
+
+----
+
+## 2. Rank 排名问题的步骤：
+### 1）set @prev_value := NULL;  //prev_value可以理解为是临时保存第N-1行的score的变量
+### 2) set @rank_count := 0;   ///用于存放当前的排名
+### 3)  select  id, score, 
+###     case
+###        when @prev_value = score then @rank_count  // 相等则prev_value不变， 并返回rank_count（第一次为NULL，不会相等，所以跳转到下一个when语句）
+###        when @prev_value := score then @rank_count := @rank_count + 1   // 不等，则第N行的score赋值(:=)给prev_value。且rank_count增加1
+###     end as rank_column   -- case 开始的，end结尾
+###     from test_rank order by score desc;
+
+
+>给出不同的用户的分数，然后根据分数计算排名
+```sql
+-- case  
+--   when [condition_1] then [do_something_1] 
+--   when [condition_2] then [do_something_2] 
+--   end
+-- 语法：如果 condition_1条件满足，则执行 do_something_1 然后就跳出,不会执行condition_2;
+--       如果 condition_1条件不满足，则继续执行到 condition_2。以此类推。
+
+
+mysql> create table test_rank(id int, score int);
+
+mysql> insert into test_rank values(1, 10), (2, 20), (3, 30), (4, 30), (5, 40), (6, 40);
+
+
+mysql> select * from test_rank;
++------+-------+
+| id   | score |
++------+-------+
+|    1 |    10 |
+|    2 |    20 |
+|    3 |    30 |
+|    4 |    30 |
+|    5 |    40 |
+|    6 |    40 |
++------+-------+
+
+
+mysql> set @prev_value := NULL;  -- 假设比较到第N行，设置一个变量prev_value用于存放第N-1行score的分数
+                                 -- 用于比较第N行的score和第N-1行的score
+                                 -- prev_value可以理解为 是临时保存第N-1行的score的变量
+
+mysql> set @rank_count := 0;     -- 用于存放当前的排名
+
+mysql> select  id, score, 
+    -> case
+    ->     when @prev_value = score then @rank_count  
+           -- 相等则prev_value不变， 并返回rank_count（第一次为NULL，不会相等，所以跳转到下一个when语句）
+    ->     when @prev_value := score then @rank_count := @rank_count + 1 
+           -- 不等，则第N行的score赋值(:=)给prev_value。且rank_count增加1
+    -> end as rank_column   -- case 开始的，end结尾
+    -> from test_rank
+    -> order by score desc;
++------+-------+-------------+
+| id   | score | rank_column |
++------+-------+-------------+
+|    5 |    40 |           1 |
+|    6 |    40 |           1 |
+|    3 |    30 |           2 |
+|    4 |    30 |           2 |
+|    2 |    20 |           3 |
+|    1 |    10 |           4 |
++------+-------+-------------+
+
+
+```
+
+-----
+
+## 3. 视图：视图在mysql是虚拟表，视图在创建的瞬间，便确定了结构（每次查询视图，实际上还是去查询的原来的表，只是查询的规则是在视图创建时经过定义的。），其作用是，可以对开发人员是透明的，可以隐藏部分关键的列。
+### 1) create view view_rank as select * from test_rank;  //创建视图view_rank
+### 2) show create table test_rank\G   //视图是以一张表的形式存在的，可通过show tables看到，和真正的表不同的是，这里show出来的是视图的定义
+### 3）select * from view_rank;       //可以直接查询该视图得结果
+
+
+```sql
+--
+-- 创建视图
+--
+mysql> create view view_rank as select * from test_rank;  -- 针对上面的test_rank创建一个视图
+-- 也可以对select结果增加条件进行过滤后，再创建视图
+
+
+mysql> show create table test_rank\G
+*************************** 1. row ***************************
+       Table: test_rank
+Create Table: CREATE TABLE `test_rank` (    -- 得到的是表结构
+  `id` int(11) DEFAULT NULL,
+  `score` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+
+mysql> show create table view_rank\G  -- 他是以一张表的形式存在的，可通过show tables看到
+*************************** 1. row ***************************
+                View: view_rank
+         Create View: CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_rank` AS select `test_rank`.`id` AS `id`,`test_rank`.`score` AS `score` from `test_rank`
+                      -- 和真正的表不同的是，这里show出来的是视图的定义
+character_set_client: utf8
+collation_connection: utf8_general_ci
+
+mysql> select * from view_rank;  -- 可以直接查询该视图得结果
++------+-------+
+| id   | score |
++------+-------+
+|    1 |    10 |
+|    2 |    20 |
+|    3 |    30 |
+|    4 |    30 |
+|    5 |    40 |
+|    6 |    40 |
++------+-------+
+
+-- 视图的作用是，可以对开发人员是透明的，可以隐藏部分关键的列
+-- 视图在mysql是虚拟表。根据视图的定义，还是取执行定义中的select语句。
+
+
+-- 只开放部分列
+mysql> create view view_rank_1 as select id from test_rank; -- 只开放id列
+
+mysql> select * from view_rank_1;  -- 即使 select * ，也只能看到id列，具有隐藏原来表中部分列的功能                        
++------+
+| id   |
++------+
+|    1 |
+|    2 |
+|    3 |
+|    4 |
+|    5 |
+|    6 |
++------+
+
+
+-- 不要取用select * from 去创建视图，因为mysql会把*逐个解析成列。
+-- 当原来的表结构发生变化时，视图的表结构是不会发生变化的，视图在创建的瞬间，便确定了结构。
+-- 比如，当你alter原来的表 增加列(add columns)时,再去查询该视图,新增加的列是不存在的。
+
+mysql> alter table test_rank add column  c int default 0; -- 增加一列名字为c，默认值为0
+
+mysql> select * from test_rank;  -- 查询原表，新的列c出现了
++------+-------+------+
+| id   | score | c    |
++------+-------+------+
+|    1 |    10 |    0 |
+|    2 |    20 |    0 |
+|    3 |    30 |    0 |
+|    4 |    30 |    0 |
+|    5 |    40 |    0 |
+|    6 |    40 |    0 |
++------+-------+------+
+
+
+mysql> select * from view_rank; -- 尽管view_rank用select * 创建，但当时没有列c，所以无法得到c列的值
++------+-------+
+| id   | score |
++------+-------+
+|    1 |    10 |
+|    2 |    20 |
+|    3 |    30 |
+|    4 |    30 |
+|    5 |    40 |
+|    6 |    40 |
++------+-------+
+
+-- 注意：mysql中的视图都是虚拟表。不像Oracle可以物化成真实存在的表。
+--      每次查询视图，实际上还是去查询的原来的表，只是查询的规则是在视图创建时经过定义的。
+
+```
+
+### 3.1 视图的算法(`ALGORITHM`)有三种方式：
+#### 1.`UNDEFINED` 默认方式，由MySQL来判断使用下面的哪种算法【我们一般选择默认方式，让MySQL自己判断】
+#### 2. `MERGE` ： `每次`通过`物理表`查询得到结果，把结果merge(合并)起来返回
+#### 3.`TEMPTABLE` ： 产生一张`临时表`，把数据放入临时表后，客户端再去临时表取数据（`不会缓存`）
+##### 3.1 `TEMPTABLE 特点`：即使访问条件一样，第二次查询还是会去读取物理表中的内容，并重新生成一张临时表,并不会取缓存之前的表。*（临时表是Memory存储引擎，默认放内存，超过配置大小放磁盘）*
+##### 3.2 当查询有一个较大的结果集时，使用`TEMPTABLE`可以快速的结束对该物理表的访问，从而可以快速释放这张物理表上占用的资源。然后客户端可以对临时表上的数据做一些耗时的操作，而不影响原来的物理表。
+
+----
+
+## 4. UNION：作用是将两个查询的结果集进行合并。
+### 4.1 UNION必须由`两条或两条以上`的SELECT语句组成，语句之间用关键字`UNION`分隔。
+### 4.2 UNION中的每个查询必须包含相同的列（`类型相同或可以隐式转换`）、表达式或聚集函数。
+### 1）select a, b from t1 union select * from t2;  //使用union会去重，导致性能下降
+### 2）select a, b from t1 union all select * from t2;  //使用 union all 可以不去重， 如果知道数据本身具有唯一性，没有重复，则建议使用`union all`
+
+```sql
+mysql> select * from test_union_1;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    2 |
+|    3 |    4 |
+|    5 |    6 |
+|   10 |   20 |  -- test_union_1 中的10, 20
++------+------+
+
+mysql> select * from test_union_2;
++------+------+
+| a    | c    |
++------+------+
+|   10 |   20 | -- test_union_2 中的10, 20
+|   30 |   40 |
+|   50 |   60 |  
++------+------+
+
+mysql> select a, b as t from test_union_1
+    -> union
+    -> select * from test_union_2;
++------+------+
+| a    | t    |
++------+------+
+|    1 |    2 |
+|    3 |    4 |
+|    5 |    6 |
+|   10 |   20 | -- 只出现了一次 10, 20，union会去重
+|   30 |   40 |
+|   50 |   60 |
++------+------+
+
+mysql> select a, b as t from test_union_1
+    -> union all   -- 使用 union all 可以不去重
+    -> select * from test_union_2;
++------+------+
+| a    | t    |
++------+------+
+|    1 |    2 |
+|    3 |    4 |
+|    5 |    6 |
+|   10 |   20 | -- test_union_1 中的10, 20
+|   10 |   20 | -- test_union_2 中的10, 20
+|   30 |   40 |
+|   50 |   60 |
++------+------+
+
+mysql> select a, b as t from test_union_1 where a > 2 
+    -> union
+    -> select * from test_union_2 where c > 50;  -- 使用where过滤也可以 
++------+------+
+| a    | t    |
++------+------+
+|    3 |    4 |
+|    5 |    6 |
+|   10 |   20 |
+|   50 |   60 |
++------+------+
+4 rows in set (0.00 sec)
+```
+
+> 如果知道数据本身具有唯一性，没有重复，则建议使用`union all`，因为`union`会做`去重操作`，性能会比`union all`要低
+
+----
+
+
+## 5. 触发器：触发器的对象是`表`，当表上出现`特定的事件`时`触发`该程序的执行
+### 5.1 触发器的类型
+#### 5.1.1 `UPDATE`触发器：用于 update 操作
+#### 5.1.2 `DELETE`触发器：用于delete 操作、replace 操作
+##### 注意：drop，truncate等DDL操作`不会触发`DELETE
+#### 5.1.3 `INSERT`触发器：insert 操作、 load data 操作、replace 操作
+### 5.2 注意：`replace`操作会`触发两次`，一次是`UPDATE`类型的触发器，一次是`INSERT`类型的触发器
+### 5.3 注意：触发器只触发DML(Data Manipulation Language )操作，不会触发DDL(Data Definition Language)操作（create,drop等操作）       
+* **创建触发器**
+
+    ```sql
+    CREATE
+        [DEFINER = { user | CURRENT_USER }]
+        TRIGGER trigger_name  -- 触发器名字
+        trigger_time trigger_event  -- 触发时间和事件
+        ON tbl_name FOR EACH ROW    
+        [trigger_order]
+        trigger_body
+    
+    trigger_time: { BEFORE | AFTER }   -- 事件之前还是之后触发
+    
+    trigger_event: { INSERT | UPDATE | DELETE }  -- 三个类型
+    
+    trigger_order: { FOLLOWS | PRECEDES } other_trigger_name
+    ```
+    
+    ```sql
+    mysql> create table test_trigger_1 (
+        ->     name varchar(10),
+        ->     score int(10),
+        -> primary key (name));
+
+        mysql> delimiter //  -- 将语句分隔符定义成 // （原来是';'）
+        mysql> create trigger  trg_upd_score  -- 定义触发器名字
+            -> before update on test_trigger_1  -- 作用在test_trigger_1 更新(update)之前(before)
+            -> for each row  -- 每行
+            -> begin  -- 开始定义
+            -> if new.score < 0 then   -- 如果新值小于0
+            ->     set new.score=0;        -- 则设置成0
+            -> elseif new.score > 100 then  -- 如果新值大于100
+            ->     set new.score = 100;  -- 则设置成100
+            -> end if;  -- begin对应的 结束 
+            -> end;//   -- 结束，使用新定义的 '//' 结尾
+        Query OK, 0 rows affected (0.03 sec)
+    
+    mysql> delimiter ;  -- 恢复 ';' 结束符
+    
+    -- new.col : 表示更新以后的值
+    -- old.col : 表示更新以前的值(只读)
+    
+    mysql> insert into test_trigger_1 values ("tom", 200);  -- 插入新值
+
+    
+    mysql> select * from test_trigger_1;
+    +------+-------+
+    | name | score |
+    +------+-------+
+    | tom  |   200 |  -- 没改成100，因为定义的是update，而执行的是insert
+    +------+-------+
+        
+    mysql> update test_trigger_1 
+        -> set score=300 where name='tom'; -- 改成300
+    
+    mysql> select * from test_trigger_1;
+    +------+-------+
+    | name | score |
+    +------+-------+
+    | tom  |   100 | -- 通过触发器的设置，大于100的值被修改成100
+    +------+-------+
+
+    ```
+
+
+### 5.4 触发器总结
+#### 1）触发器对性能有损耗，应当非常慎重使用；
+#### 2）对于事务表，`触发器执行失败则整个语句回滚`；
+#### 3）Row格式主从复制，`触发器不会在从库上执行`； 
+    - 因为从库复制的肯定是主库已经提交的数据，既然已经提交了说明触发器已经被触发过了，所以从库不会执行。
+#### 4）使用触发器时应防止递归执行；
+
+    ```sql
+    delimiter //
+    create trigger trg_test
+        before update on 'test_trigger'
+        for each row
+    begin
+        update test_trigger set score=20 where name = old.name;  -- 使用update触发器，却又触发了update操作，循环触发了，形成递归
+    end;//
+    ```
+
+### 5.5 触发器模拟物化视图
+#### 5.5.1 物化视图的概念
+##### 1）不是基于基表的虚表
+##### 2）根据基表实际存在的实表
+##### 3）预先计算并保存耗时较多的SQL操作结果（如多表链接(join)或者group by等）
+
+* **模拟物化视图**
+
+```sql
+mysql> create table Orders  
+    -> (order_id int unsigned not null auto_increment,
+    -> product_name varchar(30) not null,
+    -> price decimal(8,2) not null,
+    -> amount smallint not null,
+    -> primary key(order_id));
+ -- 创建Orders表
+
+mysql> insert into Orders values 
+    -> (null, 'cpu', 135.5 ,1),
+    -> (null, 'memory', 48.2, 3),
+    -> (null, 'cpu', 125.6, 3),
+    -> (null, 'cpu', 105.3, 4);
+
+
+mysql> select * from  Orders;
++----------+--------------+--------+--------+
+| order_id | product_name | price  | amount |
++----------+--------------+--------+--------+
+|        1 | cpu          | 135.50 |      1 |
+|        2 | memory       |  48.20 |      3 |
+|        3 | cpu          | 125.60 |      3 |
+|        4 | cpu          | 105.30 |      4 |
++----------+--------------+--------+--------+
+
+
+-- 建立一个模拟物化视图的表（即用这张表来模拟物化视图）
+mysql> create table Orders_MV 
+    -> ( product_name varchar(30) not null,
+    ->  price_sum decimal(8,2) not null,
+    ->  amount_sum int not null,
+    ->  price_avg float not null,
+    ->  orders_cnt int not null,
+    ->  unique index (product_name));
+
+-- 通过Orders表的数据，将测试数据初始化到Orders_MV表中
+mysql> insert into Orders_MV 
+    ->     select product_name, sum(price), 
+    ->            sum(amount), avg(price), count(*)
+    ->     from Orders
+    ->     group by product_name;
+
+mysql> select * from Orders_MV;
++--------------+-----------+------------+-----------+------------+
+| product_name | price_sum | amount_sum | price_avg | orders_cnt |
++--------------+-----------+------------+-----------+------------+
+| cpu          |    366.40 |          8 |   122.133 |          3 |
+| memory       |     48.20 |          3 |      48.2 |          1 |
++--------------+-----------+------------+-----------+------------+
+
+
+-- 在MySQL workbench中输入，比较方便
+delimiter //
+
+CREATE TRIGGER tgr_Orders_insert -- 创建触发器为tgr_Orders_insert
+	AFTER INSERT ON Orders  -- 触发器是INSERT类型的，且作用于Orders表
+	FOR EACH ROW
+BEGIN
+	SET @old_price_sum := 0;  -- 设置临时存放Orders_MV表(模拟物化视图)的字段的变量
+	SET @old_amount_sum := 0;
+	SET @old_price_avg := 0;
+	SET @old_orders_cnt := 0;
+	SELECT   -- select ... into ... 在更新Orders_MV之前，将Orders_MV中对应某个产品的信息写入临时变量 
+		IFNULL(price_sum, 0),
+		IFNULL(amount_sum, 0),
+		IFNULL(price_avg, 0),
+		IFNULL(orders_cnt, 0)
+	FROM
+		Orders_MV
+	WHERE
+		product_name = NEW.product_name INTO @old_price_sum , @old_amount_sum , @old_price_avg , @old_orders_cnt;
+
+	SET @new_price_sum = @old_price_sum + NEW.price; -- 累加新的值
+	SET @new_amount_sum = @old_amount_sum + NEW.amount;
+	SET @new_orders_cnt = @old_orders_cnt + 1;
+	SET @new_price_avg = @new_price_sum / @new_orders_cnt ;
+	
+    REPLACE INTO Orders_MV   
+			VALUES(NEW.product_name, @new_price_sum,
+				   @new_amount_sum, @new_price_avg, @new_orders_cnt );
+   -- REPLACE 将对应的物品（唯一索引）的字段值替换new_xxx的值
+END;//
+
+delimiter ;
+
+
+mysql> insert into Orders values (null, 'ssd', 299, 3);
+
+
+mysql> insert into Orders values (null, 'memory', 47.9, 5);
+
+mysql> select * from Orders_MV;
++--------------+-----------+------------+-----------+------------+
+| product_name | price_sum | amount_sum | price_avg | orders_cnt |
++--------------+-----------+------------+-----------+------------+
+| cpu          |    366.40 |          8 |   122.133 |          3 |
+| memory       |     96.10 |          8 |     48.05 |          2 | -- 数量自动增加了1，价格也发生了变化
+| ssd          |    299.00 |          3 |       299 |          1 | -- 新增加的ssd产品
++--------------+-----------+------------+-----------+------------+
+
+```
+### 5.5 MySQL内建函数演示：ifnull、select into
+#### 1）select ifnull(@test, 100);   // 如果test为NULL，则ifnull返回100,test不为null,则返回test的值
+#### 2) select * from test_rank_2 where id=1 into @id_1, @score_1;  //选择id=1的记录，将对应的id和score赋值给变量 id_1 和 score_1
+
+```SQL
+--
+-- IFNULL MySQL内建函数的演示
+--
+mysql> select @test;
++-------+
+| @test |
++-------+
+| NULL  |  -- 当前会话中没有test变量
++-------+
+
+mysql> select ifnull(@test, 100);   -- 如果test为NULL，则ifnull返回100
++--------------------+
+| ifnull(@test, 100) |
++--------------------+
+| 100                |  -- ifnull函数return的值是100
++--------------------+
+
+
+mysql> select @test;
++-------+
+| @test |
++-------+
+| NULL  |  -- 但是test还是NULL
++-------+
+
+
+mysql> set @test:=200;  -- 给test变量赋值为200
+
+mysql> select ifnull(@test, 100);  -- 再次ifnull判断，此时test不为null，则返回test变量的值
++--------------------+
+| ifnull(@test, 100) |
++--------------------+
+|                200 |  -- test不为null。返回test的值200
++--------------------+
+
+
+--
+-- select into 用法
+--
+mysql> select @id_1;
++-------+
+| @id_1 |
++-------+
+|  NULL | -- 当前变量id_1为null 
++-------+
+
+
+mysql> select @score_1;
++----------+
+| @score_1 |
++----------+
+|     NULL |  -- 当前变量score_1为null
++----------+
+
+
+mysql> select * from test_rank_2;
++------+-------+
+| id   | score |
++------+-------+
+|    1 |    10 |
+|    2 |    20 |
+|    3 |    30 |
+|    4 |    30 |
+|    5 |    40 |
+|    6 |    40 |
++------+-------+
+
+
+mysql> select * from test_rank_2 
+    -> where id=1 into @id_1, @score_1;
+-- 选择id=1的记录，将对应的id和score赋值给变量 id_1 和 score_1
+
+
+mysql> select @id_1;
++-------+
+| @id_1 |
++-------+
+|     1 |
++-------+
+
+mysql> select @score_1;
++----------+
+| @score_1 |
++----------+
+|       10 |
++----------+
+
+-- 触发器对性能会有影响，相当于在一个事物中插入了其他的事物
+```
+
+-----
+
+# 十四、day014：存储过程 自定义函数MySQL 执行计划与优化器
+
+
+## 1. 存储过程
+### 1.1 存储过程介绍:
+#### 1) 存储在数据库端的一组SQL语句集；
+#### 2) 用户可以通过存储过程名和传参多次调用的程序模块；
+### 1.2 存储过程的特点：
+#### 1) 使用灵活，可以使用流控语句、自定义变量等完成复杂的业务逻辑；
+#### 2) 提高数据安全性，屏蔽应用程序直接对表的操作，易于进行审计；
+#### 3) 减少网络传输；//因为只需要调用就好
+#### 4) 提高代码维护的复杂度，实际使用需要结合业务评估；
+
+```sql
+
+-- 老师给出的例子， 阶乘
+mysql> create table test_proc_1(a int, b int); -- 给一个存放数据的表
+
+mysql> delimiter //
+mysql> create procedure proc_test1(in total int, out res int)
+    -> begin
+    ->     declare i int;
+    ->     set i := 1;
+    ->     set res := 1;
+    ->     if total <= 0 then
+    ->         set total := 1;
+    ->     end if;
+    ->     while i <= total do
+    ->         set res := res * i;
+    ->         insert into test_proc_1 values(i, res);
+    ->         set i := i + 1;
+    ->     end while;
+    -> end;//
+
+mysql> delimiter ;
+
+mysql> set @res_value := 0;  --set @a=0;  set @a:=0;这两个在赋值的时候无区别，但在判断的时候case，前者表示是否相等，后者是赋值
+
+
+mysql> call proc_test1(5, @res_value); -- 因为res是out变量，要预先有这个变量，这里上面设置了res_value(实参和形参不必同名)
+
+mysql> select @res_value;
++------------+
+| @res_value |
++------------+
+|        120 | -- 5的阶乘的结果是120
++------------+
+
+mysql> select * from test_proc_1;
++------+------+
+| a    | b    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    6 |
+|    4 |   24 |
+|    5 |  120 |  -- 每次insert的结果
++------+------+
+```
+
+-----
+
+## 2. 自定义函数
+### 2.1 自定义函数和存储过程很类似，但是必须要有返回值；
+### 2.2 与内置的函数(sum(), max()等)使用方法类似: select fun(val);
+### 2.3 自定义函数可能在遍历每条记录中使用；
+
+```sql
+CREATE
+    [DEFINER = { user | CURRENT_USER }]
+    FUNCTION sp_name ([func_parameter[,...]])
+    RETURNS type  -- 必须有返回值
+    [characteristic ...] routine_body
+    
+func_parameter:
+    param_name type
+
+type:
+    Any valid MySQL data type
+
+characteristic:
+    COMMENT 'string'
+  | LANGUAGE SQL
+  | [NOT] DETERMINISTIC
+  | { CONTAINS SQL | NO SQL | READS SQL DATA | MODIFIES SQL DATA }
+  | SQL SECURITY { DEFINER | INVOKER }
+
+routine_body:
+    Valid SQL routine statement
+    
+-- 删除
+DROP FUNCTION fun_name;
+```
+
+```sql
+-- 老师给的例子，还是阶乘，用自定义函数的方式
+
+mysql> delimiter //
+mysql> 
+mysql> create function fun_test_1(total int)
+    -> returns int
+    -> begin
+    ->     declare i int;
+    ->     declare res int;
+    ->     set i := 1;
+    ->     set res := 1;
+    ->     if total <= 0 then
+    ->         set total := 1;
+    ->     end if;
+    ->     while i <= total do
+    ->         set res := res * i;
+    ->         set i := i + 1;
+    ->     end while;
+    ->     return res;show 
+    -> end;//
+ERROR 1418 (HY000): This function has none of DETERMINISTIC, NO SQL, or READS SQL DATA in its declaration and binary logging is enabled (you *might* want to use the less safe log_bin_trust_function_creators variable)
+-- 报错，提示因为函的声明中没有"DETERMINISTIC, NO SQL, or READS SQL DATA"等关键字 ，需要使用打开参数 log_bin_trust_function_creators
+
+-- 解决方法，set global log_bin_trust_function_creators=1; 开启该选项可能会引起主从服务器不一致
+--           或者 增加 上述相应功能的关键字
+
+
+-- 使用 deterministic 关键字
+-- 当你声明一个函数的返回是确定性的，则必须显示的使用deterministic关键字，默认是 no deterministic的
+mysql> delimiter //
+mysql> create function fun_test_1(total int)
+    -> returns int deterministic -- 这个只是告诉MySQL我这个函数是否会改变数据
+                                 -- 即使我下面使用了insert，update等DML语句，MySQL不会检查
+                                 -- 函数是否会改变数据，完全依赖创建函数的用户去指定的关键字
+                                 -- 而非真的是否有修改数据
+                                 -- 只是声明，而非约束
+    -> begin
+    ->     declare i int;
+    ->     declare res int;
+    ->     set i := 1;
+    ->     set res := 1;
+    ->     if total <= 0 then
+    ->         set total := 1;
+    ->     end if;
+    ->     while i <= total do
+    ->         set res := res * i;
+    ->         insert into test_proc_1 values(i, res);  -- 在自定义函数中，同样可以使用sql
+                                                        -- 并且该SQL是insert，其实和deterministic违背。
+    ->         set i := i + 1;
+    ->     end while;
+    ->     return res;
+    -> end;//seles
+
+mysql> delimiter ;
+
+mysql> truncate table test_proc_1;
+
+mysql> select fun_test_1(6);  -- return了6的阶乘，720
++---------------+
+| fun_test_1(6) |
++---------------+
+|           720 |
++---------------+
+
+mysql> select * from test_proc_1; 
++------+------+
+| a    | b    |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    6 |
+|    4 |   24 |
+|    5 |  120 |
+|    6 |  720 |  -- 使用了insert语句进行插入阶乘的历史记录
++------+------+
+
+
+-- 关键字简单说明
+-- DETERMINISTIC ： 当给定相同的输入，产生确定的结果
+-- NOT DETERMINISTIC ： 默认值，认为产生的结果是不确定的
+
+-- READS SQL DATA  ： 只是读取SQL数据
+-- MODIFIES SQL DATA ： 会修改数据
+-- NO SQL ： 没有SQL遇见
+-- CONTAINS SQL ： 包含SQL语句，但是没有读写语句，理论有select now()等
+
+```
 
 # 十五、day015-索引 B+树 上
+## 一. 索引
+* 如果没有索引的话，查找它是顺序查找，一个一个的比较来查找
+### 1. 索引的定义
 
-# 十六、day016-索引 B+树 下 Explain 1
+>索引是对记录按照一个或者多个字段进行排序的一种方式。对表中的某个字段建立索引会创建另一种数据结构，其中保存着字段的值，每个值又指向与它相关的记录。这种索引的数据结构是经过排序的，因而可以对其执行二分查找。且性能较高
+    
+### 2. 二分查找
+>**摘自《MySQL技术内幕：InnoDB存储引擎（第2版）》5.2.1 小节**
+>`二分查找法（binary search）`也称为折半查找法，用来查找一组有序的记录数组中的某一记录，其基本思想是：将记录按有序化（递增或递减）排列，在查找过程中采用跳跃式方式查找，即先以有序数列的中点位置作为比较对象，如果要找的元素值小于该中点元素，则将待查序列缩小为左半部分，否则为右半部分。通过一次比较，将查找区间缩小一半。*（O(logN)的时间复杂度）*
 
-# 十七、day017-Explain 2【MySQL innodb引擎优化】
+```bash
+# 给出一个例子，注意该例子已经是升序排序的，且查找 数字 48
+数据：5， 10， 19， 21， 31， 37， 42， 48， 50， 52
+下标：0，  1，  2，  3，  4，  5，  6，  7，  8，  9
+```
+- 步骤一：设`low`为下标最小值`0`，`high`为下标最大值`9`;
+- 步骤二：通过`low`和`high`得到`mid`，mid=（low + high） / 2，初始时`mid`为下标`4`*(也可以=5，看具体算法实现)*；
+- **`步骤三`**：`mid=4`对应的数据值是31，31 < 48（我们要找的数字）；
+- 步骤四：通过二分查找的思路，将`low`设置为31对应的下标`4`，`high`保持不变为`9`，此时`mid`为`6`；
+- **`步骤五`**：`mid=6`对应的数据值是42，42 < 48（我们要找的数字）；
+- 步骤六：通过二分查找的思路，将`low`设置为42对应的下标`6`，`high`保持不变为`9`，此时`mid`为`7`；
+- **`步骤七`**：`mid=7`对应的数据值是48，48 == 48（我们要找的数字），查找结束；
+
+    **通过3次`二分查找`就找到了我们所要的数字，而顺序查找需8次。**
+
+-----
+
+## 二. 二叉树(Binary Tree)
+>[二叉树 wiki](https://en.wikipedia.org/wiki/Binary_tree)
+
+### 1. 二叉树的定义
+* 每个节点至多只有二棵子树； 
+* 二叉树的子树有左右之分，次序不能颠倒；
+* 一棵深度为k，且有 $2^k-1$个节点，称为满二叉树(Full Tree)；
+* 一棵深度为k，且root到k-1层的节点树都达到最大，第k层的所有节点都`连续集中`在最左边，此时为完全二叉树（Complete Tree）
+
+    ![complete/Full Tree](./400px-FullBT_CompleteBT.jpg)
+
+
+### 2. 平衡二叉树（AVL-树）
+>[平衡二叉树 wiki](https://en.wikipedia.org/wiki/AVL_tree)
+
+* 左子树和右子树都是平衡二叉树；
+* 左子树和右子树的高度差绝对值不超过1；
+
+    - 平衡二叉树
+    ![平衡二叉查找树](./Binary_Tree_Order.jpg)
+    <br/>
+    - 非平衡二叉树
+    ![Alt text](./NoBalance_Binary_Tree.jpg)
+        
+        
+* **平衡二叉树的遍历**
+以上面平衡二叉树的图例为样本，进行遍历：
+    - `前序`：`6`, 3, 2, 5, 7, 8（ROOT节点在开头, `中`-左-右 顺序）
+    - `中序`：2, 3, 5, `6`, 7, 8（中序遍历即为升序，左-`中`-右 顺序）
+    - `后序`：2, 5, 3, 8, 7, `6`（ROOT节点在结尾，左-右-`中` 顺序）
+
+    >1：可以通过`前序`和`中序` 或者是 `后序`和`中序`来推导出一个棵树
+    >2：`前序`或者`后序`用来得到ROOT节点，`中序`可以区分左右子树
+
+* **平衡二叉树的旋转**
+
+    ![二叉树的旋转](./Tree_Rotation.jpg)
+
+
+    >需要通过旋转（左旋，右旋）来维护平衡二叉树的平衡，在添加和删除的时候需要有额外的开销。
+
+-----
+
+## 三. B树/B+树
+>[B树  wiki介绍](https://en.wikipedia.org/wiki/B-tree)  
+>[B+树 wiki介绍](https://en.wikipedia.org/wiki/B%2B_tree)
+
+>**注意:B树和B+树开头的`B`不是Binary，而是`Balance`**
+
+### 1. B树的定义
+阶为M *(节点上关键字(Keys)的个数)* 的B树的定义：
+
+* 每个节点最多有M个孩子；
+* 除了root节点外，每个非叶子(non-leaf)节点至少含有(M/2)个孩子；
+* 如果root节点不为空，则root节点至少要有两个孩子节点；
+* 一个非叶子(non-leaf)节点如果含有K个孩子，则包含k-1个keys；
+* 所有叶子节点都在同一层；
+* B树中的非叶子(non-leaf)节点也包含了数据部分；
+
+### 2. B+树的定义
+在B树的基础上，B+树做了如下改进
+
+* 数据只存储在叶子节点上，非叶子节点只保存索引信息；
+    - 非叶子节点（索引节点）存储的只是一个Flag，不保存实际数据记录；
+    - 索引节点指示该节点的左子树比这个Flag小，而右子树大于等于这个Flag
+* 叶子节点本身按照数据的升序排序进行链接(串联起来)；
+    - 叶子节点中的数据在`物理存储上是无序`的，仅仅是在`逻辑上有序`（通过指针串在一起）；
+
+### 3. B+树的作用
+
+* 在块设备上，通过B+树可以有效的存储数据；
+* 所有记录都存储在叶子节点上，非叶子(non-leaf)存储索引(keys)信息；
+* B+树含有非常高的扇出（fanout），通常超过100，在查找一个记录时，可以有效的减少IO操作；【查找一条数据时需要的IO操作很少】
+
+
+### 3. B+树的操作
+
+* **B+树的插入**
+B+树的插入必须保证插入后叶子节点中的记录依然排序。
+
+    - 插入操作步骤*（引用自姜老师的书《MySQL技术内幕：InnoDB存储引擎（第2版）》 第5.3.1小节）*
+    ![B+ Insert](./B+_insert.jpg)
+
+    >B+树总是会保持平衡。但是为了保持平衡对于新插入的键值可能需要做大量的拆分页（split）操作；部分情况下可以通过B+树的旋转来替代拆分页操作，进而达到平衡效果。
+
+* **B+树的删除**
+B+树使用填充因子（fill factor）来控制树的删除变化，50%是填充因子可设的最小值。B+树的删除操作同样必须保证删除后叶子节点中的记录依然排序。与插入不同的是，删除根据填充因子的变化来衡量。
+    - 删除操作步骤*（引用自姜老师的书《MySQL技术内幕：InnoDB存储引擎（第2版）》 第5.3.2小节）*
+    ![B+ Delete](./B+_delete.jpg)
+
+
+### 3. B+树的扇出(fan out)
+* **B+树图例**
+![B+树的例子](./B+Example.jpg)
+
+    * 该 B+ 树高度为 2
+    * 每叶子页（LeafPage）4条记录
+    * `扇出数为5`
+    * 叶子节点(LeafPage)由小到大（有序）串联在一起
+
+>`扇出`是每个索引节点(Non-LeafPage)指向每个叶子节点(LeafPage)的指针
+【上层结点指向下一层结点的指针就叫扇出】
+>`扇出数` = 索引节点(Non-LeafPage)可存储的最大关键字个数 + 1
+>图例中的索引节点(Non-LeafPage)最大可以存放4个关键字，但实际使用了3个；
+
+### 4. B+树存储数据举例
+假设B+树中页的大小是16K，每行记录是200Byte大小，求出树的高度为1，2，3，4时，分别可以存储多少条记录。
+
+* 查看数据表中每行记录的平均大小
+
+    ```sql
+    mysql> show table status like "%employees%"\G
+    *************************** 1. row ***************************
+               Name: employees
+             Engine: InnoDB
+            Version: 10
+         Row_format: Dynamic
+               Rows: 298124
+     Avg_row_length: 51   -- 平均长度为51个字节
+        Data_length: 15245312
+    Max_data_length: 0
+       Index_length: 0
+          Data_free: 0
+     Auto_increment: NULL
+        Create_time: 2015-12-02 21:32:02
+        Update_time: NULL
+         Check_time: NULL
+          Collation: utf8mb4_general_ci
+           Checksum: NULL
+     Create_options: 
+            Comment: 
+    1 row in set (0.00 sec)
+    ```
+
+* **高度为1**
+    - 16K/200B 约等于 80 个记录（数据结构元信息如指针等忽略不计）
+
+* **高度为2**
+非叶子节点中存放的仅仅是一个索引信息，包含了`Key`和`Point`指针；`Point`指针在MySQL中固定为`6Byte`。而`Key`我们这里假设为`8Byte`，则单个索引信息即为14个字节，`KeySize = 14Byte`
+    - 高度为2，即有一个索引节点（索引页），和N个叶子节点
+    - 一个索引节点可以存放 16K / KeySize = 16K / 14B = 1142个索引信息，即有（1142 + 1）个扇出，以及有（1142 + 1）个叶子节点（数据页）  *（可以简化为1000）*
+    - 数据记录数 = （16K / KeySize + 1）x (16K / 200B) 约等于 80W 个记录
+
+* **高度为3**
+高度为3的B+树，即ROOT节点有1000个扇出，每个扇出又有1000个扇出指向叶子节点。每个节点是80个记录，所以一共有 8000W个记录
+
+
+* **高度为4**
+同高度3一样，高度为4时的记录书为（8000 x 1000）W
+
+>上述的8000W等数据只是一个理论值。因为线上实际使用单个页的记录数字要乘以70%，即第二层需要70% x 70% ，依次类推。【一个页实际只使用70%】
+
+>因此在数据库中，B+树的高度一般都在2～4层，这也就是说查找某一键值的行记录时最多只需要2到4次IO，2～4次的IO意味着查询时间只需0.02～0.04秒（假设IOPS=100，当前SSD可以达到50000IOPS，IOPS：IO per sec:每秒多少次IO）。【有公司把慢查询设置为0.5秒（但还是应该设的稍大一些），即约莫走50次IO，他认为这样的查询没有走索引，是不正常的】
+
+从5.7开始，页的预留大小可以设置了，以减少split操作的概率（因为假如数据要原地更新，占用更多的空间，那么你预留的空间就可以用上了，而不用split，所以原地更新操作很多的话，可以把预留大小设置的很多，比如快递公司，即空间换时间）
+
+-----
+
+
+## 四. MySQL索引
+### 1. MySQL 创建索引
+>[ALTER TABLE 方式](http://dev.mysql.com/doc/refman/5.7/en/alter-table.html)
+>[CREATE INDEX 方式](http://dev.mysql.com/doc/refman/5.7/en/create-index.html)
+
+```sql
+--
+-- ALTER TABLE
+--
+mysql> create table test_index_1(a int, b int , c int);
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> show create table test_index_1\G
+*************************** 1. row ***************************
+       Table: test_index_1
+Create Table: CREATE TABLE `test_index_1` (
+  `a` int(11) DEFAULT NULL,
+  `b` int(11) DEFAULT NULL,
+  `c` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+1 row in set (0.00 sec)
+
+mysql> insert into test_index_1 values
+    -> (1,10,100),(2,20,200),
+    -> (3,30,300),(4,40,400);
+Query OK, 4 rows affected (0.03 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from test_index_1;
++------+------+------+
+| a    | b    | c    |
++------+------+------+
+|    1 |   10 |  100 |
+|    2 |   20 |  200 |
+|    3 |   30 |  300 |
+|    4 |   40 |  400 |
++------+------+------+
+4 rows in set (0.00 sec)
+
+mysql> explain select * from test_index_1 where a=3\G  -- 看执行计划，使用的是扫描整张表的方式
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_1
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 4
+     filtered: 25.00
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+-- 给字段a 增加索引
+mysql> alter table test_index_1 add index idx_a (a);  -- 给字段a添加索引。索引名为idx_a
+Query OK, 0 rows affected (0.15 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> explain select * from test_index_1 where a=3\G  -- 看执行计划，使用的key为idx_a，走了索引
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_1
+   partitions: NULL
+         type: ref
+possible_keys: idx_a
+          key: idx_a
+      key_len: 5
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+
+-- 使用create index
+mysql> explain select * from test_index_1 where b=30\G  -- 同样b字段也没有索引
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_1
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 4
+     filtered: 25.00
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+-- 给b字段增加索引
+mysql> create index idx_b on test_index_1 (b);
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> explain select * from test_index_1 where b=30\G  -- 查看执行计划，使用的key为idx_b，走了索引
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_1
+   partitions: NULL
+         type: ref
+possible_keys: idx_b
+          key: idx_b
+      key_len: 5
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+```
+
+### 2. MySQL 查看索引
+```sql
+--
+-- 方式一
+--
+mysql> desc orders;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| o_orderkey      | int(11)     | NO   | PRI | NULL    |       | -- 索引
+| o_custkey       | int(11)     | YES  | MUL | NULL    |       | -- 索引
+| o_orderstatus   | char(1)     | YES  |     | NULL    |       |
+| o_totalprice    | double      | YES  |     | NULL    |       |
+| o_orderDATE     | date        | YES  | MUL | NULL    |       | -- 索引
+| o_orderpriority | char(15)    | YES  |     | NULL    |       |
+| o_clerk         | char(15)    | YES  |     | NULL    |       |
+| o_shippriority  | int(11)     | YES  |     | NULL    |       |
+| o_comment       | varchar(79) | YES  |     | NULL    |       |
++-----------------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+--
+-- 方式二
+--
+mysql> show create table orders\G
+*************************** 1. row ***************************
+       Table: orders
+Create Table: CREATE TABLE `orders` (
+  `o_orderkey` int(11) NOT NULL,
+  `o_custkey` int(11) DEFAULT NULL,
+  `o_orderstatus` char(1) DEFAULT NULL,
+  `o_totalprice` double DEFAULT NULL,
+  `o_orderDATE` date DEFAULT NULL,
+  `o_orderpriority` char(15) DEFAULT NULL,
+  `o_clerk` char(15) DEFAULT NULL,
+  `o_shippriority` int(11) DEFAULT NULL,
+  `o_comment` varchar(79) DEFAULT NULL,
+  PRIMARY KEY (`o_orderkey`),  -- 索引
+  KEY `i_o_orderdate` (`o_orderDATE`), -- 索引
+  KEY `i_o_custkey` (`o_custkey`),  -- 索引
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`o_custkey`) REFERENCES `customer` (`c_custkey`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+1 row in set (0.00 sec)
+
+
+--
+-- 方式三
+--
+mysql> show index from orders\G
+*************************** 1. row ***************************
+        Table: orders
+   Non_unique: 0        -- 表示唯一的 
+     Key_name: PRIMARY  -- key的name是primary
+ Seq_in_index: 1
+  Column_name: o_orderkey
+    Collation: A
+  Cardinality: 1306748  -- 基数，这个列上不同值的记录数，通过采样来预估出来的
+     Sub_part: NULL
+       Packed: NULL
+         Null: 
+   Index_type: BTREE    -- 索引类型是BTree
+      Comment: 
+Index_comment: 
+*************************** 2. row ***************************
+        Table: orders
+   Non_unique: 1       -- Non_unique为True，表示不唯一
+     Key_name: i_o_orderdate
+ Seq_in_index: 1
+  Column_name: o_orderDATE
+    Collation: A
+  Cardinality: 2405
+     Sub_part: NULL
+       Packed: NULL
+         Null: YES
+   Index_type: BTREE
+      Comment: 
+Index_comment: 
+*************************** 3. row ***************************
+        Table: orders
+   Non_unique: 1
+     Key_name: i_o_custkey
+ Seq_in_index: 1
+  Column_name: o_custkey
+    Collation: A
+  Cardinality: 95217
+     Sub_part: NULL
+       Packed: NULL
+         Null: YES
+   Index_type: BTREE
+      Comment: 
+Index_comment: 
+3 rows in set (0.00 sec)
+
+mysql>  select count(*) from orders; 
++----------+
+| count(*) |
++----------+
+|  1500000 |  -- orders中有150W条记录，和Cardinality 是不一致的
++----------+
+1 row in set (0.25 sec)
+```
+
+### 3. Cardinality（基数）
+
+`Cardinality`表示该索引列上有多少`不同的记录`，这个是一个`预估的值`，是采样得到的（由InnoDB触发，采样20个页，进行预估），该值`越大越好`，即当`Cardinality / RowNumber 越接近1越好`。表示该列是`高选择性的`。高选择性才有必要创建索引。
+
+- 高选择性：身份证 、手机号码、姓名、订单号等
+- 低选择性：性别、年龄等
+
+**即该列是否适合创建索引，就看该字段是否具有高选择性**
+
+
+```sql
+mysql>  show create table lineitem\G
+*************************** 1. row ***************************
+       Table: lineitem
+Create Table: CREATE TABLE `lineitem` (
+  `l_orderkey` int(11) NOT NULL,
+  `l_partkey` int(11) DEFAULT NULL,
+  `l_suppkey` int(11) DEFAULT NULL,
+  `l_linenumber` int(11) NOT NULL,
+  `l_quantity` double DEFAULT NULL,
+  `l_extendedprice` double DEFAULT NULL,
+  `l_discount` double DEFAULT NULL,
+  `l_tax` double DEFAULT NULL,
+  `l_returnflag` char(1) DEFAULT NULL,
+  `l_linestatus` char(1) DEFAULT NULL,
+  `l_shipDATE` date DEFAULT NULL,
+  `l_commitDATE` date DEFAULT NULL,
+  `l_receiptDATE` date DEFAULT NULL,
+  `l_shipinstruct` char(25) DEFAULT NULL,
+  `l_shipmode` char(10) DEFAULT NULL,
+  `l_comment` varchar(44) DEFAULT NULL,
+  PRIMARY KEY (`l_orderkey`,`l_linenumber`),  -- 两个列作为primary
+  KEY `i_l_shipdate` (`l_shipDATE`),
+  KEY `i_l_suppkey_partkey` (`l_partkey`,`l_suppkey`),
+  KEY `i_l_partkey` (`l_partkey`),
+  KEY `i_l_suppkey` (`l_suppkey`),
+  KEY `i_l_receiptdate` (`l_receiptDATE`),
+  KEY `i_l_orderkey` (`l_orderkey`),
+  KEY `i_l_orderkey_quantity` (`l_orderkey`,`l_quantity`),
+  KEY `i_l_commitdate` (`l_commitDATE`),
+  CONSTRAINT `lineitem_ibfk_1` FOREIGN KEY (`l_orderkey`) REFERENCES `orders` (`o_orderkey`),
+  CONSTRAINT `lineitem_ibfk_2` FOREIGN KEY (`l_partkey`, `l_suppkey`) REFERENCES `partsupp` (`ps_partkey`, `ps_suppkey`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+1 row in set (0.00 sec)
+
+mysql>  show index from lineitem\G  -- 省略其他输出，只看PRIMARY
+*************************** 1. row ***************************
+        Table: lineitem
+   Non_unique: 0
+     Key_name: PRIMARY
+ Seq_in_index: 1  -- 索引中的顺序，该列的顺序为1
+  Column_name: l_orderkey
+    Collation: A
+  Cardinality: 1416486  -- 约140W
+     Sub_part: NULL
+       Packed: NULL
+         Null: 
+   Index_type: BTREE
+      Comment: 
+Index_comment: 
+*************************** 2. row ***************************
+        Table: lineitem
+   Non_unique: 0
+     Key_name: PRIMARY
+ Seq_in_index: 2  -- 索引中的顺序，该列的顺序为2
+  Column_name: l_linenumber
+    Collation: A
+  Cardinality: 5882116  -- 约580W
+     Sub_part: NULL
+       Packed: NULL
+         Null: 
+   Index_type: BTREE
+      Comment: 
+Index_comment:
+```
+>**对应当前例子**
+第一个索引（Seq_in_index = 1）的`Cardinality`的值表示`当前列（l_orderkey）`的不重复的值，
+第二个索引（Seq_in_index = 2）的`Cardinality`的值表示`前两列（l_orderkey）和（l_linenumber）`不重复的值
+
+```sql
+--
+-- SQL-1
+--
+mysql> select * from lineitem limit 10;                                                                 
++------------+-----------+-----------+--------------+------------+-----------------+------------+-------+--------------+--------------+------------+--------------+---------------+-------------------+------------+----------------------------------------+
+| l_orderkey | l_partkey | l_suppkey | l_linenumber | l_quantity | l_extendedprice | l_discount | l_tax | l_returnflag | l_linestatus | l_shipDATE | l_commitDATE | l_receiptDATE | l_shipinstruct    | l_shipmode | l_comment                              |
++------------+-----------+-----------+--------------+------------+-----------------+------------+-------+--------------+--------------+------------+--------------+---------------+-------------------+------------+----------------------------------------+
+|          1 |    155190 |      7706 |            1 |         17 |        21168.23 |       0.04 |  0.02 | N            | O            | 1996-03-13 | 1996-02-12   | 1996-03-22    | DELIVER IN PERSON | TRUCK      | blithely regular ideas caj             |
+|          1 |     67310 |      7311 |            2 |         36 |        45983.16 |       0.09 |  0.06 | N            | O            | 1996-04-12 | 1996-02-28   | 1996-04-20    | TAKE BACK RETURN  | MAIL       | slyly bold pinto beans detect s        |
+|          1 |     63700 |      3701 |            3 |          8 |         13309.6 |        0.1 |  0.02 | N            | O            | 1996-01-29 | 1996-03-05   | 1996-01-31    | TAKE BACK RETURN  | REG AIR    | deposits wake furiously dogged,        |
+|          1 |      2132 |      4633 |            4 |         28 |        28955.64 |       0.09 |  0.06 | N            | O            | 1996-04-21 | 1996-03-30   | 1996-05-16    | NONE              | AIR        | even ideas haggle. even, bold reque    |
+|          1 |     24027 |      1534 |            5 |         24 |        22824.48 |        0.1 |  0.04 | N            | O            | 1996-03-30 | 1996-03-14   | 1996-04-01    | NONE              | FOB        | carefully final gr                     |
+|          1 |     15635 |       638 |            6 |         32 |        49620.16 |       0.07 |  0.02 | N            | O            | 1996-01-30 | 1996-02-07   | 1996-02-03    | DELIVER IN PERSON | MAIL       | furiously regular accounts haggle bl   |
+|          2 |    106170 |      1191 |            1 |         38 |        44694.46 |          0 |  0.05 | N            | O            | 1997-01-28 | 1997-01-14   | 1997-02-02    | TAKE BACK RETURN  | RAIL       | carefully ironic platelets against t   |
+|          3 |      4297 |      1798 |            1 |         45 |        54058.05 |       0.06 |     0 | R            | F            | 1994-02-02 | 1994-01-04   | 1994-02-23    | NONE              | AIR        | blithely s                             |
+|          3 |     19036 |      6540 |            2 |         49 |        46796.47 |        0.1 |     0 | R            | F            | 1993-11-09 | 1993-12-20   | 1993-11-24    | TAKE BACK RETURN  | RAIL       | final, regular pinto                   |
+|          3 |    128449 |      3474 |            3 |         27 |        39890.88 |       0.06 |  0.07 | A            | F            | 1994-01-16 | 1993-11-22   | 1994-01-23    | DELIVER IN PERSON | SHIP       | carefully silent pinto beans boost fur |
++------------+-----------+-----------+--------------+------------+-----------------+------------+-------+--------------+--------------+------------+--------------+---------------+-------------------+------------+----------------------------------------+
+10 rows in set (0.00 sec)
+
+--
+-- SQL-2
+--
+mysql> select l_orderkey, l_linenumber from lineitem limit 10; 
++------------+--------------+
+| l_orderkey | l_linenumber |
++------------+--------------+
+|     721220 |            2 |
+|     842980 |            4 |
+|     904677 |            1 |
+|     990147 |            1 |
+|    1054181 |            1 |
+|    1111877 |            3 |
+|    1332613 |            1 |
+|    1552449 |            2 |
+|    2167527 |            3 |
+|    2184032 |            5 |
++------------+--------------+
+10 rows in set (0.00 sec)
+
+--- SQL-1和SQL-2其实都是在没有排序的情况下，取出前10条数据。但是结果不一样
+
+--
+-- SQL-3
+--
+mysql> select l_orderkey, l_linenumber from lineitem order by l_orderkey limit 10;  -- 和上面的sql相比，多了一个order by的操作
++------------+--------------+
+| l_orderkey | l_linenumber |
++------------+--------------+
+|          1 |            1 | -----
+|          1 |            2 | -- 看orderkey为1，对应的linenumber有6条
+|          1 |            3 | -- 这就是orderkey的Cardinality仅为140W
+|          1 |            4 | -- 而(orderkey + linenumber)就有580W
+|          1 |            5 | 
+|          1 |            6 | -----
+|          2 |            1 |
+|          3 |            1 |
+|          3 |            2 |
+|          3 |            3 |
++------------+--------------+
+10 rows in set (0.01 sec)
+
+--- SQL-3 和SQL-2 不同的原因是 他们走了不同的索引
+mysql> explain select l_orderkey, l_linenumber from lineitem limit 10\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: lineitem
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: i_l_shipdate  -- 使用了shipdate进行了索引
+      key_len: 4
+          ref: NULL
+         rows: 5882306
+     filtered: 100.00
+        Extra: Using index
+1 row in set, 1 warning (0.00 sec)
+
+
+mysql> explain select l_orderkey, l_linenumber from lineitem order by l_orderkey limit 10\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: lineitem
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: i_l_orderkey  -- 使用了orderkey进行了查询
+      key_len: 4
+          ref: NULL
+         rows: 10
+     filtered: 100.00
+        Extra: Using index
+1 row in set, 1 warning (0.00 sec)
+
+mysql> explain select * from lineitem limit 10\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: lineitem
+   partitions: NULL
+         type: ALL   -- SQL-1进行了全表扫描
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 5882306
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+
+-- 所以，不使用order by取出的结果，可以理解为不是根据主键排序的结果。
+```
+>`innodb_on_state = off `
+在MySQL5.5之前，执行`show create table`操作会触发采样，而5.5之后将该参数off后，需要主动执行`analyze table`才会去采样。采样不会锁表或者锁记录。
+
+
+### 4. 复合索引
+
+(a,b,c)复合索引快速的原因是B+树已经对索引排序过了，（1，1,1），（1,1，2），（1,2,1）（2,1,1）....  对（a,b,c）排序，但没对（b,c)这些排序，比如（1,1），（1,2），（2,1），（1,1）
+```sql
+mysql>  show create table lineitem\G
+*************************** 1. row ***************************
+       Table: lineitem
+Create Table: CREATE TABLE `lineitem` (
+  `l_orderkey` int(11) NOT NULL,
+  `l_partkey` int(11) DEFAULT NULL,
+  `l_suppkey` int(11) DEFAULT NULL,
+  `l_linenumber` int(11) NOT NULL,
+  `l_quantity` double DEFAULT NULL,
+  `l_extendedprice` double DEFAULT NULL,
+  `l_discount` double DEFAULT NULL,
+  `l_tax` double DEFAULT NULL,
+  `l_returnflag` char(1) DEFAULT NULL,
+  `l_linestatus` char(1) DEFAULT NULL,
+  `l_shipDATE` date DEFAULT NULL,
+  `l_commitDATE` date DEFAULT NULL,
+  `l_receiptDATE` date DEFAULT NULL,
+  `l_shipinstruct` char(25) DEFAULT NULL,
+  `l_shipmode` char(10) DEFAULT NULL,
+  `l_comment` varchar(44) DEFAULT NULL,
+  PRIMARY KEY (`l_orderkey`,`l_linenumber`),  -- 两个列作为primary，这个就是复合索引【多个列组成】
+  KEY `i_l_shipdate` (`l_shipDATE`),
+  KEY `i_l_suppkey_partkey` (`l_partkey`,`l_suppkey`),
+  KEY `i_l_partkey` (`l_partkey`),
+  KEY `i_l_suppkey` (`l_suppkey`),
+  KEY `i_l_receiptdate` (`l_receiptDATE`),
+  KEY `i_l_orderkey` (`l_orderkey`),
+  KEY `i_l_orderkey_quantity` (`l_orderkey`,`l_quantity`),
+  KEY `i_l_commitdate` (`l_commitDATE`),
+  CONSTRAINT `lineitem_ibfk_1` FOREIGN KEY (`l_orderkey`) REFERENCES `orders` (`o_orderkey`),
+  CONSTRAINT `lineitem_ibfk_2` FOREIGN KEY (`l_partkey`, `l_suppkey`) REFERENCES `partsupp` (`ps_partkey`, `ps_suppkey`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+1 row in set (0.00 sec)
+
+--
+-- 复合索引举例
+-- 
+mysql> create table test_index_2(a int, b int , c int);
+Query OK, 0 rows affected (0.15 sec)
+
+mysql> alter table test_index_2 add index  idx_mul_ab (a, b);        
+Query OK, 0 rows affected (0.11 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> insert into test_index_2 values
+    -> (1,1,10),
+    -> (1,2,9),
+    -> (2,1,8),
+    -> (2,4,15),
+    -> (3,1,6),
+    -> (3,2,17);
+Query OK, 6 rows affected (0.04 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> select * from test_index_2 where a = 1;
++------+------+------+
+| a    | b    | c    |
++------+------+------+
+|    1 |    1 |   10 |
+|    1 |    2 |    9 |
++------+------+------+
+2 rows in set (0.00 sec)
+
+mysql> explain select * from test_index_2 where a = 1\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ref
+possible_keys: idx_mul_ab
+          key: idx_mul_ab   -- 走了索引
+      key_len: 5
+          ref: const
+         rows: 2
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+
+mysql> select * from test_index_2 where a = 1 and b = 2;
++------+------+------+
+| a    | b    | c    |
++------+------+------+
+|    1 |    2 |    9 |
++------+------+------+
+1 row in set (0.00 sec)
+
+mysql> explain select * from test_index_2 where a = 1 and b = 2\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ref   -- 此时也是走了索引
+possible_keys: idx_mul_ab
+          key: idx_mul_ab  
+      key_len: 10
+          ref: const,const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+
+mysql> explain select * from test_index_2 where b = 2\G  -- 只查询b          
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ALL  -- 没有使用索引
+possible_keys: NULL  
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 6
+     filtered: 16.67
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+
+mysql> explain select * from test_index_2 where a=1 or b = 2\G  -- 使用or，要求结果集是并集，a的扫描+b的扫描，所以没有走索引
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ALL  -- 没有使用索引，因为b没有索引，所以b是走全表扫描的，既然走扫描，a的值也可以一起过滤
+                    -- 就没有必要在去查一次 a 的索引了
+possible_keys: idx_mul_ab
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 6
+     filtered: 30.56
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+--
+-- 特别的例子
+--
+---- 还是只使用b列去做范围查询，发现是走索引了
+---- 注意查询的是 count(*)
+mysql> explain select count(*) from test_index_2 where  b >1 and b < 3\G 
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: index  -- 走了索引 
+possible_keys: NULL
+          key: idx_mul_ab
+      key_len: 10
+          ref: NULL
+         rows: 6
+     filtered: 16.67
+        Extra: Using where; Using index  -- 覆盖索引
+1 row in set, 1 warning (0.00 sec)
+
+-- 因为要求的是count(*), 要求所有的记录的和，
+-- 那索引a是包含了全部的记录的，即扫描（a,b)的索引也是可以得到count(*)的
+
+mysql> explain select * from test_index_2 where  b >1 and b < 3\G        
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ALL  -- 查询 * 就没法使用（a，b）索引了，需要全表扫描b的值。
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 6
+     filtered: 16.67
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+
+mysql> explain select * from test_index_2 where  a = 1 and c = 10\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ref  -- 也是走索引的，先用走a索引得到结果集，再用c=10去过滤
+possible_keys: idx_mul_ab
+          key: idx_mul_ab
+      key_len: 5
+          ref: const
+         rows: 2
+     filtered: 16.67
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+
+mysql> explain select * from test_index_2 where  b = 2 and c = 10\G   
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ALL  -- 而b和c是不行的，(b，c)不是有序的
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 6
+     filtered: 16.67
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+```
+
+-----
+
+## 五. information_schema（一）
+
+* 作用：数据字典的作用，表是怎么定义的，列是怎么定义的
+
+```sql
+mysql> use information_schema;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+mysql> show tables;
++---------------------------------------+
+| Tables_in_information_schema          |
++---------------------------------------+
+| CHARACTER_SETS                        |
+| COLLATIONS                            |
+| COLLATION_CHARACTER_SET_APPLICABILITY |
+| COLUMNS                               |
+| COLUMN_PRIVILEGES                     |
+| ENGINES                               |
+| EVENTS                                |
+| FILES                                 |
+| GLOBAL_STATUS                         |
+| GLOBAL_VARIABLES                      |
+| KEY_COLUMN_USAGE                      |
+| OPTIMIZER_TRACE                       |
+| PARAMETERS                            |
+| PARTITIONS                            |
+| PLUGINS                               |
+| PROCESSLIST                           |
+| PROFILING                             |
+| REFERENTIAL_CONSTRAINTS               |
+| ROUTINES                              |
+| SCHEMATA                              |
+| SCHEMA_PRIVILEGES                     |
+| SESSION_STATUS                        |
+| SESSION_VARIABLES                     |
+| STATISTICS                            |
+| TABLES                                | //存放了所有表的信息，类似于 show table status like ""; 
+| TABLESPACES                           |
+| TABLE_CONSTRAINTS                     |
+| TABLE_PRIVILEGES                      |
+| TRIGGERS                              |
+| USER_PRIVILEGES                       |
+| VIEWS                                 | //表创建的信息，相当于 show create table employees.vRank\G
+| INNODB_LOCKS                          |
+| INNODB_TRX                            |
+| INNODB_SYS_DATAFILES                  |
+| INNODB_FT_CONFIG                      |
+| INNODB_SYS_VIRTUAL                    |
+| INNODB_CMP                            |
+| INNODB_FT_BEING_DELETED               |
+| INNODB_CMP_RESET                      |
+| INNODB_CMP_PER_INDEX                  |
+| INNODB_CMPMEM_RESET                   |
+| INNODB_FT_DELETED                     |
+| INNODB_BUFFER_PAGE_LRU                |
+| INNODB_LOCK_WAITS                     |
+| INNODB_TEMP_TABLE_INFO                |
+| INNODB_SYS_INDEXES                    |
+| INNODB_SYS_TABLES                     |
+| INNODB_SYS_FIELDS                     |
+| INNODB_CMP_PER_INDEX_RESET            |
+| INNODB_BUFFER_PAGE                    |
+| INNODB_FT_DEFAULT_STOPWORD            |
+| INNODB_FT_INDEX_TABLE                 |
+| INNODB_FT_INDEX_CACHE                 |
+| INNODB_SYS_TABLESPACES                |
+| INNODB_METRICS                        |
+| INNODB_SYS_FOREIGN_COLS               |
+| INNODB_CMPMEM                         |
+| INNODB_BUFFER_POOL_STATS              |
+| INNODB_SYS_COLUMNS                    |
+| INNODB_SYS_FOREIGN                    |
+| INNODB_SYS_TABLESTATS                 |
++---------------------------------------+
+61 rows in set (0.00 sec)
+
+-- information_schema 数据库相当于一个数据字典。保存了表的元信息。
+
+mysql> select * from key_column_usage limit  3\G  -- 显示了哪个索引使用了哪个列
+*************************** 1. row ***************************
+           CONSTRAINT_CATALOG: def
+            CONSTRAINT_SCHEMA: burn_test
+              CONSTRAINT_NAME: PRIMARY
+                TABLE_CATALOG: def
+                 TABLE_SCHEMA: burn_test
+                   TABLE_NAME: Orders -- 表名
+                  COLUMN_NAME: order_id  -- 索引的名称
+             ORDINAL_POSITION: 1
+POSITION_IN_UNIQUE_CONSTRAINT: NULL
+      REFERENCED_TABLE_SCHEMA: NULL
+        REFERENCED_TABLE_NAME: NULL
+       REFERENCED_COLUMN_NAME: NULL
+*************************** 2. row ***************************
+           CONSTRAINT_CATALOG: def
+            CONSTRAINT_SCHEMA: burn_test
+              CONSTRAINT_NAME: product_name
+                TABLE_CATALOG: def
+                 TABLE_SCHEMA: burn_test
+                   TABLE_NAME: Orders_MV
+                  COLUMN_NAME: product_name
+             ORDINAL_POSITION: 1
+POSITION_IN_UNIQUE_CONSTRAINT: NULL
+      REFERENCED_TABLE_SCHEMA: NULL
+        REFERENCED_TABLE_NAME: NULL
+       REFERENCED_COLUMN_NAME: NULL
+*************************** 3. row ***************************
+           CONSTRAINT_CATALOG: def
+            CONSTRAINT_SCHEMA: burn_test
+              CONSTRAINT_NAME: child_ibfk_1
+                TABLE_CATALOG: def
+                 TABLE_SCHEMA: burn_test
+                   TABLE_NAME: child
+                  COLUMN_NAME: parent_id
+             ORDINAL_POSITION: 1
+POSITION_IN_UNIQUE_CONSTRAINT: 1
+      REFERENCED_TABLE_SCHEMA: burn_test
+        REFERENCED_TABLE_NAME: parent
+       REFERENCED_COLUMN_NAME: id
+3 rows in set (0.04 sec)
+
+-- 作业:  
+-- 1:查看索引Cardinality 存放的元数据表
+-- 2:查看线上数据库索引Cardinality的值，判断索引创建是否合理，写出这条SQL语句
+```
+
+-----
+
+## 6. EXPLAIN： explain是解释SQL语句的执行计划，即显示该SQL语句怎么执行的，但不会真的去执行。也可以使用desc，等价于explain
+
+* **参数extended**
+
+```sql
+mysql> explain extended  select * from test_index_2 where  b >1 and b < 3\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_index_2
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 6
+     filtered: 16.67
+        Extra: Using where
+1 row in set, 2 warnings (0.00 sec)  有 warnings，这里相当于提供一个信息返回
+
+mysql> show warnings\G 
+*************************** 1. row ***************************
+  Level: Warning
+   Code: 1681
+Message: 'EXTENDED' is deprecated and will be removed in a future release. -- 即将被弃用
+*************************** 2. row ***************************  -- 显示真正的执行语句
+  Level: Note
+   Code: 1003
+Message: /* select#1 */ select `burn_test`.`test_index_2`.`a` AS `a`,`burn_test`.`test_index_2`.`b` AS `b`,`burn_test`.`test_index_2`.`c` AS `c` from `burn_test`.`test_index_2` where ((`burn_test`.`test_index_2`.`b` > 1) and (`burn_test`.`test_index_2`.`b` < 3))
+2 rows in set (0.00 sec)
+```
+
+
+* **参数FORMAT**
+    - 使用`FORMART=JSON`不仅仅是为了格式化输出效果，还有其他有用的显示信息。
+    - 且当5.6版本后，使用`MySQL Workbench`，可以使用`visual Explain`方式显示详细的图示信息。
+
+```sql
+mysql> explain format=json  select * from test_index_2 where  b >1 and b < 3\G          
+*************************** 1. row ***************************
+EXPLAIN: {
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "2.20"  -- 总成本
+    },
+    "table": {
+      "table_name": "test_index_2",
+      "access_type": "ALL",
+      "rows_examined_per_scan": 6,
+      "rows_produced_per_join": 1,
+      "filtered": "16.67",
+      "cost_info": {
+        "read_cost": "2.00",  //读成本
+        "eval_cost": "0.20",
+        "prefix_cost": "2.20",
+        "data_read_per_join": "16"
+      },
+      "used_columns": [
+        "a",
+        "b",
+        "c"
+      ],
+      "attached_condition": "((`burn_test`.`test_index_2`.`b` > 1) and (`burn_test`.`test_index_2`.`b` < 3))"
+    }
+  }
+}
+```
+
+### 6.1 Explain输出介绍
+
+|  列  | 含义 |
+|:----:|:----:|
+|id|执行计划的id标志|
+|select_type|SELECT的类型|
+|table|输出记录的表|
+|partitions|符合的分区，[PARTITIONS]|
+|type|JOIN的类型|
+|possible_keys|优化器可能使用到的索引|
+|key|优化器实际选择的索引|
+|key_len|使用索引的字节长度|
+|ref|进行比较的索引列|
+|rows|优化器`预估`的记录数量|
+|filtered|根据条件过滤得到的记录的百分比[EXTENDED]|
+|extra|额外的显示选项|
+
+
+
+#### （1）. id：执行计划的id标志
+
+
+#### （2）. select_type：SELECT的类型
+##### 比如：SIMPLE ：简单SELECT(不使用UNION或子查询等)
+| select_type | 含义 |
+|:------------:|:-----:|
+| SIMPLE | 简单SELECT(不使用UNION或子查询等)  |
+| PRIMARY | 最外层的select |
+| UNION | UNION中的第二个或后面的SELECT语句 |
+| DEPENDENT UNION | UNION中的第二个或后面的SELECT语句，依赖于外面的查询  |
+| UNION RESULT | UNION的结果  |
+| SUBQUERY | 子查询中的第一个SELECT  |
+| DEPENDENT SUBQUERY | 子查询中的第一个SELECT，依赖于外面的查询 |
+| DERIVED | 派生表的SELECT(FROM子句的子查询)  |
+| MATERIALIZED | 物化子查询 |
+| UNCACHEABLE SUBQUERY | 不会被缓存的并且对于外部查询的每行都要重新计算的子查询  |
+| UNCACHEABLE UNION | 属于不能被缓存的 UNION中的第二个或后面的SELECT语句 |
+
+
+* **MATERIALIZED**
+    - 产生中间临时表（实体）
+    - 临时表自动创建索引并和其他表进行关联，提高性能
+    - 和子查询的区别是，优化器将可以进行`MATERIALIZED`的语句自动改写成`join`，并自动创建索引
+
+
+#### （3）. table：通常是用户操作的用户表
+* <unionM, N> UNION得到的结果表
+* <derivedN> 排生表，由id=N的语句产生
+* <subqueryN> 由子查询物化产生的表，由id=N的语句产生
+
+
+####（4）. type
+>**摘自姜老师的PDF，按照图上箭头的顺序来看，成本（cost）是从小到大**
+
+![TYPE](./Selection_002.png)
+
+
+####（5）. extra
+
+![Extra](./Selection_003.png)
+
+* Using filesort：可以使用复合索引将filesort进行优化。提高性能
+* Using index：比如使用覆盖索引
+* Using where: 使用where过滤条件
+
+> Extra的信息是可以作为优化的提示，但是更多的是优化器优化的一种说明
 
 # 十八、day018-磁盘
 
-# 十九、day019-磁盘测试
+## 1. iostat
 
-# 二十、day020-InnoDB_1 表空间 General
-# 二十一、day021-InnoDB_2 SpaceID.PageNumber 压缩表）
-# 二十二、day022-InnoDB_3 透明表空间压缩 索引组织表
-# 二十三、day023-InnoDB_4 页(2) 行记录
-# 二十四、day024-InnoDB_5 – heap_number Buffer Pool
-# 二十五、day025-InnoDB_6 Buffer Pool与压缩页 CheckPoint LSN
-# 二十六、day026-InnoDB_7 doublewrite ChangeBuffer AHI FNP【MySQL 索引与innodb锁机制】
-# 二十七、day027-Secondary Index
-# 二十八、day028-join算法锁_1
-# 二十九、day029-锁_2
-# 三十、day030-锁_3
-# 三十一、day031-锁_4
-# 三十二、day032-锁_5
-# 三十三、day033-锁_6 事物_1
-# 三十四、day034-事务_2  MySQL 性能衡量
-# 三十五、day035-redo_binlog_xa
-# 三十六、day036-undo_sysbench
-# 三十七、day037-tpcc_mysqlslap【MySQL 备份与恢复】
-# 三十八、day038-purge死锁举例_MySQL backup备份_1
-# 三十九、day039-MySQL backup备份恢复_2【MySQL 复制技术与高可用】
-# 四十、day040-MySQL 备份恢复backup_3_replication_1
-# 四十一、day041-backup_4-replication_2
-# 四十二、day042-replication_3
-# 四十三、day043-replication_4-GTID 1
-# 四十四、day044-replication_5-GTID 2
+```bash
+#
+# 安装 iostat
+#
+shell> yum install sysstat 
+# debian 系： apt-get install sysstat
+
+# 使用
+shell> iostat -xm 3 # x表示显示扩展统计信息，m表示以兆为单位显示，3表示每隔3秒显示
+# 输出如下：
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.58    0.00    0.33    0.00    0.00   99.08
+
+Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+sda               0.00     0.00    0.00    0.67     0.00     0.00     8.00     0.00    2.00    0.00    2.00   1.00   0.07
+sdb               0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+```
+
+| CPU属性| 说明|
+|:------:|:---:|
+|%user|CPU处在用户模式下的时间百分比|
+|%nice|CPU处在带NICE值的用户模式下的时间百分比|
+|%sys|CPU处在系统模式下的时间百分比|
+|%iowait|CPU等待IO完成时间的百分比|
+|%steal|管理程序维护另一个虚拟处理器时，虚拟CPU的无意的等待时间的百分比|
+|%idle|闲置cpu的百分比|
+>**提示：**
+如果%iowait的值过高，表示硬盘存在I/O瓶颈;
+如果%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，有可能是CPU等待分配内存，此时应加大内存容量。
+如果%idle值如果`持续`很低，那么系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU。
+
+|Device属性 | 说明 |
+|:----------:|:----:|
+|rrqm/s	    |每秒进行 merge 的读操作数目 |
+|wrqm/s	    |每秒进行 merge 的写操作数目|
+|r/s	    |每秒完成的读 I/O 设备次数|
+|w/s	    |每秒完成的写 I/O 设备次数|
+|rsec/s	    |每秒读扇区数|
+|wsec/s	    |每秒写扇区数|
+|rkB/s	    |每秒读K字节数|
+|wkB/s	    |每秒写K字节数|
+|avgrq-sz	|平均每次设备I/O操作的数据大小 (扇区)|
+|avgqu-sz	|平均I/O队列长度|
+|await	    |平均每次设备I/O操作的等待时间 (毫秒)|
+|svctm	    |平均每次设备I/O操作的服务时间 (毫秒)|
+|%util	    |一秒中有百分之多少的时间用于 I/O 操作，即被io消耗的cpu百分比|
+>**提示：**
+如果 %util 接近 100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈。
+如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；
+如果 await 远大于 svctm，说明I/O队列太长，io响应太慢，则需要进行必要优化。
+如果avgqu-sz比较大，也表示有当量io在等待。
+
+-----
+
+## 2. 磁盘【MySQL配SSD】
+### 1. 磁盘的访问模式
+* 顺序访问
+    - 顺序的访问磁盘上的块；
+    - 一般经过测试后，得到该值的单位是`MB/s`，表示为磁盘`带宽`，普通硬盘在 50~ 100 MB/s
+* 随机访问
+    - 随机的访问磁盘上的块
+    - 也可以用MB/s进行表示，但是通常使用`IOPS`（每秒处理IO的能力），普通硬盘在 100-200 IOPS
+
+![磁盘的访问模式](./Selection_001.png)
+
+>拷贝文件属于顺序访问，`数据库`中访问数据属于`随机访问`。
+数据库对数据的访问做了优化，把随机访问转成顺序访问。
+
+
+### 3. 磁盘的分类
+* HDD【机械磁盘】
+    - 盘片通过旋转，磁头进行定位，读取数据；
+    - 顺序性较好，随机性较差；
+    - 常见转速
+        - 笔记本硬盘：5400转/分钟；
+        - 桌面硬盘：7200转/分钟；
+        - 服务器硬盘：10000转/分钟、15000转/分钟；
+        - SATA：120 ~ 150 IOPS
+        - SAS ：150 ~ 200 IOPS
+    
+    >从理论上讲，15000转/分钟，最高是 15000/60 约等于250IOPS
+    >由于机械盘片需要旋转，转速太高无法很好的散热
+
+    >如果一个HDD对4K的块做随机访问是0.8MB/s，可通过`0.8 *（1024 / 4）= 200` （(1M/s) /(4k） = 256，每秒能发起多少次4K的请求）或者 `（0.8 * 1000） / 4=200`得到`IOPS`，但是这个值存在部分干扰因素，如cache等
+
+* SSD【固态硬盘】
+    - 纯电设备
+    - 由FLash Memory组成（闪存）
+    - 没有读写磁头
+    - MLC闪存颗粒对一般企业的业务够用。目前SLC闪存颗粒价格较贵
+    - IOPS高
+        - 50000+ IOPS【比机械磁盘高了几百倍】
+        - 读写速度非对称 以 [INTEL SSD DC-S3500](http://www.intel.com/content/www/us/en/solid-state-drives/ssd-dc-s3500-spec.html)为例子：
+            - Random 4KB3 Reads: Up to 75,000 IOPS 
+            - Random 4KB Writes: Up to 11,500 IOPS
+            - Random 8KB3 Reads: Up to 47,500 IOPS
+            - Random 8KB Writes: Up to 5,500 IOPS
+            * 随机写比读要慢
+        
+        - 当在写过数据的区域再写入数据时，要先擦除老数据，再写入新数据
+        - 擦除数据需要擦除整个区域（128K or 256K）一起擦除（自动把部分有用的数据挪到别的区域）
+            
+            > 对比发现4K性能要优于8K的性能，几乎是2倍的差距，当然16K就更明显，所以当使用SSD时，建议数据库页大小设置成4K或者是8K，`innodb_page_size=8K`）
+            > 上线以前，SSD需要经过严格的压力测试（一周时间），确保性能平稳
+        
+    - Endurance Rating 
+        - 表示该SSD的寿命是多少
+        - 比如450TBW，表示这个SSD可以反复写入的数据总量是450T（包括插入和更新这些都算写入）
+    
+    
+    - SSD线上参数设置
+        - 磁盘调度算法改为Deadline
+
+            ```bash
+            echo deadline > /sys/block/sda/queue/scheduler  # deadline适用于数据库，HDD也建议改成Deadline
+            ```
+            
+        - MySQL参数
+            - `innodb_log_file_size=4G`  该参数设置的尽可能大
+            - `innodb_flush_neighbors=0`
+            
+            > 性能更平稳，且至少有15%的性能提升
+        
+    - SSD 品牌推荐
+        - Intel
+        - FusionIO
+        - 宝存
+        
+    - 不是很建议使用PCI-E的Flash卡（PCI-E插槽的SSD） 
+        - 性能过剩
+        - 安装比较麻烦
+
+### 4. 提升IOPS性能的手段【因为很早之前还没有SSD】
+* 通过 RAID 技术【多块机械硬盘组成一块逻辑盘】
+    - 功耗较高
+    - IOPS在2000左右
+
+* 通过购买共享存储设备【】
+    - 价格非常昂贵
+    - 但是比较稳定
+    - 底层还是通过RAID实现
+
+* 直接使用SSD，使用SSD才是趋势，机械硬盘会淘汰掉
+    - 性能较好的SSD可以达到 `万级别的IOPS`
+    - 建议可以用SSD + RAID5，RAID1+0太奢侈
+
+* 前面两者的提升都非常有限,IOSP以千为单位，互联网公司一般不会买共享存储设备，因为太贵
+
+### 5. RAID类别
+
+* RAID0
+![RAID0](./130px-RAID_0.svg.png)
+    - 速度最快
+    - 没有冗余备份
+
+* RAID1
+![RAID1](./130px-RAID_1.svg.png)
+    - 可靠性高
+    - 读取速度理论上等于硬盘数量的倍数
+    - 容量等于一个硬盘的容量
+
+* RAID5
+![RAID5](./220px-RAID_5.svg.png)
+     - 至少要3块硬盘
+     - 通过对数据的奇偶检验信息存储到不同的磁盘上，来恢复数据，最多只能坏一块
+     - 属于折中方案
+
+* RAID6
+![RAID6](./270px-RAID_6.svg.png)
+    - 至少是4块硬盘
+    - 和RAID5比较，RAID6增加第二个独立的奇偶校验信息，写入速度略受影响
+    - 数据可靠性高，可以同时坏两块
+    - 由于使用了双校验机制，恢复数据速度较慢
+
+* RAID1+0
+![RAID 1+0](./220px-RAID_10.svg.png)
+既提供了READ1的可靠性，又提供了READ0的速度，性能安全性和速度较好，如果你用的机械硬盘，建议用这个，SSD则不建议
+
+* RAID5+0
+![Alt text](./RAID_50.png)
+
+
+### 6. RAID卡的构造
+* BBU：电池备份装置：
+    - Battery Backup Unit
+    - 目前几乎所有RAID卡都带BBU
+    - 需要电池保证写入的可靠性（在断电后，因为我READ卡有电，可以将RAID卡`内存`中的缓存的数据刷入到磁盘）
+    - 电池有充放电时间 (30天左右一个周期，充放电会切换成 Write Through，导致性能下降)
+        - 使用`闪存（Flash）`的方式，就不会有充放电性能下降的问题
+
+* RAID卡缓存
+    - Write Backup （`强烈建议开启缓存`）
+    - Write Through (不使用缓存，直接写入磁盘)
+    - 写缓存并非默认开启
+
+
+* LSI-RAID卡相关命令
+    - 查看电量百分比
+    
+        ```bash
+        [root@test_raid ~]# megacli -AdpBbuCmd -GetBbuStatus -aALL |grep "Relative State of Charge"
+        Relative State of Charge: 100 %
+        ```
+
+    - 查看充电状态
+    
+        ```bash
+        [root@test_raid ~]# megacli -AdpBbuCmd -GetBbuStatus -aALL |grep "Charger Status"
+        Charger Status: Complete
+        ```
+    - 查看缓存策略
+    
+        ```bash
+        [root@test_raid ~]# megacli -LDGetProp -Cache -LALL -a0
+        Adapter 0-VD 0(target id: 0): Cache Policy:WriteBack, ReadAdaptive, Direct, No Write Cache if bad BBU
+        ```
+
+### 7. 文件系统和操作系统
+
+* 文件系统
+    - XFS/EXT4
+    - noatime (不更新文件的atime标记，减少系统的IO访问)
+    - nobarrier （禁用barrier，可以提高性能，前提是使用write backup和使用BBU）
+    
+    > mount -o noatime,nobarrier /dev/sda1 /data
+
+* 操作系统
+    - 推荐Linux
+    - 关闭SWAP
+
+
