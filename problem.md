@@ -7,3 +7,23 @@
 
 **1.2、为什么java要分内部类和静态内部类**
 * 其实个人来看。内部类在很多时候都是为了降低包的复杂度的作用，因为java写着写着程序就会变得非常大。比如匿名内部类，也就通常只用这一次，不用再建个文件专门写。内部类，使用的权限更大，静态内部类，独立性更强，一定的使用权限。
+
+## 2、java并发之TimeUnit理解
+转载自 ： https://www.cnblogs.com/shamo89/p/7055094.html
+TimeUnit是java.util.concurrent包下面的一个类，TimeUnit提供了可读性更好的线程暂停操作，通常用来替换Thread.sleep()，在很长一段时间里Thread的sleep()方法作为暂停线程的标准方式，几乎所有Java程序员都熟悉它，事实上sleep方法本身也很常用而且出现在很多面试中。如果你已经使用过Thread.sleep()，当然我确信你这样做过，那么你一定熟知它是一个静态方法，暂停线程时它不会释放锁，该方法会抛出InterrupttedException异常（如果有线程中断了当前线程）。但是我们很多人并没有注意的一个潜在的问题就是它的可读性。Thread.sleep()是一个重载方法，可以接收长整型毫秒和长整型的纳秒参数，这样对程序员造成的一个问题就是很难知道到底当前线程是睡眠了多少秒、分、小时或者天。看看下面这个Thread.sleep()方法：
+
+Thread.sleep（2400000）
+ 
+粗略一看，你能计算出当前线程是等待多长时间吗？可能有些人可以，但是对于大多数程序员来说这种写法的可读性还是很差的，你需要把毫秒转换成秒和分，让我们来看看另外一个例子，这个例子比前面那个例子可读性稍微好一点：
+
+Thread.sleep(4*60*1000);
+ 
+这比前面那个例子已经好多了，但是仍然不是最好的，你注意到睡眠时间用毫秒，不容易猜出当前线程将等待4分钟。TimeUnit类解决了这个问题，通过指定DAYS、HOURS、MINUTES,SECONDS、MILLISECONDS和NANOSECONDS。java.utils.concurrent .TimeUnit 是Java枚举应用场景中最好的例子之一，所有TimeUnit都是枚举实例，让我们来看看线程睡眠4分钟用TimeUnit是如何使用的。
+
+TimeUnit.MINUTES.sleep(4);  // sleeping for 4 minutes
+ 
+类似你可以采用秒、分、小时级别来暂停当前线程。你可以看到这比Thread的sleep方法的可读的好多了。记住TimeUnit.sleep()内部调用的Thread.sleep()也会抛出InterruptException。
+
+
+
+
