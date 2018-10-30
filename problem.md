@@ -24,6 +24,13 @@ TimeUnit.MINUTES.sleep(4);  // sleeping for 4 minutes
  
 类似你可以采用秒、分、小时级别来暂停当前线程。你可以看到这比Thread的sleep方法的可读的好多了。记住TimeUnit.sleep()内部调用的Thread.sleep()也会抛出InterruptException。
 
+## 3、CAS算法
+原文：https://blog.csdn.net/liubenlong007/article/details/53761730 
 
+* 一个CAS方法包含三个参数CAS(V,E,N)。V表示要更新的变量，E表示预期的值，N表示新值。只有当V的值等于E时，才会将V的值修改为N。如果V的值不等于E，说明已经被其他线程修改了，当前线程可以放弃此操作，也可以再次尝试次操作直至修改成功。基于这样的算法，CAS操作即使没有锁，也可以发现其他线程对当前线程的干扰（临界区值的修改），并进行恰当的处理。
+
+* 额外引申技术点：volatile
+上面说到当前线程可以发现其他线程对临界区数据的修改，这点可以使用volatile进行保证。 
+volatile实现了JMM中的可见性。使得对临界区资源的修改可以马上被其他线程看到，它是通过添加内存屏障实现的。具体实现原理请自行搜索volatile
 
 
