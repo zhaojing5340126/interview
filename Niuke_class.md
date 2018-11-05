@@ -147,6 +147,25 @@
         - [题目七：矩阵最小路径和【每个位置有右和下两种选择，除了最后一行和最后一列；叶节点的结果是它这个情况的路径和，向父结点返回这个路径和，父结点比较子节点的结果，选择最小的作为自己的路径和，向其父结点返回...】](#题目七矩阵最小路径和每个位置有右和下两种选择除了最后一行和最后一列叶节点的结果是它这个情况的路径和向父结点返回这个路径和父结点比较子节点的结果选择最小的作为自己的路径和向其父结点返回)
         - [题目八：从数组任意选择数字，能不能累加得到aim【每个位置有 要和不要 两种选择；叶节点的结果是true或false（叶节点会看自己这里的结果是不是aim，从而向父结点返回true或false），父结点比较子节点的结果，根据子节点相或得到true或false作为自己的值，向其父结点返回...；】](#题目八从数组任意选择数字能不能累加得到aim每个位置有-要和不要-两种选择叶节点的结果是true或false叶节点会看自己这里的结果是不是aim从而向父结点返回true或false父结点比较子节点的结果根据子节点相或得到true或false作为自己的值向其父结点返回)
         - [题目九：重量不超过bag【每个东西有 要和不要 两种选择；叶节点的结果是它这个情况的价值和，向父结点返回这个价值和，父结点比较子节点的结果，根据子节点选择最大的作为自己的价值和，向其父结点返回...】](#题目九重量不超过bag每个东西有-要和不要-两种选择叶节点的结果是它这个情况的价值和向父结点返回这个价值和父结点比较子节点的结果根据子节点选择最大的作为自己的价值和向其父结点返回)
+- [第八章：图算法：不管有向图还是无向图都可以用无向图表达](#第八章图算法不管有向图还是无向图都可以用无向图表达)
+    - [8.1 图的存储方式：如何表达图？生成图？](#81-图的存储方式如何表达图生成图)
+        - [8.1.1 经典表达方式](#811-经典表达方式)
+            - [1）邻接表：某个结点的邻居是谁](#1邻接表某个结点的邻居是谁)
+            - [2）邻接矩阵：一个矩阵【行和列就是结点】，没有路就是无穷大](#2邻接矩阵一个矩阵行和列就是结点没有路就是无穷大)
+        - [8.1.2 面试表达方式：基本能解决所有图算法的结构描述](#812-面试表达方式基本能解决所有图算法的结构描述)
+            - [题目一：1Graph结构：拥有点集和边集](#题目一1graph结构拥有点集和边集)
+                - [1）点的结构Node：包含value、in(入度)、out（出度）、nexts(从我出发的邻居结点)、edges(从我出发的边的集合)](#1点的结构node包含valuein入度out出度nexts从我出发的邻居结点edges从我出发的边的集合)
+                - [2）边的结构Edge：包含weight、from、to](#2边的结构edge包含weightfromto)
+            - [题目二、给你一个数组，你生成图](#题目二给你一个数组你生成图)
+    - [题目三、宽度优先遍历 bfs：利用队列实现 ,从一个node出发遍历【近的先输出，远的后输出，要记录有哪些点已经进过队列了，因为可能有环的存在【这就导致在前面的结点可能还会被后面的结点指着，所以要标记，用set】】](#题目三宽度优先遍历-bfs利用队列实现-从一个node出发遍历近的先输出远的后输出要记录有哪些点已经进过队列了因为可能有环的存在这就导致在前面的结点可能还会被后面的结点指着所以要标记用set)
+    - [8.3 深度优先遍历 ：利用栈实现 ：我这个结点下所有的路都走过我才弹出,一路走到头，不撞墙不回头](#83-深度优先遍历-利用栈实现-我这个结点下所有的路都走过我才弹出一路走到头不撞墙不回头)
+    - [8.4 拓扑排序算法：适用范围：有向图，且无环。【因为如果无向图，就是1->2,2->1这是环，所以必须有向图】](#84-拓扑排序算法适用范围有向图且无环因为如果无向图就是1-22-1这是环所以必须有向图)
+        - [8.4.1 应用：拓扑排序通常用来“排序”具有依赖关系的任务。比如编译原理](#841-应用拓扑排序通常用来排序具有依赖关系的任务比如编译原理)
+    - [8.5 最小生成树算法：无向图  :在保证这个图所有点都连通的情况下，需要的权重最小的边的 集合。有kruskal和Prim算法，返回的都是边的集合](#85-最小生成树算法无向图--在保证这个图所有点都连通的情况下需要的权重最小的边的-集合有kruskal和prim算法返回的都是边的集合)
+        - [8.5.1 Prim算法和Kruskal算法的在实现方面的区别：](#851-prim算法和kruskal算法的在实现方面的区别)
+        - [8.5.2 kruskal算法：依次选小权重的边，如果选完后没有形成回路就要它，如果形成回路就不要。【并查集】](#852-kruskal算法依次选小权重的边如果选完后没有形成回路就要它如果形成回路就不要并查集)
+        - [8.5.3 prim算法：从树发出的边中选择最小的带着新点的边，再把新点的边加入优先队列，重复上面步骤 【没有考虑复杂度，因为无向图，所以边基本都双向都加过，你也可以考虑】](#853-prim算法从树发出的边中选择最小的带着新点的边再把新点的边加入优先队列重复上面步骤-没有考虑复杂度因为无向图所以边基本都双向都加过你也可以考虑)
+    - [8.6 Dijkstra算法 适用范围：没有权值为负数的边](#86-dijkstra算法-适用范围没有权值为负数的边)
 
 <!-- /TOC -->
 
@@ -3477,3 +3496,402 @@ public class LessBag {
 ### 题目八：从数组任意选择数字，能不能累加得到aim【每个位置有 要和不要 两种选择；叶节点的结果是true或false（叶节点会看自己这里的结果是不是aim，从而向父结点返回true或false），父结点比较子节点的结果，根据子节点相或得到true或false作为自己的值，向其父结点返回...；】
 
 ### 题目九：重量不超过bag【每个东西有 要和不要 两种选择；叶节点的结果是它这个情况的价值和，向父结点返回这个价值和，父结点比较子节点的结果，根据子节点选择最大的作为自己的价值和，向其父结点返回...】
+
+# 第八章：图算法：不管有向图还是无向图都可以用无向图表达
+## 8.1 图的存储方式：如何表达图？生成图？	
+### 8.1.1 经典表达方式
+#### 1）邻接表：某个结点的邻居是谁
+#### 2）邻接矩阵：一个矩阵【行和列就是结点】，没有路就是无穷大
+
+### 8.1.2 面试表达方式：基本能解决所有图算法的结构描述
+#### 题目一：1Graph结构：拥有点集和边集
+##### 1）点的结构Node：包含value、in(入度)、out（出度）、nexts(从我出发的邻居结点)、edges(从我出发的边的集合)
+##### 2）边的结构Edge：包含weight、from、to
+```Java
+package day9;
+
+import java.util.HashMap;
+import java.util.HashSet;
+
+public class Graph {
+    //点集nodes包含所有的点，一个点应该含有很多东西，但传进来时只是一个数1，2,3 等，所以要和相应的结点用map对应起来
+    public HashMap<Integer,Node> nodes;
+    public HashSet<Edge> edges;  //node和node之间的关系，from、to、weight
+
+    public Graph(){
+        nodes = new HashMap<>();
+        edges = new HashSet<>();
+    }
+}
+
+```
+
+```Java
+import java.util.ArrayList;
+
+public class Node {
+    public int value;
+    public int in;
+    public int out;
+    public ArrayList<Node> nexts;
+    public ArrayList<Edge> edges;
+
+    public Node(int value){
+        this.value = value;
+        in = 0;
+        out = 0;
+        nexts = new ArrayList<>();
+        edges = new ArrayList<>();
+    }
+}
+
+```
+
+
+```Java
+public class Edge {
+    public int weight;
+    public Node from;
+    public Node to;
+
+    public Edge(int weight,Node from ,Node to){
+        this.weight = weight;
+        this.from = from;
+        this.to = to;
+    }
+}
+```
+
+#### 题目二、给你一个数组，你生成图
+* 一般面试会给你一个由一条条边组成的数组，一条边[7,5,4]表示权重为7，从结点5指向结点4.
+    * 
+
+```Java
+package day9;
+
+public class GraphGenerator {
+    public static Graph createGraph(int[][] m){
+        Graph graph = new Graph();
+        for (int i=0; i<m.length; i++){
+            int weight = m[i][0];
+            int from = m[i][1];
+            int to = m[i][2]; 
+            //如果这条边的两个结点还不在图中，则把这两个结点加入图中（加入图的点集）
+            if (!graph.nodes.containsKey(from)){
+                graph.nodes.put(from,new Node(from));
+            }
+            if(!graph.nodes.containsKey(to)){
+                graph.nodes.put(to,new Node(to));
+            }
+            
+            Node fromNode = graph.nodes.get(from); //from对应的结点
+            Node toNode = graph.nodes.get(to);    //to对应的结点
+            Edge newEdge = new Edge(weight,fromNode,toNode); //创建这条边
+            fromNode.edges.add(newEdge);
+            fromNode.nexts.add(toNode);
+            fromNode.out++;
+            toNode.in++;
+            //把这条边加入图中
+            graph.edges.add(newEdge);
+        }
+        return graph;
+    }
+}
+
+```
+
+
+## 题目三、宽度优先遍历 bfs：利用队列实现 ,从一个node出发遍历【近的先输出，远的后输出，要记录有哪些点已经进过队列了，因为可能有环的存在【这就导致在前面的结点可能还会被后面的结点指着，所以要标记，用set】】
+* 步骤：
+    * 1）从源节点开始依次按照宽度进队列，然后弹出 
+    * 2）每弹出一个点，把该节点所有没有进过队列的邻接点放入队列 
+    * 3）直到队列变空
+
+```Java
+public class BFS {
+    public static void bfs(Node node){
+        if (node == null){
+            return;
+        }
+        Queue<Node> queue = new LinkedList<>();  //队列
+        Set<Node> set = new HashSet<>();  //用于标记结点是否进过队列
+        Node cur;
+        queue.add(node);
+        set.add(node);
+        while (!queue.isEmpty()){
+            cur = queue.poll();
+            System.out.println(cur.value);  //取出队列的头结点，打印
+            for (Node next : cur.nexts){   //将其邻接点加入队列（如果之前没进过队列的话）
+                if (!set.contains(next)){  
+                    queue.add(next);
+                    set.add(next);  //不要忘记了标记
+                }
+            }
+        }
+    }
+}
+
+```
+
+## 8.3 深度优先遍历 ：利用栈实现 ：我这个结点下所有的路都走过我才弹出,一路走到头，不撞墙不回头
+
+
+* 举例：现在我们从1号顶点开始遍历这个图（遍历指的是把每一个顶点都访问一次）。使用深度优先搜索来遍历这个图我们将得到以下结果：
+
+!{}(https://images2017.cnblogs.com/blog/922928/201801/922928-20180110172943722-258557730.png)
+
+* 使用深度优先搜索来遍历这个图的具体过程是：
+    * 首先从一个未走到过的顶点作为起始顶点，比如1号顶点作为起点。
+    * 沿1号顶点的边去尝试访问其它未走到过的顶点，首先发现2号顶点还没有走到过，于是来到了2号顶点。
+    * 再以2号顶点作为出发点继续尝试访问其它未走到过的顶点，这样又来到了4号顶点。
+    * 再以4号顶点作为出发点继续尝试访问其它未走到过的顶点。
+    * 但是，此时沿4号顶点的边，已经不能访问到其它未走到过的顶点了，所以需要返回到2号顶点。
+    * 返回到2号顶点后，发现沿2号顶点的边也不能再访问到其它未走到过的顶点。此时又会来到3号顶点（2->1->3），再以3号顶点作为出发点继续访问其它未走到过的顶点，于是又来到了5号顶点。
+    * 至此，所有顶点我们都走到过了，遍历结束。		
+
+* 步骤：
+    * 1、从源节点开始把节点按照深度放入栈，然后弹出 
+    * 2、每弹出一个点，把该节点下一个没有进过栈的邻接点放入栈 
+    * 3、直到栈变空	
+
+```Java
+package day9;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
+//一个结点的所有邻居结点都被dfs了，那么这个结点才算完，可以返回了【彻底弹出】
+public class DFS {
+    public static void dfs(Node node){
+        if (node == null){
+            return;
+        }
+        Stack<Node> stack = new Stack<>();
+        Set<Node> set = new HashSet<>();
+        stack.push(node);
+        System.out.println(node.value);  //记住一push就要打印哈，这个点已经遍历了
+        set.add(node);
+        Node cur;
+        while (!stack.isEmpty()){
+            cur = stack.pop();
+            for (Node next: cur.nexts){
+                if (!set.contains(next)){  //cur的邻居结点里还有未深度遍历的，就要准备深度遍历它了
+                    //因为我们只要找到cur的一个未遍历的邻居结点就break了，并没有找完它所有的邻居结点，
+                    // 等处理完它的这个邻居，就要回来找是否还有其它邻居需要处理，所有cur也要push
+                    stack.push(cur);
+                    stack.push(next);
+                    set.add(next);
+                    break;  //只要找到了一个就开始遍历它
+                }
+            }
+        }
+    }
+}
+
+```	
+
+## 8.4 拓扑排序算法：适用范围：有向图，且无环。【因为如果无向图，就是1->2,2->1这是环，所以必须有向图】 
+### 8.4.1 应用：拓扑排序通常用来“排序”具有依赖关系的任务。比如编译原理
+
+* 比如，如果用一个DAG图来表示一个工程，其中每个顶点表示工程中的一个任务，用有向边表示在做任务 B 之前必须先完成任务 A。故在这个工程中，任意两个任务要么具有确定的先后关系，要么是没有关系，绝对不存在互相矛盾的关系（即环路）。
+
+![](https://img-blog.csdn.net/20150205090801820?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvSmFzbWluZV9zaGluZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)	
+
+* 拓扑排序的思想是：
+
+    * （1）从有向图中选取一个入度为0的点，输出；
+
+    * （2）从有向图中删去此顶点以及所有它发出的边，就会产生新的入度为0的结点
+
+    * 重复上述两步，直至图空，或者图不空但找不到入度为0的顶点为止。
+
+```Java
+package day9;
+
+import java.util.*;
+
+public class Topolagy {
+    public static List<Node> topoSorted(Graph graph) {
+        HashMap<Node, Integer> Inmap = new HashMap<>();
+        Queue<Node> zeroInQueue = new LinkedList<>();  //存放入度为0的结点
+        for (Node node : graph.nodes.values()) {  //遍历每个结点，Inmap记录结点及其对应的入度
+            Inmap.put(node, node.in);
+            if (node.in == 0) {
+                zeroInQueue.add(node);
+            }
+        }
+
+        List<Node> result = new ArrayList<>(); //拓扑排序结果
+        while (!zeroInQueue.isEmpty()) {  //拓扑排序就是不断取出入度为0 的结点，直到全部取完
+            Node cur = zeroInQueue.poll();  //对每个0入度的结点，我们都要处理它邻居结点后才能放过它
+            result.add(cur);
+            for (Node next : cur.nexts) { //入度为0的cur出来了，其邻居结点的入度也应该减1 
+                Inmap.put(next, Inmap.get(next) - 1);
+                if (Inmap.get(next) == 0) {  //如果减1后变成了0入度，则加入0入度队列
+                    zeroInQueue.add(next);
+                }
+
+            }
+        }
+        return result;
+    }
+}
+
+```
+
+## 8.5 最小生成树算法：无向图  :在保证这个图所有点都连通的情况下，需要的权重最小的边的 集合。有kruskal和Prim算法，返回的都是边的集合
+### 8.5.1 Prim算法和Kruskal算法的在实现方面的区别：
+
+* 1、Kruskal算法在生成最小生成树的过程中产生的是森林【所以要用并查集合并】，Prim算法在执行过程中始终都是一棵树【从树出发不断找新的点加入树】；
+
+
+### 8.5.2 kruskal算法：依次选小权重的边，如果选完后没有形成回路就要它，如果形成回路就不要。【并查集】
+```Java
+package day9;
+
+import java.util.*;
+
+public class KruskalMST {
+    //最小生成树的实现
+    public static Set<Edge> kruskalMST(Graph graph){
+        UnionFindSet unionFind = new UnionFindSet(graph.nodes.values()); ////所有的点集
+        PriorityQueue<Edge> pq= new PriorityQueue<Edge>(new EdgeComparator());//建立边权重的小根堆
+        for (Edge edge : graph.edges){
+            pq.add(edge);
+        }
+
+        Set<Edge> result = new HashSet<>();  //返回的最小生成树，是边的集合
+        while (!pq.isEmpty()){  //从小权重的边开始筛，筛完所有的边
+            Edge edge = pq.poll();
+            if (!unionFind.isSameSet(edge.from,edge.to)){ //如果二者不在一个集合上
+                result.add(edge);
+                unionFind.union(edge.from,edge.to); //合并二者所在的集合
+            }
+        }
+
+        return result;
+    }
+
+    public static class EdgeComparator implements Comparator<Edge> {
+        @Override
+        public int compare(Edge o1, Edge o2) {
+            return o1.weight - o2.weight;
+        }
+
+    }
+
+ 
+    /** 并查集的实现 */
+    public static class UnionFindSet { //并查集利用两个hashmap实现
+
+        HashMap<Node,Node> fatherMap;  //结点->father结点，father只是上一个结点，不代表就是头结点哈
+        HashMap<Node,Integer> sizeMap; //结点->集合size，实际我们会用到的只有头结点对应的集合size
+        public UnionFindSet(Collection<Node> list){
+            initialSet(list);
+        }
+
+        private void initialSet(Collection<Node> nodes) {
+            fatherMap = new HashMap<Node,Node>();
+            sizeMap = new HashMap<Node,Integer>();
+            for (Node node: nodes){  //初始化，将每个结点作为一个集合，一个头结点，指向自己
+                fatherMap.put(node,node);
+                sizeMap.put(node,1);
+            }
+        }
+
+        /** 查看a,b是否属于同一个集合 */
+        public boolean isSameSet(Node a, Node b){
+            return findHead(a)==findHead(b); //比较的是地址？
+        }
+
+        /** 合并a,b所在的集合 */
+        public void union(Node a,Node b){
+            if (a == null || b == null){
+                return;
+            }
+            Node aHead = fatherMap.get(a);
+            Node bHead = fatherMap.get(b);
+            if (aHead != bHead){ //两个不在一个集合才需要合并
+                int aSize = sizeMap.get(aHead);
+                int bSize = sizeMap.get(bHead);
+                if (aSize <= bSize){ //即a集合小，则a挂在b集合下
+                    fatherMap.put(aHead,bHead);
+                    sizeMap.put(bHead,aSize+bSize);
+                }else {
+                    fatherMap.put(bHead,aHead);
+                    sizeMap.put(aHead,aSize + bSize);
+                }
+            }
+        }
+
+        /** 查找头节点 */
+        private Node findHead(Node cur) {
+            if (cur == null){
+                return null;
+            }
+            Stack<Node> stack = new Stack<>();
+            Node father = fatherMap.get(cur);
+            while (cur != father){//找头结点
+                stack.push(cur);  //不是头结点就存起来，方便之后优化：将它们的父节点直接指向头
+                cur = father;
+                father = fatherMap.get(cur);
+            }
+            while (!stack.isEmpty()){ //进行优化，将该路径上所有节点都指向头节点
+                fatherMap.put(stack.pop(),father);
+            }
+            return father;
+        }
+
+    }
+}
+
+```
+
+### 8.5.3 prim算法：从树发出的边中选择最小的带着新点的边，再把新点的边加入优先队列，重复上面步骤 【没有考虑复杂度，因为无向图，所以边基本都双向都加过，你也可以考虑】
+
+* Prim算法基于贪心算法设计，其从一个顶点出发，选择这个顶点发出的边中权重最小的一条加入最小生成树中，然后又从当前的树中的所有顶点发出的边中选出权重最小的一条加入树中，以此类推，直到所有顶点都在树中，算法结束。
+
+```Java
+package day9;
+
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Set;
+
+public class PrimMST {
+    public static Set<Edge> primMST(Graph graph){
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        Set<Node> set = new HashSet<>();  //用于记录在树中的点
+        Set<Edge> result = new HashSet<>();  //用于存放结果
+        
+        for (Node node : graph.nodes.values()){ //因为可能是森林，就是本身这个图就是几团几团，团之间不连通
+            if (!set.contains(node)){  //有新的一棵树出现
+                set.add(node);   //****不要忘记加了，这是这棵树的起点，是从这个点出发建树
+                for (Edge edge: node.edges){
+                    pq.add(edge);
+                }
+                while (!pq.isEmpty()){  //没有达到最高效率哈，这种会有很多重复的边被加进了，我也没管
+                    Edge edge = pq.poll();
+                    Node toNode = edge.to;
+                    if (!set.contains(toNode)){  //这颗树有新的点可以加入
+                        set.add(toNode);
+                        result.add(edge);  //这条边就可以入树了
+                        for (Edge nextEdge: toNode.edges){  //又把新点的边加入优先队列
+                            pq.add(nextEdge);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+```
+
+## 8.6 Dijkstra算法 适用范围：没有权值为负数的边
+
+
+							
+							
+
