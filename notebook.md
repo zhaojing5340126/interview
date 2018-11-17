@@ -42,16 +42,72 @@
         - [3） 实现用户的链接](#3-实现用户的链接)
 - [第四周 用户注册登录管理](#第四周-用户注册登录管理)
     - [4.1 注册](#41-注册)
-    - [4.2 登陆](#42-登陆)
+        - [4.1.1 注册注意事项：【用户名和密码】](#411-注册注意事项用户名和密码)
+            - [1. 用户名合法性检测（长度（数据库字段长度是有限制的），敏感词（比如管理员等），重复，特殊字符（比如颜文字（对网站的展示有影响）、HTML代码等））](#1-用户名合法性检测长度数据库字段长度是有限制的敏感词比如管理员等重复特殊字符比如颜文字对网站的展示有影响html代码等)
+            - [2. 密码长度要求（以及大小写等，后台会对强度进行判定）](#2-密码长度要求以及大小写等后台会对强度进行判定)
+            - [3. 密码salt加密，密码强度检测（md5库）](#3-密码salt加密密码强度检测md5库)
+            - [4. 用户邮件/短信激活【防止机器人注册很多账号】](#4-用户邮件短信激活防止机器人注册很多账号)
+        - [4.1.2 代码 步骤：](#412-代码-步骤)
+            - [1) 在开发过程中，我们会对不同的业务做不同的Controller，比如登陆注册，我们会再做一个LoginController](#1-在开发过程中我们会对不同的业务做不同的controller比如登陆注册我们会再做一个logincontroller)
+            - [2）注册对数据库来说就是要往里面加一个人](#2注册对数据库来说就是要往里面加一个人)
+    - [4.2 登陆/登出（浏览器演示）](#42-登陆登出浏览器演示)
+        - [4.2.1 登陆：](#421-登陆)
+            - [1.服务器密码校验/三方校验回调，token登记](#1服务器密码校验三方校验回调token登记)
+            - [1.1 服务器验证密码正确后，会生成一个token关联userid,下发token给客户端](#11-服务器验证密码正确后会生成一个token关联userid下发token给客户端)
+            - [1.2 客户端存储token(app存储本地，浏览器存储cookie),每次和服务器进行交互的时候就带上这个token，服务器就知道你是谁了](#12-客户端存储tokenapp存储本地浏览器存储cookie每次和服务器进行交互的时候就带上这个token服务器就知道你是谁了)
+            - [2.服务端/客户端token有效期设置（记住登陆）](#2服务端客户端token有效期设置记住登陆)
+            - [注:token可以是sessionid【那么你浏览器不会有变化，只要你没关，都是这个sessionid】，或者是cookie里的一个key](#注token可以是sessionid那么你浏览器不会有变化只要你没关都是这个sessionid或者是cookie里的一个key)
+        - [4.2.2 代码步骤：](#422-代码步骤)
+            - [1）登录就是把你的用户名，密码这些进行判断验证](#1登录就是把你的用户名密码这些进行判断验证)
+            - [2）验证成功了，就要给用户下发一个ticket【token】](#2验证成功了就要给用户下发一个tickettoken)
+                - [2.1）在这里要数据库新创建一个 login_ticket 表【我这里的建法是在通过InitDatabaseTests，在测试的时候建的，一般我们写一个DAO都会测试一下有没有问题】](#21在这里要数据库新创建一个-login_ticket-表我这里的建法是在通过initdatabasetests在测试的时候建的一般我们写一个dao都会测试一下有没有问题)
+                - [2.2）同时对应一个 LoginTicket的 model，](#22同时对应一个-loginticket的-model)
+                - [2.3）及LoginTicketDAO【插入ticket、查、更新状态】](#23及loginticketdao插入ticket查更新状态)
+        - [4.2.2 登出：把ticket对应的status设置为1，就表示这个无效了](#422-登出把ticket对应的status设置为1就表示这个无效了)
+            - [1） 首先LoginController里进入登出的函数](#1-首先logincontroller里进入登出的函数)
+            - [2） 其次，userService里写一个logout函数](#2-其次userservice里写一个logout函数)
     - [4.3 浏览](#43-浏览)
-    - [4.4 Interceptor](#44-interceptor)
-    - [4.5 未登录跳转](#45-未登录跳转)
-    - [4.6 数据安全性](#46-数据安全性)
-    - [4.7 AJAX](#47-ajax)
-    - [4.8 DEV-TOOL](#48-dev-tool)
+        - [4.3.1 整体步骤：](#431-整体步骤)
+            - [1.客户端：带token【也就是ticket】的HTTP请求](#1客户端带token也就是ticket的http请求)
+            - [2.服务端：【用户是否登陆、用户有无权限】](#2服务端用户是否登陆用户有无权限)
+                - [1).根据token获取用户id](#1根据token获取用户id)
+                - [2).根据用户id获取用户的具体信息](#2根据用户id获取用户的具体信息)
+                - [3).用户和页面访问权限处理](#3用户和页面访问权限处理)
+                - [4).渲染页面/跳转页面【成功就渲染、不成功就跳转到非法页面】](#4渲染页面跳转页面成功就渲染不成功就跳转到非法页面)
+    - [4.3.2 Interceptor(拦截器)：可以拦截你整个链路上的各个步骤](#432-interceptor拦截器可以拦截你整个链路上的各个步骤)
+        - [1）preHandle：用于处理前，一般在preHandle里判断权限](#1prehandle用于处理前一般在prehandle里判断权限)
+        - [2）postHandle：用于处理完后，一般在PostHandle里设置一些数据](#2posthandle用于处理完后一般在posthandle里设置一些数据)
+        - [3）afterCompletion：用于全体结束后， 一般用于收尾工作](#3aftercompletion用于全体结束后-一般用于收尾工作)
+        - [代码演示](#代码演示)
+            - [1）创建一个拦截器PassportInterceptor：每次访问之前，拦截器先插进来先找这个用户](#1创建一个拦截器passportinterceptor每次访问之前拦截器先插进来先找这个用户)
+            - [2）在model里创建一个HostHolder 类，用于存放这一次访问里面的用户是谁 【不同线程有自己的用户】](#2在model里创建一个hostholder-类用于存放这一次访问里面的用户是谁-不同线程有自己的用户)
+            - [3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类](#3拦截器写好后要注册要-mvc-里面创建一个configuration包创建以一个toutiaowebconfiguration类)
+    - [4.4 权限的认证：某个页面要登陆了才能访问，未登录就跳转到首页去](#44-权限的认证某个页面要登陆了才能访问未登录就跳转到首页去)
+    - [4.5 为了用户数据安全，我们要做的事：](#45-为了用户数据安全我们要做的事)
+        - [1.HTTPS注册页：网页访问http是明文的，https是加密的](#1https注册页网页访问http是明文的https是加密的)
+        - [2.公钥加密私钥解密，支付宝h5页面的支付密码加密：用户打开页面时，服务器下发一个公钥，你会用这个公钥对数据加密，加密后再提交到服务器，只有服务器又私钥可以解密](#2公钥加密私钥解密支付宝h5页面的支付密码加密用户打开页面时服务器下发一个公钥你会用这个公钥对数据加密加密后再提交到服务器只有服务器又私钥可以解密)
+        - [3.用户密码salt防止破解（CSDN，网易邮箱未加密密码泄漏）](#3用户密码salt防止破解csdn网易邮箱未加密密码泄漏)
+        - [4.token有效期：保证这个token不会被别人占用](#4token有效期保证这个token不会被别人占用)
+        - [5.单一平台的单点登陆，登陆IP异常检验：别人登陆你就下线，你再登陆一下，会显示上次登陆的IP区域](#5单一平台的单点登陆登陆ip异常检验别人登陆你就下线你再登陆一下会显示上次登陆的ip区域)
+        - [6.用户状态的权限判断【用拦截器做的】](#6用户状态的权限判断用拦截器做的)
+        - [7.添加验证码机制，防止爆破和批量注册：比如修改密码，一般手机验证码4位，写个程序一下子发0-9999，那肯定就有一个对的，所以输入一次或几次失败后，你要做校验](#7添加验证码机制防止爆破和批量注册比如修改密码一般手机验证码4位写个程序一下子发0-9999那肯定就有一个对的所以输入一次或几次失败后你要做校验)
+    - [4.6 AJAX：异步数据交互](#46-ajax异步数据交互)
+        - [优点：](#优点)
+            - [1.页面不刷新，只是局部刷新](#1页面不刷新只是局部刷新)
+            - [2.用户体验更好](#2用户体验更好)
+            - [3.传输数据更少](#3传输数据更少)
+            - [4.APP/网站通用，因为就是一些数据](#4app网站通用因为就是一些数据)
+            - [扩展：有统一的数据格式：{code:0,msg:'',data:''}](#扩展有统一的数据格式code0msgdata)
+    - [4.7 Spring Boot DevTools：方便开发](#47-spring-boot-devtools方便开发)
+        - [1）动态加载更新的class【比如修改了userService，你只需要（右键recompile）userService即可】：不是整体重启，只是这个类重启](#1动态加载更新的class比如修改了userservice你只需要右键recompileuserservice即可不是整体重启只是这个类重启)
+        - [2）编译加载修改的静态文件【比如html文件，修改后只需要重新编译该文件即可（右键recompile）】](#2编译加载修改的静态文件比如html文件修改后只需要重新编译该文件即可右键recompile)
+    - [附录：](#附录)
+        - [1）StringUtils：是比较好用的一个类org.apache.commons.lang.StringUtils; 可以直接判断字符串，比如StringUtils.isBlank(password）](#1stringutils是比较好用的一个类orgapachecommonslangstringutils-可以直接判断字符串比如stringutilsisblankpassword)
+        - [2) fastjson：阿里巴巴的一个用于json的工具，下载地址https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools/1.3.5.RELEASE【你所需要的各种库，这里都有，你直接导入就好：在 pom.xml 中】](#2-fastjson阿里巴巴的一个用于json的工具下载地址httpsmvnrepositorycomartifactorgspringframeworkbootspring-boot-devtools135release你所需要的各种库这里都有你直接导入就好在-pomxml-中)
     - [问题：](#问题)
 
 <!-- /TOC -->
+
 # 第二周 Spring入门和模板语法
 ## 2.1 SpringBoot工程 :https://start.spring.io/
 
@@ -947,15 +1003,744 @@ public class HomeController {
 
 # 第四周 用户注册登录管理
 ## 4.1 注册
-## 4.2 登陆
+### 4.1.1 注册注意事项：【用户名和密码】
+#### 1. 用户名合法性检测（长度（数据库字段长度是有限制的），敏感词（比如管理员等），重复，特殊字符（比如颜文字（对网站的展示有影响）、HTML代码等））
+#### 2. 密码长度要求（以及大小写等，后台会对强度进行判定）
+#### 3. 密码salt加密，密码强度检测（md5库）
+* 把密码用md5加密，直接放在数据库是有危险的，因为有很多md5破解网站，输入md5值，会得到密码【原理：这些网站把互联网上常用的密码或者已经泄露的密码做md5的密码，所以就可以用md5去查密码】
+* 如果你对密码进行加salt，然后再md5加密，那么肯定就查不到了，因为肯定没人以前会用这样的密码，
+#### 4. 用户邮件/短信激活【防止机器人注册很多账号】
+### 4.1.2 代码 步骤：
+#### 1) 在开发过程中，我们会对不同的业务做不同的Controller，比如登陆注册，我们会再做一个LoginController
+```java
+
+@Controller
+public class LoginController {
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(LoginController.class);
+    @Autowired
+    UserService userService;
+
+    //注册只要你给我提交用户名和密码即可，我将调用UserService的 register 方法【此方法里调用了userDAO.addUser(user)】，将用户增加到数据库
+    @RequestMapping(path={"/reg/"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String reg(Model model, @RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam(value = "remenber",defaultValue = "0") int rememberme) {//即是否记住登录
+        try {
+            // 1）******* 将用户增加到数据库
+            Map<String ,Object>  map = userService.register(username,password); 
+            if(map.isEmpty()){ //map为空，说明注册成功，****** 以json的形式返回
+                //return ToutiaoUtil.getJSONString(0,map); 
+                //当然也可以选择这样返回
+                return ToutiaoUtil.getJSONString(0,"注册成功");
+            }else {
+                return ToutiaoUtil.getJSONString(1,map);
+            }
+
+        }catch (Exception e){
+            logger.error("注册异常"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"注册异常");
+        }
+    }
+
+
+}
+
+```
+#### 2）注册对数据库来说就是要往里面加一个人
+* 请求来了从controller进入，然后调用service的某个方法【所以此处我们要在UserService里面增加 register 方法，并在此方法里调用  userDAO.addUser(user); // 往数据库加入用户】，数据库操作是定义在DAO中的（select、update、insert（addUser）等等）【我们之前已经定义过了，所以直接用就好，还要加一个selectByName方法】
+    * UserDAO
+```java
+    //UserDAO
+    //根据名字来选，以此判断用户是否已经注册过了
+    @Select({"select" ,SELECT_FIELDS,"from ",TABLE_NAME, "where name=#{name}"})
+    User selectByName(String name);
+```
+* UserService
+```java
+package com.nowcode.toutiao.service;
+
+
+import com.nowcode.toutiao.dao.UserDAO;
+import com.nowcode.toutiao.model.User;
+import com.nowcode.toutiao.util.ToutiaoUtil;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
+@Service
+public class UserService {
+    @Autowired
+    private UserDAO userDAO;
+
+    public Map<String,Object> register(String username, String password){
+        Map<String,Object> map = new HashMap<>();
+
+        // 1）先进行一些判断，再决定要不要加，然后把信息返回到前台（controller）
+        //前端也会做这些验证，但后端也要做，因为很多人攻击并不是通过网页来的，而是直接post等
+        if (StringUtils.isBlank(username)){  //StringUtils是比较好用的一个类org.apache.commons.lang.StringUtils;
+            map.put("msgname","用户名不能为空");   //告诉用户不能为空
+            return map;  //你是空，不能走下去，直接返回
+        }
+        if (StringUtils.isBlank(password)){
+            map.put("msgpsw","密码不能为空");   //告诉用户不能为空
+            return map;
+        }
+
+        User user = userDAO.selectByName(username); //在数据库中查找
+        if (user != null){
+            map.put("msgname","用户名已经被注册");
+            return map;
+        }
+
+        // 2）通过了你的验证，用户名、密码这些都符合要求，就注册
+        user = new User();
+        user.setName(username);
+        //会生成唯一的UUID，取前5位作为salt
+        user.setSalt(UUID.randomUUID().toString().substring(0,5));
+        user.setHeadUrl(String.format("http://images.nowcoder.com/head/%dm.png",new Random().nextInt(1000)));//随机给一个头像
+        user.setPassword(ToutiaoUtil.MD5(password + user.getSalt()));  //密码加上盐再用md5加密，这种工具类的，你可以专门写一个util工具类来
+
+        userDAO.addUser(user); //******** 往数据库加入用户
+
+        //登录，一般网站都是注册了马上登陆
+
+        return map;  //返回状态，正常加入里面应该是null
+    }
+
+    public User getUser(int id){
+        return userDAO.selectById(id);
+    }
+
+}
+
+```
+* 自己写的工具类 
+```java
+package com.nowcode.toutiao.util;
+
+import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.MessageDigest;
+import java.util.Map;
+
+public class ToutiaoUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ToutiaoUtil.class);
+
+
+    //用于数据怎么展示给前端看，返回json串，用alibaba.fastjson.
+    //告诉用户是否成功，0是正确，1是错误
+    public static String getJSONString(int code ){
+        JSONObject json = new JSONObject();
+        json.put("code", code);
+        return json.toJSONString();
+    }
+
+    //告诉用户是否成功，0是正确，1是错误,把map里面的每个字段都写在json里面
+    public static String getJSONString(int code , Map<String,Object> map ){
+        JSONObject json = new JSONObject();
+        json.put("code", code);
+        for(Map.Entry<String,Object> entry: map.entrySet()){
+            json.put(entry.getKey(),entry.getValue());
+        }
+        return json.toJSONString();
+    }
+
+    //我还可以返回一些消息
+    public static String getJSONString(int code, String msg) {
+        JSONObject json = new JSONObject();
+        json.put("code", code);
+        json.put("msg", msg);
+        return json.toJSONString();
+    }
+
+
+
+    //用于加密
+    public static String MD5(String key) {
+        char hexDigits[] = {
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+        };
+        try {
+            byte[] btInput = key.getBytes();
+            // 获得MD5摘要算法的 MessageDigest 对象
+            MessageDigest mdInst = MessageDigest.getInstance("MD5");
+            // 使用指定的字节更新摘要
+            mdInst.update(btInput);
+            // 获得密文
+            byte[] md = mdInst.digest();
+            // 把密文转换成十六进制的字符串形式
+            int j = md.length;
+            char str[] = new char[j * 2];
+            int k = 0;
+            for (int i = 0; i < j; i++) {
+                byte byte0 = md[i];
+                str[k++] = hexDigits[byte0 >>> 4 & 0xf];
+                str[k++] = hexDigits[byte0 & 0xf];
+            }
+            return new String(str);
+        } catch (Exception e) {
+            logger.error("生成MD5失败", e);
+            return null;
+        }
+    }
+}
+
+```
+## 4.2 登陆/登出（浏览器演示）
+### 4.2.1 登陆：
+#### 1.服务器密码校验/三方校验回调，token登记
+#### 1.1 服务器验证密码正确后，会生成一个token关联userid,下发token给客户端
+#### 1.2 客户端存储token(app存储本地，浏览器存储cookie),每次和服务器进行交互的时候就带上这个token，服务器就知道你是谁了
+#### 2.服务端/客户端token有效期设置（记住登陆）
+#### 注:token可以是sessionid【那么你浏览器不会有变化，只要你没关，都是这个sessionid】，或者是cookie里的一个key
+### 4.2.2 代码步骤：
+#### 1）登录就是把你的用户名，密码这些进行判断验证
+#### 2）验证成功了，就要给用户下发一个ticket【token】
+##### 2.1）在这里要数据库新创建一个 login_ticket 表【我这里的建法是在通过InitDatabaseTests，在测试的时候建的，一般我们写一个DAO都会测试一下有没有问题】 
+```java
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = ToutiaoApplication.class)
+@WebAppConfiguration
+@Sql({"/init-schema.sql"}) //在执行用例前先执行这份文件，创建数据库
+public class InitDatabaseTests {
+
+	@Autowired
+	UserDAO userDAO;  //
+
+
+	@Autowired
+	NewsDAO newsDAO;
+
+	@Autowired
+	LoginTicketDAO loginTicketDAO;
+
+	@Test
+	public void contextLoads() {
+		Random random=new Random();
+
+		for (int i=0; i<10 ;i++){ //创建10个用户
+			User user = new User();  //创建一了一个user对象，并且给它的属性赋值
+			user.setHeadUrl(String.format("http://images.nowcoder.com/head/%dt.png",random.nextInt(1000)));
+			user.setName(String.format("USER%d",i));
+			user.setPassword("");
+			user.setSalt("");
+			//插入用户，在userDAO里面定义有addUser，它就是用来往数据库插入用户的
+			userDAO.addUser(user);  //UserDAO这个接口是用来插入数据库的，里面定义了要执行的操作
+
+			//测试newsDAO,cahru
+			News news = new News();
+			news.setCommentCount(i);
+			//为了方便我们后面对资讯进行分页，所以设置每条资讯时间相隔5个小时1000毫秒*
+			Date date = new Date();
+			date.setTime(date.getTime()+1000*3600*5);
+			news.setCreatedDate(date);
+			news.setImage(String.format("http://images.nowcoder.com/head/%dm.png",random.nextInt(1000)));
+			news.setLikeCount(i+1);
+			news.setUserId(i+1);
+			news.setTitle(String.format("TITLE{%d}",i));
+			news.setLink(String.format("http://www.nowcoder.com/%d.html",i));//超链接，这条资讯跑到哪去了
+			newsDAO.addNews(news);
+
+
+
+			//在数据库根据ID跟新密码，在userDAO定义有这个函数
+			user.setPassword("newpassword");
+			userDAO.updatePassword(user); //把user的属性值更新到数据库中去\
+
+			//测试ticket
+			LoginTicket ticket = new LoginTicket();
+			ticket.setStatus(0);
+			ticket.setUserId(i+1);
+			ticket.setExpired(date);
+			ticket.setTicket(String.format("TICKET%d",i+1));
+			loginTicketDAO.addTicket(ticket); //插入一条ticket记录
+
+			loginTicketDAO.updateStatus(ticket.getTicket(),2); //更新它的状态
+
+		}
+		//在数据库查询id=1的用户的密码,因为这是一个测试用例，所以可以用Assert来帮助
+		Assert.assertEquals("newpassword", userDAO.selectById(1).getPassword());
+		userDAO.deleteById(1);//在数据库删除id为1的用户
+		Assert.assertNull("null",userDAO.selectById(1));
+
+		Assert.assertEquals(1,loginTicketDAO.selectByTicket("TICKET1").getUserId());
+		Assert.assertEquals(2,loginTicketDAO.selectByTicket("TICKET1").getStatus());
+	}
+
+}
+
+
+```
+##### 2.2）同时对应一个 LoginTicket的 model，
+##### 2.3）及LoginTicketDAO【插入ticket、查、更新状态】
+```java
+package com.nowcode.toutiao.dao;
+
+import com.nowcode.toutiao.model.LoginTicket;
+import com.nowcode.toutiao.model.User;
+import org.apache.ibatis.annotations.*;
+
+@Mapper  //表示我和数据库中的表是一一匹配的,然后写各种sql语句
+public interface LoginTicketDAO {
+    String TABLE_NAME="login_ticket";
+    String INSERT_FIELDS="user_id,expired,status,ticket";
+    String SELECT_FIELDS ="id,"+INSERT_FIELDS;
+    @Insert({"insert into",TABLE_NAME,"(",INSERT_FIELDS,")","values(#{userId},#{expired},#{status}," +
+            "#{ticket})"})
+    int addTicket(LoginTicket loginTicket);  //它自己会在LoginTicket里找这些属性
+
+    @Select({"select" ,SELECT_FIELDS,"from ",TABLE_NAME, "where ticket=#{ticket}"})
+    User selectByTicket(String  ticket);
+
+    @Update({"update",TABLE_NAME,"set status=#{status} where ticket=#{ticket}"})
+    void updateStatus(@Param("ticket") String ticket,@Param("status") String status);
+
+}
+
+```
+
+
+### 4.2.2 登出：把ticket对应的status设置为1，就表示这个无效了
+#### 1） 首先LoginController里进入登出的函数
+```java
+@Controller
+public class LoginController {
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(LoginController.class);
+    @Autowired
+    UserService userService;
+
+    //注册只要你给我提交用户名和密码即可
+    @RequestMapping(path={"/reg/"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String reg(Model model, @RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam(value = "remenber",defaultValue = "0") int rememberme,
+                      HttpServletResponse response) {//即是否记住登录
+        try {
+            Map<String ,Object>  map = userService.register(username,password);
+            if(map.containsKey("ticket")){  //注册成功会下发一个ticket ,要把这个ticket放到cookie里面去
+                Cookie cookie = new Cookie("ticket",map.get("ticket").toString());
+                if(rememberme > 0){
+                    cookie.setMaxAge(3600*24*5); //如果用户说要remember，那么时间应该设置长一些,如果不写，则默认浏览器关闭后就没有了
+                }
+                cookie.setPath("/");  //设置这个cookie的路径是全站有效的
+                response.addCookie(cookie);
+                return ToutiaoUtil.getJSONString(0,"注册成功");
+            }else {
+                return ToutiaoUtil.getJSONString(1,map);
+            }
+
+        }catch (Exception e){
+            logger.error("注册异常"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"注册异常");
+        }
+    }
+
+
+    //登陆
+    @RequestMapping(path={"/login/"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String login(Model model, @RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam(value = "remenber",defaultValue = "0") int rememberme) {//即是否记住登录
+        try {
+            Map<String ,Object>  map = userService.register(username,password);
+            if(map.containsKey("ticket")){  //登陆成功会下发一个ticket
+                return ToutiaoUtil.getJSONString(0,map);
+            }else {
+                return ToutiaoUtil.getJSONString(1,map);
+            }
+
+        }catch (Exception e){
+            logger.error("注册异常"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"注册异常");
+        }
+    }
+
+
+    //登出
+    @RequestMapping(path={"/logout/"},method = {RequestMethod.GET,RequestMethod.POST})
+    //要去掉 @ResponseBody，不然返回会被当成字符串
+    public String logout(@CookieValue("ticket") String ticket){
+        userService.logout(ticket);  //把ticket对应的status过期掉就是登出了，无效了
+        return "redirect:/";  //登出后自动跳转到首页
+    }
+}
+
+```
+#### 2） 其次，userService里写一个logout函数
+```java
+@Service
+public class UserService {
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private LoginTicketDAO loginTicketDAO;
+
+    //注册
+    public Map<String,Object> register(String username, String password){
+        Map<String,Object> map = new HashMap<>();
+
+        // 1）先进行一些判断，再决定要不要加，然后把信息返回到前台（controller）
+        //前端也会做这些验证，但后端也要做，因为很多人攻击并不是通过网页来的，而是直接post等
+        if (StringUtils.isBlank(username)){  //StringUtils是比较好用的一个类org.apache.commons.lang.StringUtils;
+            map.put("msgname","用户名不能为空");   //告诉用户不能为空
+            return map;  //你是空，不能走下去，直接返回
+        }
+        if (StringUtils.isBlank(password)){
+            map.put("msgpsw","密码不能为空");   //告诉用户不能为空
+            return map;
+        }
+
+        User user = userDAO.selectByName(username); //在数据库中查找
+        if (user != null){
+            map.put("msgname","用户名已经被注册");
+            return map;
+        }
+
+        // 2）通过了你的验证，用户名、密码这些都符合要求，就注册
+        user = new User();
+        user.setName(username);
+        //会生成唯一的UUID，取前5位作为salt
+        user.setSalt(UUID.randomUUID().toString().substring(0,5));
+        user.setHeadUrl(String.format("http://images.nowcoder.com/head/%dm.png",new Random().nextInt(1000)));//随机给一个头像
+        user.setPassword(ToutiaoUtil.MD5(password + user.getSalt()));  //密码加上盐再用md5加密，这种工具类的，你可以专门写一个util工具类来
+
+        userDAO.addUser(user); //******** 往数据库加入用户
+
+        //登录，一般网站都是注册了马上登陆
+        String ticket = addLoginTicket(user.getId()); //给这个user下发一个ticket
+        map.put("ticket",ticket);
+
+        return map;  //返回状态，正常加入里面应该是null
+    }
+
+    //登陆
+    public Map<String,Object> login(String username, String password){
+        Map<String,Object> map = new HashMap<>();
+
+        // 1）登录就是把你的用户名，密码这些进行判断验证
+        if (StringUtils.isBlank(username)){
+            map.put("msgname","用户名不能为空");   //告诉用户不能为空
+            return map;
+        }
+        if (StringUtils.isBlank(password)){
+            map.put("msgpsw","密码不能为空");   //告诉用户不能为空
+            return map;
+        }
+
+        User user = userDAO.selectByName(username); //在数据库中查找
+        if (user == null){
+            map.put("msgname","用户名不存在"); //*** 差别
+            return map;
+        }
+        //用户存在，就开始验证密码
+        if(!ToutiaoUtil.MD5(password+user.getSalt()).equals(user.getPassword())){//不等于说明这个密码有问题
+            map.put("msgpwd","密码不正确");
+            return map;
+        }
+
+        // 2) 验证成功了，就要给用户下发一个ticket【token】
+        String ticket = addLoginTicket(user.getId()); //给这个user配套一个ticket
+        map.put("ticket",ticket);
+
+        return map;  //返回状态，正常加入里面应该是null
+    }
+
+    private String addLoginTicket(int userId){
+        LoginTicket ticket = new LoginTicket();
+        ticket.setUserId(userId);
+        Date date = new Date();
+        date.setTime(date.getTime() + 1000*3600*24); //24小时后
+        ticket.setExpired(date);
+        ticket.setStatus(0);
+        ticket.setTicket(UUID.randomUUID().toString().replaceAll("-",""));//UUID可能有—，所以替换掉就成为了纯字符
+        loginTicketDAO.addTicket(ticket);
+        return ticket.getTicket();
+    }
+
+    //登出
+    public void logout(String ticket){
+        loginTicketDAO.updateStatus(ticket,1);  //把状态改为1 ，说明过期了
+    }
+
+
+    public User getUser(int id){
+        return userDAO.selectById(id);
+    }
+
+}
+
+```
+
+
+
 ## 4.3 浏览
-## 4.4 Interceptor
-## 4.5 未登录跳转
-## 4.6 数据安全性
-## 4.7 AJAX
-## 4.8 DEV-TOOL
+### 4.3.1 整体步骤：
+#### 1.客户端：带token【也就是ticket】的HTTP请求
+#### 2.服务端：【用户是否登陆、用户有无权限】
+##### 1).根据token获取用户id
+##### 2).根据用户id获取用户的具体信息
+##### 3).用户和页面访问权限处理
+##### 4).渲染页面/跳转页面【成功就渲染、不成功就跳转到非法页面】
+## 4.3.2 Interceptor(拦截器)：可以拦截你整个链路上的各个步骤
+### 1）preHandle：用于处理前，一般在preHandle里判断权限
+### 2）postHandle：用于处理完后，一般在PostHandle里设置一些数据
+### 3）afterCompletion：用于全体结束后， 一般用于收尾工作
+
+```java
+public class PassportInterceptorimplements HandlerInterceptor{
+//处理前，一般在preHandle里判断权限
+boolean preHandle(HttpServletRequestvar1, HttpServletResponsevar2,Object var3) throws Exception;
+//处理完后，一般在PostHandle里设置一些数据
+void postHandle(HttpServletRequestvar1, HttpServletResponsevar2, Object var3,ModelAndView var4) throws Exception;
+//全体结束
+void afterCompletion(HttpServletRequestvar1, HttpServletResponsevar2,Object var3, Exception var4) throws Exception;
+}
+```
+
+### 代码演示
+#### 1）创建一个拦截器PassportInterceptor：每次访问之前，拦截器先插进来先找这个用户
+* 根据用户传入的 ticket 来处理,创建一个Interceptor包，再建一个 PassportInterceptor 类。
+```java
+@Component
+public class PassportInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private LoginTicketDAO loginTicketDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private HostHolder hostHolder;
+
+    @Override
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+        String ticket = null;
+        // 遍历传入的cookie里面是否有ticket字段
+        if(httpServletRequest.getCookies() != null){
+            for(Cookie cookie: httpServletRequest.getCookies()){
+                if(cookie.getName().equals("ticket")){
+                    ticket = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if(ticket !=null){ //说明找到了
+            LoginTicket loginTicket = loginTicketDAO.selectByTicket(ticket);
+            // 1）判断这个ticket是否是真的存在，有效期过期没，以及这个ticket是否还有效
+            if (loginTicket == null || loginTicket.getExpired().before(new Date()) || loginTicket.getStatus() !=0){
+                return true;
+            }
+
+            // 2）通过上方的验证，那么我知道你是谁了,我就要把你记录下来，
+            // ****存在本地线程里面，因为我要随时知道当前调用我这个线程的人是谁
+            User user = userDAO.selectById(loginTicket.getUserId());
+            hostHolder.setUser(user);  //把用户临时存起来，存在线程里 ThreadLocal
+
+        }
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
+        //3）好处：这是在渲染之前，我把用户存进来，那么我在模板上就能直接用 user
+        if(modelAndView != null && hostHolder.getUser()!= null){
+            modelAndView.addObject("user",hostHolder.getUser());
+        }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+        hostHolder.clear();   //做收尾工作，把这个线程对应的用户清理掉
+    }
+}
+
+```
+
+#### 2）在model里创建一个HostHolder 类，用于存放这一次访问里面的用户是谁 【不同线程有自己的用户】
+```java
+@Component
+public class HostHolder {  //用于存当前的用户是谁
+
+    //每条线程存取它自己的东西【因为有很多人在访问，但只有一个component，所以应该存在自己的线程里】
+    private static ThreadLocal<User> users = new ThreadLocal<User>();
+
+    public User getUser(){
+        users.get();
+    } //提取出来
+
+    public void setUser(User user){
+        users.set(user);
+    }  //存进来
+
+    public void clear(){
+        users.remove();  //把存的这个用户删除掉
+    }
+}
+
+```
+* modelAndView.addObject("user",hostHolder.getUser());之后就能在模板上直接用user.我的所有html页面上都能直接用这个变量
+```html
+<!--如果这个用户存在，我就显示用户的名字，如果不存在，我就显示登陆-->
+       <ul class="nav navbar-nav navbar-right">
+                <li class=""><a href="http://nowcoder.com/explore">发现</a></li>
+
+                #if ($user)
+                <li class="js-login"><a href="javascript:void(0);">$!{user.name}</a></li>
+                #else
+                <li class="js-login"><a href="javascript:void(0);">登陆</a></li>
+                #end
+            </ul>
+```
+#### 3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类
+```java
+//你可以继承某些类，能帮你初始化某些配置
+@Component
+public class ToutiaoWebConfiguration extends WebMvcConfigurerAdapter {
+    @Autowired
+    PassportInterceptor passportInterceptor;
 
 
+    @Override
+    public void addInterceptors(InterceptorRegistry registry){
+        registry.addInterceptor(passportInterceptor);  //我写的拦截器注册进来了
+        super.addInterceptors(registry);
+    }
+}
+
+```
+
+## 4.4 权限的认证：某个页面要登陆了才能访问，未登录就跳转到首页去
+* 再弄一个拦截器，然后这些页面全部都要做一个登陆的判断
+```java
+@Component
+public class LoginRequiredInterceptor implements HandlerInterceptor {
+    @Autowired
+    private HostHolder hostHolder;
+
+    @Override
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+       if(hostHolder.getUser() == null){ //说明没登录，那你就没权限访问/setting开头的页面
+           httpServletResponse.sendRedirect("/?pop=1");//这是写的前端，会跳出首页登陆框
+           return false;  //返回false，那么后面的postHandle这些都不会执行了
+       }
+       return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
+
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+
+    }
+}
+
+```
+
+* 在HomeController中
+```java
+@Controller
+public class HomeController {
+    @Autowired
+    NewsService newsService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    HostHolder hostHolder;
+
+    private List<ViewObject> getNews(int userId, int offset, int limmit){
+        //取前10条新闻数据
+        List<News> newsList= newsService.getLatesNews(userId,offset,limmit);
+
+        List<ViewObject> vos = new ArrayList<>();
+        for (News news: newsList){
+            ViewObject vo=new ViewObject();
+            vo.set("news",news);//vo就是一个map,通过“news”字段就可以得到news
+            vo.set("user",userService.getUser(news.getUserId())); //这条资讯对应的作者
+            vos.add(vo);
+        }
+        return vos;
+    }
+    //用于获得资讯那一页的模板
+    @RequestMapping(path={"/","/index"},method = {RequestMethod.GET,RequestMethod.POST})
+    public String index(Model model){
+        //把Vos传到home.html
+        model.addAttribute("vos",getNews(0,0,10));// 这样，到了home.html就可以通过news字段访问news，通过user字段访问user
+        return "home";
+    }
+
+
+    //用于获得用户那一页的模板
+    @RequestMapping(path={"/user/{userId}"},method = {RequestMethod.GET,RequestMethod.POST})
+    public String userIndex(Model model, @PathVariable("userId" ) int userId,
+                            @RequestParam(value = "pop",defaultValue = "0") int pop){ //pop默认为0，不跳出登陆页面
+        //把Vos传到home.html
+        model.addAttribute("vos",getNews(userId,0,10));// 这样，到了home.html就可以通过news字段访问news，通过user字段访问user
+        model.addAttribute("pop",pop);
+        return "home";
+
+    }
+}
+```
+## 4.5 为了用户数据安全，我们要做的事：
+### 1.HTTPS注册页：网页访问http是明文的，https是加密的
+### 2.公钥加密私钥解密，支付宝h5页面的支付密码加密：用户打开页面时，服务器下发一个公钥，你会用这个公钥对数据加密，加密后再提交到服务器，只有服务器又私钥可以解密
+### 3.用户密码salt防止破解（CSDN，网易邮箱未加密密码泄漏）
+### 4.token有效期：保证这个token不会被别人占用
+### 5.单一平台的单点登陆，登陆IP异常检验：别人登陆你就下线，你再登陆一下，会显示上次登陆的IP区域
+### 6.用户状态的权限判断【用拦截器做的】
+### 7.添加验证码机制，防止爆破和批量注册：比如修改密码，一般手机验证码4位，写个程序一下子发0-9999，那肯定就有一个对的，所以输入一次或几次失败后，你要做校验
+
+## 4.6 AJAX：异步数据交互
+### 优点：
+#### 1.页面不刷新，只是局部刷新
+#### 2.用户体验更好
+#### 3.传输数据更少
+#### 4.APP/网站通用，因为就是一些数据
+#### 扩展：有统一的数据格式：{code:0,msg:'',data:''}
+* 例子：牛客投递登录框，点赞登录框
+## 4.7 Spring Boot DevTools：方便开发
+* 如果不用的话，你改了一个小地方，要重启才可以，有了这个就不用
+* 在pom.xml中加入：
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <version>1.3.5.RELEASE</version>
+</dependency>
+
+```
+### 1）动态加载更新的class【比如修改了userService，你只需要（右键recompile）userService即可】：不是整体重启，只是这个类重启
+### 2）编译加载修改的静态文件【比如html文件，修改后只需要重新编译该文件即可（右键recompile）】
+
+## 附录：
+### 1）StringUtils：是比较好用的一个类org.apache.commons.lang.StringUtils; 可以直接判断字符串，比如StringUtils.isBlank(password）
+### 2) fastjson：阿里巴巴的一个用于json的工具，下载地址https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools/1.3.5.RELEASE【你所需要的各种库，这里都有，你直接导入就好：在 pom.xml 中】
+```xml
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.13</version>
+		</dependency>
+```
 
 
 
