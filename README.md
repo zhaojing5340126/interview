@@ -3,9 +3,14 @@
 | :--------: | :---------: | :---------: | :---------: | :---------: | :---------:| :---------: | :-------: | :-------:| :------:|
 | 算法[:pencil2:](#算法-pencil2) | 操作系统[:computer:](#操作系统-computer)|网络[:cloud:](#网络-cloud) | 面向对象[:couple:](#面向对象-couple) |数据库[:floppy_disk:](#数据库-floppy_disk)| Java [:coffee:](#java-coffee)| 分布式[:sweat_drops:](#分布式-sweat_drops)| 工具[:hammer:](#工具-hammer)| 编码实践[:speak_no_evil:](#编码实践-speak_no_evil)| 面试[:memo:](#面试-memo) |
 
+## 面试 :memo:
+- [自己的小问题](https://github.com/zhaojing5340126/interview/blob/master/problem.md)
+- [JVM 常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewJVM.md)
+- [java 面试常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewReady.md)
 
 ## 算法 :pencil2:
 - [算法笔记](https://github.com/zhaojing5340126/interview/blob/Niuke_class/Niuke_class.md)
+- [剑指offer 题选](https://github.com/zhaojing5340126/interview/blob/Niuke_class/myoffer66.md)
 
 来自牛客课程
 
@@ -40,10 +45,9 @@
 
 ## 工具 :hammer:
 - [git](https://github.com/zhaojing5340126/interview/blob/master/github.md)
-
+- [Spring笔记](https://github.com/zhaojing5340126/interview/blob/Niuke_class/spring.md)
 
 ## 编码实践 :speak_no_evil:
 - [牛客中级项目课笔记](https://github.com/zhaojing5340126/interview/blob/Niuke_class/notebook.md)
 
-## 面试 :memo:
-- [自己的小问题](https://github.com/zhaojing5340126/interview/blob/master/problem.md)
+
