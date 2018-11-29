@@ -488,18 +488,63 @@ public class SmallSum {
 }
 ```
    * 逆序对问题
-        ```
-        问题：
-        在一个数组中，左边的数如果比右边的数大，则折两个数构成一个逆序对，请打印所有逆序对。
-        ```
-     * 原理：实质就是对每个数找右边有多少个数比它小，(可能maybe,没有验证过）是在小和那里改为：<br>
+ 
+    * 【问题描述】：在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组,求出这个数组中的逆序对的总数P。并将P对1000000007取模的结果输出。 即输出P%1000000007
+
+     * 原理：实质就是对右边的每个数找左边有多少个数比它大，在小和那里改为<br>
+```java
+        while(p1<=mid && p2<=r){
+            res+= (arr[p1] > arr[p2])?(mid-p1+1):0;
+            if(res>=1000000007){  //**需要有,防止数值过大
+                res %=1000000007;
+            }
+            help[i++]= (arr[p1]<=arr[p2])?arr[p1++]:arr[p2++];
+        }
+```
     
-    ```Java
-    if(arr[p1]>arr[p2]){
-      for(int t=p1;t<=mid;t++)
-      System.out.printf("(%d ,%d)",arr[t],arr[p2])
+```java
+public class Solution {
+    public int InversePairs(int [] arr) {
+        if(arr == null || arr.length <2)
+            return 0;
+        return mergeSort(arr,0,arr.length-1);
     }
-    ```
+    
+    private int mergeSort(int[] arr,int l,int r){
+        if(l == r)
+            return 0;
+        int mid = l+((r-l)>>1);
+        //数值过大，求余
+        return (mergeSort(arr,l,mid)+mergeSort(arr,mid+1,r)+merge(arr,l,mid,r))%1000000007;
+    }
+    
+    private int merge(int[] arr,int l ,int mid,int r){
+        int p1=l;
+        int p2=mid+1;
+        int[] help = new int[r-l+1];
+        int i=0;
+        int res = 0;
+        while(p1<=mid && p2<=r){
+            res+= (arr[p1] > arr[p2])?(mid-p1+1):0;
+            if(res>=1000000007){  //**需要有,防止数值过大
+                res %=1000000007;
+            }
+            help[i++]= (arr[p1]<=arr[p2])?arr[p1++]:arr[p2++];
+        }
+        
+        while(p1<=mid){
+           help[i++] = arr[p1++];
+       }
+        while(p2<=r){
+            help[i++] = arr[p2++];
+        }
+        for(i=0; i< help.length; i++){
+            arr[l+i] = help[i];
+        }
+        return res;
+    }
+}
+```
     
 # 二、复杂度估计和排序算法（下）
 

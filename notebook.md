@@ -104,6 +104,53 @@
     - [附录：](#附录)
         - [1）StringUtils：是比较好用的一个类org.apache.commons.lang.StringUtils; 可以直接判断字符串，比如StringUtils.isBlank(password）](#1stringutils是比较好用的一个类orgapachecommonslangstringutils-可以直接判断字符串比如stringutilsisblankpassword)
         - [2) fastjson：阿里巴巴的一个用于json的工具，下载地址https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools/1.3.5.RELEASE【你所需要的各种库，这里都有，你直接导入就好：在 pom.xml 中】](#2-fastjson阿里巴巴的一个用于json的工具下载地址httpsmvnrepositorycomartifactorgspringframeworkbootspring-boot-devtools135release你所需要的各种库这里都有你直接导入就好在-pomxml-中)
+- [第五周 资讯发布、图片上传、资讯首页](#第五周-资讯发布图片上传资讯首页)
+    - [5.1 图片上传到云](#51-图片上传到云)
+        - [5.1.1 Fiddler：设置了一个代理，我访问某个网站，实际通过它，让它帮我访问，于是它就捕获了所有的数据。用于web编程查看http。](#511-fiddler设置了一个代理我访问某个网站实际通过它让它帮我访问于是它就捕获了所有的数据用于web编程查看http)
+        - [5.1.2 代码步骤：定义一个post的入口，spring会帮你把上传的数据那部分包装成为一个file，然后你判断是不是一张图片，是就存储它](#512-代码步骤定义一个post的入口spring会帮你把上传的数据那部分包装成为一个file然后你判断是不是一张图片是就存储它)
+            - [1） 为方便，先加一个NewsController,用于上传图片  【客户端图片传上来后我保存在本地】](#1-为方便先加一个newscontroller用于上传图片--客户端图片传上来后我保存在本地)
+        - [2）newsService要增加一个保存图片的方法 saveImage](#2newsservice要增加一个保存图片的方法-saveimage)
+        - [附录：](#附录-1)
+    - [5.2 图片的展示](#52-图片的展示)
+        - [5.2.1 代码-在 NewsController 中【客户端输入图片的链接，你解析它，返回图片】](#521-代码-在-newscontroller-中客户端输入图片的链接你解析它返回图片)
+    - [5.3 七牛云服务集成：冗余备份，多台机器统一访问，CDN缓存同步，云实时缩图](#53-七牛云服务集成冗余备份多台机器统一访问cdn缓存同步云实时缩图)
+        - [5.3.1 到了网站开发后面，静态（图片这些）和页面是分离的，图片没有数据库这些【因为它只是一些文件，需要读取这些】，一般存放在云中](#531-到了网站开发后面静态图片这些和页面是分离的图片没有数据库这些因为它只是一些文件需要读取这些一般存放在云中)
+        - [5.3.2 【好处】：](#532-好处)
+            - [1）这些服务器能专门做一些缓存，对静态的优化；网站发布就只需要发布你动态的内容即可](#1这些服务器能专门做一些缓存对静态的优化网站发布就只需要发布你动态的内容即可)
+            - [2）前端的文件和后端不一样，在前端，如果全国都在访问的话，是需要加缓存的，即CDN,CDN把静态分发给各个CDN节点,那么你获得静态文件的速度会更快](#2前端的文件和后端不一样在前端如果全国都在访问的话是需要加缓存的即cdncdn把静态分发给各个cdn节点那么你获得静态文件的速度会更快)
+            - [3) 为什么用云存储：一张图片可能在不同的地方要用，小图片，中图片，大图片，以前是把这张图片裁擦成这些大小，都存起来，坏处：有些图片上传上来根本没人用。所以现在用实时缩图服务，不会影响服务器存储的空间，合理应对产品需求随时要改这些，用的时候才对图片进行调整](#3-为什么用云存储一张图片可能在不同的地方要用小图片中图片大图片以前是把这张图片裁擦成这些大小都存起来坏处有些图片上传上来根本没人用所以现在用实时缩图服务不会影响服务器存储的空间合理应对产品需求随时要改这些用的时候才对图片进行调整)
+        - [5.3.2 代码步骤：](#532-代码步骤)
+    - [5.4 资讯发布 【在数据库要用utf8，在application.properties里也要指定utf8，防止中文出错】](#54-资讯发布-在数据库要用utf8在applicationproperties里也要指定utf8防止中文出错)
+- [第六周 资讯详情页、评论中心、站内信](#第六周-资讯详情页评论中心站内信)
+    - [6.1 通用的新模块开发流程总体步骤都是一样的：](#61-通用的新模块开发流程总体步骤都是一样的)
+        - [1) 从数据库设计开始 Database Column](#1-从数据库设计开始-database-column)
+        - [2）Model：模型定义，和数据库相匹配](#2model模型定义和数据库相匹配)
+        - [3）DAO：数据读取](#3dao数据读取)
+        - [4）Service：服务包装](#4service服务包装)
+        - [5) Controller：业务入口](#5-controller业务入口)
+        - [6) Test](#6-test)
+    - [6.2 资讯详情页（代码演示）](#62-资讯详情页代码演示)
+        - [6.2.1 步骤：](#621-步骤)
+            - [1）一般先找到前端给你的页面，分析这个页面上有多少东西](#1一般先找到前端给你的页面分析这个页面上有多少东西)
+            - [2） 到 NewsController 层里面把这些数据传给模板，再对模板文件做一些替换](#2-到-newscontroller-层里面把这些数据传给模板再对模板文件做一些替换)
+    - [6.3评论中心（代码演示）](#63评论中心代码演示)
+        - [6.3.1 代码一：展示已有评论的步骤：](#631-代码一展示已有评论的步骤)
+            - [1）确定这个服务存放在数据库里面需要哪些表，字段是哪些。--自己在数据库里创建，或者放在.sql文件中，然后创建一个测试](#1确定这个服务存放在数据库里面需要哪些表字段是哪些--自己在数据库里创建或者放在sql文件中然后创建一个测试)
+            - [2）Model：定义模型，和数据库相匹配--Comment,不需要注解](#2model定义模型和数据库相匹配--comment不需要注解)
+            - [3）DAO：定义数据库的访问模型 -@Mapper](#3dao定义数据库的访问模型--mapper)
+            - [4）Service：服务包装，去调用DAO层，做一些复杂些的业务](#4service服务包装去调用dao层做一些复杂些的业务)
+            - [5）Controller：业务入口：添加评论，删除评论](#5controller业务入口添加评论删除评论)
+            - [6）测试一下 ：Fn+delete：从左往右删除](#6测试一下-fndelete从左往右删除)
+        - [6.3.2 增加评论的代码](#632-增加评论的代码)
+        - [6.3.3 删除评论](#633-删除评论)
+    - [6.4 消息中心（代码演示）](#64-消息中心代码演示)
+        - [6.4.1 代码一：消息详情页](#641-代码一消息详情页)
+            - [1）确定这个服务存放在数据库里面需要哪些表，字段是哪些。--自己在数据库里创建，或者放在.sql文件中，然后创建一个测试](#1确定这个服务存放在数据库里面需要哪些表字段是哪些--自己在数据库里创建或者放在sql文件中然后创建一个测试-1)
+            - [2）Model：定义模型，和数据库相匹配--Message,不需要注解](#2model定义模型和数据库相匹配--message不需要注解)
+            - [3）DAO：定义数据库的访问模型 -@Mapper ————MessageDAO](#3dao定义数据库的访问模型--mapper-messagedao)
+            - [4）Service：服务包装，去调用DAO层，做一些复杂些的业务 ————MessageService](#4service服务包装去调用dao层做一些复杂些的业务-messageservice)
+            - [5）Controller：业务入口：增加消息，显示消息详情页--MessageController](#5controller业务入口增加消息显示消息详情页--messagecontroller)
+        - [6.4.2 代码二：会话页【你与所有人的会话都显示最新的一条作为代表】](#642-代码二会话页你与所有人的会话都显示最新的一条作为代表)
     - [问题：](#问题)
 
 <!-- /TOC -->
@@ -1742,6 +1789,617 @@ public class HomeController {
 		</dependency>
 ```
 
+# 第五周 资讯发布、图片上传、资讯首页
+## 5.1 图片上传到云
+### 5.1.1 Fiddler：设置了一个代理，我访问某个网站，实际通过它，让它帮我访问，于是它就捕获了所有的数据。用于web编程查看http。
+* 通过filter可以设置监控哪个网站
+### 5.1.2 代码步骤：定义一个post的入口，spring会帮你把上传的数据那部分包装成为一个file，然后你判断是不是一张图片，是就存储它
+#### 1） 为方便，先加一个NewsController,用于上传图片  【客户端图片传上来后我保存在本地】
+```java
+@Controller
+public class NewsController {
+    private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
+
+    @Autowired
+    private NewsService newsService;
+
+    @RequestMapping(path = {"/uploadImage/"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public String uploadImage(@RequestParam("file") MultipartFile file){ //"file"这个是请求传上来的参数，就是那张图片，以二进制流的形式给file
+        //把这个图片保存到本地
+        try{
+            String fileUrl = newsService.saveImage(file); //***** 保存图片
+            if(fileUrl != null){
+                return ToutiaoUtil.getJSONString(1,"上传图片失败");
+            }
+            return ToutiaoUtil.getJSONString(0,fileUrl); //图片已经存在本地了，可以通过这个链接访问这张图片
+
+        }catch (Exception e){
+            logger.error("上传图片失败" + e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"上传失败");
+        }
+    }
+}
+
+```
+### 2）newsService要增加一个保存图片的方法 saveImage
+```java
+@Service
+public class NewsService {
+    @Autowired
+    private NewsDAO newsDAO;
+
+    //执行你在NewsDAO里定义的方法，将最新的资讯读取出来
+    public List<News> getLatesNews(int userId,int offser,int limit){
+        return newsDAO.selectByUserIdAndOffset(userId,offser,limit);
+    }
+
+
+    //把图片保存到本地，如果成功就返回地址
+    public String saveImage(MultipartFile file) throws IOException{
+        // 1) 判断这是不是一张图片，通过判断文件后缀名来判断
+        int dotPos = file.getOriginalFilename().lastIndexOf(".");  //'.'所在的位置
+        if(dotPos < 0 ){
+            return null;   //文件没有后缀名，不是图片
+        }
+        String fileExt = file.getOriginalFilename().substring(dotPos+1); //得到文件的扩展名
+        if(!ToutiaoUtil.isFileAllowed(fileExt)){ //判断后缀名是否符合
+            return null;
+        }
+
+        // 2) 格式都符合了，那么就把图片放到本地的某个目录C:/Users/Administrator/Desktop/upload/
+        String fileName = UUID.randomUUID().toString().replaceAll("-","")+"."+fileExt;  //随机给这个图片一个名字，防止一些图片名字不合法
+        Files.copy(file.getInputStream(), new File(ToutiaoUtil.IMAGE_DIR + fileName).toPath(),
+                StandardCopyOption.REPLACE_EXISTING);//把传入的二进制流复制到我的目标位置，如果之前存在就覆盖它
+        return ToutiaoUtil.TOUTIAO_DOMAIN + "image?name=" +fileName;  //这个是访问这张图片的链接，给前端用的
+    }
+
+}
+```
+### 附录：
+* http的post请求，是通过header里面的boundary=--------------------------285921431169007254259877来区分你一次性上传的多个图片【字符是随机生成的】
+```
+POST http://127.0.0.1:8080/uploadImage/ HTTP/1.1
+cache-control: no-cache
+Postman-Token: b7884754-5277-473b-aa6f-32620c544a71
+User-Agent: PostmanRuntime/7.4.0
+Accept: */*
+Host: 127.0.0.1:8080
+accept-encoding: gzip, deflate
+content-type: multipart/form-data; boundary=--------------------------285921431169007254259877
+content-length: 36332
+Connection: keep-alive
+
+----------------------------285921431169007254259877
+Content-Disposition: form-data; name="file"; filename="2.jpg"
+Content-Type: image/jpeg
+
+     JFIF         C     		
+
+----------------------------285921431169007254259877
+
+```
+* ping 的作用是测试你到某一个ip之间的网络是否通畅。
+
+## 5.2 图片的展示 
+### 5.2.1 代码-在 NewsController 中【客户端输入图片的链接，你解析它，返回图片】
+```java
+    //用于客户端请求图片【客户端传过来图片的链接，我解析它】http://127.0.0.1:8080/image?name=b8bd7fce8ce542d69a774b366e682dc1.jpg
+    @RequestMapping(path = {"/image"},method = {RequestMethod.GET})
+    @ResponseBody //因为图片是二进制流，所以我们要有responde
+    public void getImage(@RequestParam("name") String imageName,
+                         HttpServletResponse response){
+        try {
+            response.setContentType("image/jpeg");
+            StreamUtils.copy( new FileInputStream(ToutiaoUtil.IMAGE_DIR + imageName),
+                    response.getOutputStream()); //根据文件名把该文件通过二进制流的形式读取到response中
+        }catch (Exception e){
+            logger.error("读取图片错误"+ e.getMessage());
+        }
+
+
+    }
+
+```
+
+## 5.3 七牛云服务集成：冗余备份，多台机器统一访问，CDN缓存同步，云实时缩图
+### 5.3.1 到了网站开发后面，静态（图片这些）和页面是分离的，图片没有数据库这些【因为它只是一些文件，需要读取这些】，一般存放在云中
+### 5.3.2 【好处】：
+#### 1）这些服务器能专门做一些缓存，对静态的优化；网站发布就只需要发布你动态的内容即可
+#### 2）前端的文件和后端不一样，在前端，如果全国都在访问的话，是需要加缓存的，即CDN,CDN把静态分发给各个CDN节点,那么你获得静态文件的速度会更快
+* CDN的全称是Content Delivery Network，即内容分发网络。CDN的基本原理是广泛采用各种缓存服务器，将这些缓存服务器分布到用户访问相对集中的地区或网络中，在用户访问网站时，利用全局负载技术将用户的访问指向距离最近的工作正常的缓存服务器上，由缓存服务器直接响应用户请求。那么你获得静态文件的速度会更快
+#### 3) 为什么用云存储：一张图片可能在不同的地方要用，小图片，中图片，大图片，以前是把这张图片裁擦成这些大小，都存起来，坏处：有些图片上传上来根本没人用。所以现在用实时缩图服务，不会影响服务器存储的空间，合理应对产品需求随时要改这些，用的时候才对图片进行调整
+### 5.3.2 代码步骤：
+* 1）把七牛导入pom.xml，因为七牛是一个独立的服务，所以最好建一个QiNiuService，那么以后只要接口一样，你换成阿里云这些也可以。然后从七牛网站上拷贝代码
+```java
+@Service
+public class QiniuService {
+    private static final Logger logger = LoggerFactory.getLogger(QiniuService.class);
+
+    //构造一个带指定Zone对象的配置类 zone2()表示华南地区【我自己选的华南，在七牛上】
+    Configuration cfg = new Configuration(Zone.zone2());
+    //设置好账号的ACCESS_KEY和SECRET_KEY
+    String ACCESS_KEY = "UzUnZKh6-vUr6WkdEqlfWfZdSeUVgt9cI5xEMK-V";
+    String SECRET_KEY = "BjfNYpzE5r28Zb1mVnJsgI4_pMqZhxYAlsya2V3d";
+    //要上传的空间
+    String bucketname = "nowcoder";
+
+    //密钥配置
+    Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+    //创建上传对象
+    UploadManager uploadManager = new UploadManager(cfg);
+
+    private static String QINIU_IMAGE_DOMAIN = "http://pih7ef369.bkt.clouddn.com/"; //要加'/'，这是七牛云你存放对象nowcoder的外链接
+
+    //简单上传，使用默认策略，只需要设置上传的空间名就可以了，返回图片的链接
+    public String getUpToken() {
+        return auth.uploadToken(bucketname);
+    }
+
+   //**** 1）把图片上传到七牛云，并返回图片名字
+    public String saveImage(MultipartFile file) throws IOException {
+        try {
+            int dotPos = file.getOriginalFilename().lastIndexOf(".");
+            if (dotPos < 0) {
+                return null;
+            }
+            String fileExt = file.getOriginalFilename().substring(dotPos + 1).toLowerCase();
+            if (!ToutiaoUtil.isFileAllowed(fileExt)) {
+                return null;
+            }
+
+            String fileName = UUID.randomUUID().toString().replaceAll("-", "") + "." + fileExt;
+            //调用put方法上传,file就是文件，fileName就是我们要保存的文件名
+            Response res = uploadManager.put(file.getBytes(), fileName, getUpToken());
+            //打印返回的信息
+            if (res.isOK() && res.isJson()) {
+                return QINIU_IMAGE_DOMAIN + JSONObject.parseObject(res.bodyString()).get("key"); //七牛的返回是一个哈希值和图片名字【key】
+            } else {
+                logger.error("七牛异常:" + res.bodyString());
+                return null;
+            }
+        } catch (QiniuException e) {
+            // 请求失败时打印的异常的信息
+            logger.error("七牛异常:" + e.getMessage());
+            return null;
+        }
+    }
+
+}
+```
+* 2）然后在NewsController 里调用它即可
+```java
+@Controller
+public class NewsController {
+    private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
+
+    @Autowired
+    private NewsService newsService;
+
+    @Autowired
+    private QiniuService qiniuService;
+
+    //用于客户端上传图片，我保存它【到本地或者到七牛云】并返回它的链接：比如： http://127.0.0.1:8080/image?name=b8bd7fce8ce542d69a774b366e682dc1.jpg【本地】
+    //http://pih7ef369.bkt.clouddn.com/49aedd99672e4fc19b79bddca368e4f8.jpg【七牛云】
+    @RequestMapping(path = {"/uploadImage/"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public String uploadImage(@RequestParam("file") MultipartFile file){ //"file"这个是请求传上来的参数，就是那张图片，以二进制流的形式给file
+        //把这个图片保存到本地
+        try{
+           // String fileUrl = newsService.saveImage(file); //***** 保存图片到本地
+            String fileUrl = qiniuService.saveImage(file);
+            if(fileUrl == null){
+                return ToutiaoUtil.getJSONString(1,"上传图片失败");
+            }
+            return ToutiaoUtil.getJSONString(0,fileUrl); //图片已经存在本地了，可以通过这个链接访问这张图片
+
+        }catch (Exception e){
+            logger.error("上传图片失败" + e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"上传失败");
+        }
+    }
+
+    //用于客户端请求图片【客户端传过来图片的链接，我解析它】http://127.0.0.1:8080/image?name=b8bd7fce8ce542d69a774b366e682dc1.jpg
+    @RequestMapping(path = {"/image"},method = {RequestMethod.GET})
+    @ResponseBody //因为图片是二进制流，所以我们要有responde
+    public void getImage(@RequestParam("name") String imageName,
+                         HttpServletResponse response){
+        try {
+            response.setContentType("image/jpeg");
+            StreamUtils.copy( new FileInputStream(ToutiaoUtil.IMAGE_DIR + imageName),
+                    response.getOutputStream()); //根据文件名把该文件通过二进制流的形式读取到response中
+        }catch (Exception e){
+            logger.error("读取图片错误"+ e.getMessage());
+        }
+
+
+    }
+
+
+}
+
+```
+## 5.4 资讯发布 【在数据库要用utf8，在application.properties里也要指定utf8，防止中文出错】
+* 记得把script换过,在NewsController 增加一个方法
+```java
+    //上传资讯
+    @RequestMapping(path = {"/user/addNews/"},method = {RequestMethod.POST})
+    @ResponseBody
+    //一条资讯有图片，标题，a链接【谁发布的？】,就是把它放进数据库
+    public String addNews(@RequestParam("image") String image,
+                          @RequestParam("title") String title,
+                          @RequestParam("link") String link){
+        try {
+            News news = new News();
+            news.setImage(image);
+            news.setCreatedDate(new Date());
+            news.setTitle(title);
+            news.setLink(link);
+            if(hostHolder.getUser() != null){ //当前线程有用户，即用户是登陆状态
+                news.setUserId(hostHolder.getUser().getId());
+            }else {
+                //没登录我就说你是一个匿名用户【id = 0,你自己定】
+                news.setUserId(0);
+            }
+            newsService.addNews(news);
+            return ToutiaoUtil.getJSONString(0); //返回前端告诉它成功
+        }catch (Exception e){
+            logger.error("添加资讯错误"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"发布失败"); //告诉前台这条消息
+        }
+    }
+
+
+```
+
+
+# 第六周 资讯详情页、评论中心、站内信
+
+## 6.1 通用的新模块开发流程总体步骤都是一样的：
+### 1) 从数据库设计开始 Database Column
+### 2）Model：模型定义，和数据库相匹配
+### 3）DAO：数据读取
+### 4）Service：服务包装
+### 5) Controller：业务入口
+### 6) Test
+
+
+## 6.2 资讯详情页（代码演示）
+### 6.2.1 步骤：
+#### 1）一般先找到前端给你的页面，分析这个页面上有多少东西
+#### 2） 到 NewsController 层里面把这些数据传给模板，再对模板文件做一些替换
+```java
+    //资讯入口，即资讯详情的入口，返回资讯的详情页,newsId,消息的id
+    //实际我们只需要把资讯的信息取出来加入model,通过Model传值给模板
+    @RequestMapping(path = {"/news/{newsId}"},method = {RequestMethod.GET})  //在home.html中，资讯名称的链接即是这个 href="/news/$!{vo.news.id}">$!{vo.news.title}</a>
+    public String newsDetail(@PathVariable("newsId") int newsId,Model model){
+        News news = newsService.getById(newsId);
+        if(news != null){
+            //评论等
+        }
+        model.addAttribute("news",news);  //像页面传输对象，然后再去detail.html文件修改替换一下
+        model.addAttribute("owner",userService.getUser(news.getUserId()));
+        return "detail"; //返回html页面
+    }
+
+```
+
+
+## 6.3评论中心（代码演示）
+* 我们认为这是一个统一的评论服务，覆盖所有的实体评论：因为评论有很多，针对news的，user的，针对评论的评论，所以其中的字段不能仅仅设置为newId这些，而应该用entity_type，entity_id组合起来表示：
+    * 比如这一条是某条评论的评论，那么这两个的内容就是comment，commentId【它评论的是一条评论，是哪条评论】
+### 6.3.1 代码一：展示已有评论的步骤：
+#### 1）确定这个服务存放在数据库里面需要哪些表，字段是哪些。--自己在数据库里创建，或者放在.sql文件中，然后创建一个测试
+* id  ：评论的id
+* content
+* entity_id  :newsId/commentId
+* entity_type :news/comment【评论的评论】
+* created_date
+* user_id
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = ToutiaoApplication.class)
+@WebAppConfiguration
+@Sql({"/init-schema.sql"}) //在执行用例前先执行这份文件，创建数据库
+public class InitDatabaseTests {}
+```
+
+#### 2）Model：定义模型，和数据库相匹配--Comment,不需要注解
+#### 3）DAO：定义数据库的访问模型 -@Mapper
+```java
+@Mapper
+public interface CommentDAO {
+    String TABLE_NAME = "comment";
+    String INSERT_FIELDS = " user_id,content,created_date,entity_id,entity_type,status ";
+    String SELECT_FIELDS = " id, " + INSERT_FIELDS;
+
+    //@Select(....)注解的作用就是告诉mybatis框架,执行括号内的sql语句
+    //增加评论，失败的话会返回0
+    @Insert({"insert into ", TABLE_NAME, "(", INSERT_FIELDS,
+            ") Values (#{userId},#{content},#{createdDate},#{entityId},#{entityType},#{status})"})
+    int addComment(Comment comment);
+
+    //选取评论，按最新的顺序
+    @Select({"select ",SELECT_FIELDS," from ",TABLE_NAME,
+            " where entity_id=#{entityId} and entity_type=#{entityType} order by id desc"})
+    List<Comment> selectByEntity(@Param("entityId") int entityId,@Param("entityType") int entityType);
+
+    //每条资讯/评论 有多少条评论
+    //4.在方法参数的前面写上@Param("参数名"),表示给参数命名,名称就是括号中的内容
+    //public Student select(@Param("aaaa") String name,@Param("bbbb")int class_id);
+    //给入参 String name 命名为aaaa,然后sql语句....where  s_name= #{aaaa} 中就可以根据aaaa得到参数值了
+    //就我自己来看，貌似也直接可以int entityId，不用@Param("entityId")
+    @Select({"select count(id) from ",TABLE_NAME,
+            " where entity_id=#{entityId} and entity_type=#{entityType} order by id desc"})
+    int getCommentCount(@Param("entityId") int entityId,@Param("entityType") int entityType);
+
+}
+```
+#### 4）Service：服务包装，去调用DAO层，做一些复杂些的业务
+```java
+
+@Service
+public class CommentService {
+    @Autowired
+    private CommentDAO commentDAO;
+
+    //根据传入的某条资讯/评论，来得到它们对应的评论
+    public List<Comment> getCommentByEntity(int entityId,int entityType){
+        return commentDAO.selectByEntity(entityId,entityType);
+    }
+
+
+    //增加评论
+    public int addComment(Comment comment){
+        return commentDAO.addComment(comment);
+    }
+
+    //根据传入的某条资讯/评论，来得到它们对应的评论的数量
+    public int getCommentCount(int entityId,int entityType){
+        return commentDAO.getCommentCount(entityId,entityType);
+    }
+}
+
+```
+#### 5）Controller：业务入口：添加评论，删除评论
+* 在 NewsController
+```java
+@Controller
+public class NewsController {
+
+    //省略。。。。。
+
+    //*****资讯入口，即资讯详情的入口，返回资讯的详情页,newsId,消息的id
+    //实际我们只需要把资讯的信息取出来加入model,通过Model传值给模板
+    @RequestMapping(path = {"/news/{newsId}"},method = {RequestMethod.GET})  //在home.html中，资讯名称的链接即是这个 href="/news/$!{vo.news.id}">$!{vo.news.title}</a>
+    public String newsDetail(@PathVariable("newsId") int newsId,Model model){
+        News news = newsService.getById(newsId);
+        if(news != null){ //这个详情页应该有评论，所以写在这里
+            //取出这条资讯的所有评论
+            List<Comment> comments = commentService.getCommentByEntity(news.getId(),EntityType.ENTITY_NEWS);
+            //因为页面上除了资讯、评论、还应该有评论对应的人的头像，所以做一个ViewObject的list,方便模板显示
+            List<ViewObject> commentVOs = new ArrayList<>();
+            for(Comment comment: comments){ //一条评论对应一个vo，那么既可以在模板里通过vo.comment,vo.user这些字段来获取信息
+                ViewObject vo = new ViewObject();  //里面只有一个hashmap及其存取方法
+                vo.set("comment",comment);
+                vo.set("user",userService.getUser(comment.getUserId()));
+                commentVOs.add(vo);  //commentVOs包含了我们取出的所有评论，方便模板使用
+            }
+            model.addAttribute("comments",commentVOs);  //把这个传递给模板，模板才能用【遍历comments,对每个vo得到vo.comment,vo.user】【见下文】
+        }
+        model.addAttribute("news",news);  //像页面传输对象，然后再去detail.html文件修改替换一下
+        model.addAttribute("owner",userService.getUser(news.getUserId()));
+        return "detail"; //返回html页面
+    }
+
+}
+
+```
+
+* 在detail.html中评论的显示 model.addAttribute("comments",commentVOs); 应用
+```html
+            <div id="comments" class="comments">
+                #foreach($commentvo in $comments)
+                <div class="media">
+                    <a class="media-left" href="/user/{commentvo.user.id}">
+                        <img src="$!{commentvo.user.headUrl}">
+                    </a>
+                    <div class="media-body">
+                        <h4 class="media-heading"> <small class="date">$date.format('yyyy-MM-dd HH:mm:ss',$!{commentvo.comment.createdDate})</small></h4>
+                        <div>$!{commentvo.comment.content}</div>
+                    </div>
+                </div>
+                #end
+            </div>
+```
+#### 6）测试一下 ：Fn+delete：从左往右删除
+
+### 6.3.2 增加评论的代码
+* 在 NewsController 里
+```java
+
+    //增加评论
+    @RequestMapping(path = {"/addComment"},method = {RequestMethod.POST})
+    public String addComment(@RequestParam("newsId") int newsId,@RequestParam("content") String content){//这条评论是属于哪条资讯
+        try {
+            Comment comment = new Comment();
+            comment.setUserId(hostHolder.getUser().getId());
+            comment.setContent(content);
+            comment.setEntityId(newsId);
+            comment.setEntityType(EntityType.ENTITY_NEWS); //实际上这个也应该由对方客户穿进来，因为我们实际上只有这一种选择，所以就没做
+            comment.setCreatedDate(new Date());
+            comment.setStatus(0);
+
+            commentService.addComment(comment); //把评论加入数据库
+            //更新 news 里面的评论数量
+            int count = commentService.getCommentCount(comment.getEntityId(),comment.getEntityType());
+            newsService.updateCommentCount(comment.getEntityId(),count);
+            //下一节课会将它异步化
+
+        }catch (Exception e){
+            logger.error("增加评论失败"+ e.getMessage());
+        }
+        return "redirect:/news/" + String.valueOf(newsId);  //增加评论后就返回这个页面，刷新
+
+    }
+
+```
+
+### 6.3.3 删除评论
+
+
+## 6.4 消息中心（代码演示）
+* 包括两个页面：所有消息的列表【和哪些人聊天】即会话列表，和某个人聊天的消息详情页
+### 6.4.1 代码一：消息详情页
+#### 1）确定这个服务存放在数据库里面需要哪些表，字段是哪些。--自己在数据库里创建，或者放在.sql文件中，然后创建一个测试
+* id
+* from_id
+* to_id
+* content
+* created_date
+* has_read
+* conversation_id  //把会话页面和消息详情页页面连起来了。from_id.to_id
+
+
+#### 2）Model：定义模型，和数据库相匹配--Message,不需要注解
+#### 3）DAO：定义数据库的访问模型 -@Mapper ————MessageDAO
+```java
+@Mapper
+public interface MessageDAO {
+    String TABLE_NAME = " message ";
+    String INSERT_FIELDS = " from_id, to_id, content, has_read, conversation_id, created_date ";
+    String SELECT_FIELDS = " id, " + INSERT_FIELDS;
+
+    //插入一条评论
+    @Insert({"insert into ", TABLE_NAME, "(", INSERT_FIELDS,
+            ") values (#{fromId},#{toId},#{content},#{hasRead},#{conversationId},#{createdDate})"})
+    int addMessage(Message message);
+
+    //分页显示消息详情
+    @Select({"select ", SELECT_FIELDS, " from ", TABLE_NAME, " where conversation_id=#{conversationId} order by id desc limit #{offset},#{limit}"})
+    List<Message> getConversationDetail(@Param("conversationId") String conversationId, @Param("offset") int offset, @Param("limit") int limit);
+}
+```
+#### 4）Service：服务包装，去调用DAO层，做一些复杂些的业务 ————MessageService
+```java
+@Service
+public class MessageService {
+    @Autowired
+    MessageDAO messageDAO;
+
+    public int adddMessage(Message message){
+        return messageDAO.addMessage(message);
+    }
+
+    //得到多少条消息【分页显示】
+    public List<Message> getConversationDetail(String conversationId,int offset,int limit){
+        return messageDAO.getConversationDetail(conversationId,offset,limit);
+    }
+}
+
+```
+#### 5）Controller：业务入口：增加消息，显示消息详情页--MessageController
+
+```java
+@Controller
+public class MessageController {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private UserService userService;
+
+    //增加消息
+    @RequestMapping(path = {"/msg/addMessage"},method = {RequestMethod.POST})
+    @ResponseBody
+    public String addMessage(@RequestParam("fromId") int fromId,
+                             @RequestParam("toId") int toId,
+                             @RequestParam("content") String content){//这条评论是属于哪条资讯
+        try {
+            Message msg = new Message();
+            msg.setContent(content);
+            msg.setFromId(fromId);
+            msg.setToId(toId);
+            msg.setCreatedDate(new Date());
+            msg.setConversationId(fromId < toId ? String.format("%d_%d",fromId,toId):String.format("%d_%d",toId,toId));
+            messageService.adddMessage(msg);
+            return ToutiaoUtil.getJSONString(msg.getId());
+        }catch (Exception e){
+            logger.error("增加消息失败"+ e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"插入评论失败");
+        }
+
+    }
+
+    //取得一个会话的详情，多条消息
+    @RequestMapping(path = {"/msg/detail"},method = {RequestMethod.GET})
+    public String conversationDetail(Model model, @Param("conversationId") String conversationId){
+        try {
+            List<Message>  conversationList= messageService.getConversationDetail(conversationId,0,10);
+            List<ViewObject> messages = new ArrayList<>();
+            for (Message msg: conversationList){
+                ViewObject vo = new ViewObject();
+                vo.set("message",msg);
+                User user = userService.getUser(msg.getFromId());
+                if(user == null){
+                    continue;
+                }
+                vo.set("headUrl",user.getHeadUrl());
+                vo.set("userId",user.getId());
+                messages.add(vo);
+            }
+            model.addAttribute("messages",messages);
+        }catch (Exception e){
+            logger.error("获取详情消息失败"+e.getMessage());
+        }
+        return "letterDetail";
+    }
+
+}
+```
+
+### 6.4.2 代码二：会话页【你与所有人的会话都显示最新的一条作为代表】
+```java
+    //一个人的会话页，包含与多个人的会话
+    @RequestMapping(path = {"/msg/list"},method = {RequestMethod.GET})
+    public String conversationDetail(Model model) {
+        try {
+            int localUserId = hostHolder.getUser().getId();
+            List<ViewObject> conversations = new ArrayList<>();
+            List<Message> conversationList = messageService.getConversationList(localUserId,0,10);
+            for (Message msg: conversationList){
+                ViewObject vo = new ViewObject();
+                vo.set("conversation",msg);
+                int targetId = msg.getFromId() == localUserId ? msg.getToId():msg.getFromId(); //知道对方是发信人还是收信人
+                User user = userService.getUser(targetId); //得到对方的信息
+                if(user != null){  //对方要存在才行，比如我的id 为1的用户是不存在的
+                    vo.set("headUrl", user.getHeadUrl());
+                    vo.set("userName", user.getName());
+                    vo.set("targetId", targetId);
+                    vo.set("totalCount", msg.getId());
+                    vo.set("unreadCount",messageService.getConversationUnReadCount(localUserId,msg.getConversationId())); //获得未读条数
+                    conversations.add(vo);
+                }
+            }
+            model.addAttribute("conversations",conversations);
+
+        }catch (Exception e){
+            logger.error("获取站内信列表失败"+e.getMessage());
+        }
+        return "letter";
+    }
+
+```
+
+
+
+
+
+
+
 
 
 
@@ -1753,7 +2411,7 @@ public class HomeController {
     * 输入是http://127.0.0.1:8080/response?key=nowcodeid&value=54时才会返回Nowcoderid from cookie: 54
     
 
-```Java
+```java
 @RequestMapping(value = {"/response"})
     @ResponseBody
     public String response(@CookieValue(value = "nowcodeid",defaultValue = "a") String nowcoder,  //cookie值需要你来传，就是从URI传入，不然默认为“a"
@@ -1763,5 +2421,57 @@ public class HomeController {
         response.addCookie(new Cookie(key,value));  //在返回里把cookie加上，就是返回体里面会有这些
         response.addHeader(key,value);  //把header也加上
         return "Nowcoderid from cookie: "+nowcoder;
+    }
+```
+2、分享的时候会填link,这个link有什么用呢，在detail.html中是点title就跳转到news.link吗？  实际点title跳转的是这样：http://127.0.0.1:8080/news/10，那么link有什么用
+```html
+     <div class="content" data-url="http://nowcoder.com/posts/5l3hjr">
+                      <div class="content-img">
+                          <img src="$!{news.image}" alt="">
+                      </div>
+                      <div class="content-main">
+                          <h3 class="title">
+                              <!--通过资讯的标题点进去资讯的详情页？-->
+                              <a target="_blank" rel="external nofollow" href="$!{news.link}">$!{news.title}</a>
+                          </h3>
+                          <div class="meta">
+                              $!{news.link}
+                              <span>
+                                  <i class="fa icon-comment"></i> $!{news.commentCount}
+                              </span>
+                          </div>
+                      </div>
+                  </div>
+```
+```java
+public String addNews(@RequestParam("image") String image,
+                          @RequestParam("title") String title,
+                          @RequestParam("link") String link)  
+```
+
+3、在登陆框跳出来后，点击注册可以正常运行出用户已经登陆的页面，但点击登陆，还是原来那个页面，没反应
+4、不管是图片还是评论输入中文都无法识别，显示？
+5、news表中没有 dislikeCount字段，那么，这是怎么回事？
+```java
+   @RequestMapping(path = {"/like"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public String like(@Param("newId") int newsId) {
+        long likeCount = likeService.like(hostHolder.getUser().getId(), EntityType.ENTITY_NEWS, newsId);
+        // 更新喜欢数
+        News news = newsService.getById(newsId);
+        newsService.updateLikeCount(newsId, (int) likeCount);  //？****
+        eventProducer.fireEvent(new EventModel(EventType.LIKE)
+                .setEntityOwnerId(news.getUserId())
+                .setActorId(hostHolder.getUser().getId()).setEntityId(newsId));
+        return ToutiaoUtil.getJSONString(0, String.valueOf(likeCount));
+    }
+
+    @RequestMapping(path = {"/dislike"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public String dislike(@Param("newId") int newsId) {
+        long likeCount = likeService.disLike(hostHolder.getUser().getId(), EntityType.ENTITY_NEWS, newsId);
+        // 更新喜欢数
+        newsService.updateLikeCount(newsId, (int) likeCount); //？*****news没有踩字段
+        return ToutiaoUtil.getJSONString(0, String.valueOf(likeCount));
     }
 ```
