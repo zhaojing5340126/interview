@@ -63,6 +63,7 @@
                 - [2.1）在这里要数据库新创建一个 login_ticket 表【我这里的建法是在通过InitDatabaseTests，在测试的时候建的，一般我们写一个DAO都会测试一下有没有问题】](#21在这里要数据库新创建一个-login_ticket-表我这里的建法是在通过initdatabasetests在测试的时候建的一般我们写一个dao都会测试一下有没有问题)
                 - [2.2）同时对应一个 LoginTicket的 model，](#22同时对应一个-loginticket的-model)
                 - [2.3）及LoginTicketDAO【插入ticket、查、更新状态】](#23及loginticketdao插入ticket查更新状态)
+                - [2.4) LoginController里写登陆的函数 login](#24-logincontroller里写登陆的函数-login)
         - [4.2.2 登出：把ticket对应的status设置为1，就表示这个无效了](#422-登出把ticket对应的status设置为1就表示这个无效了)
             - [1） 首先LoginController里进入登出的函数](#1-首先logincontroller里进入登出的函数)
             - [2） 其次，userService里写一个logout函数](#2-其次userservice里写一个logout函数)
@@ -151,7 +152,71 @@
             - [4）Service：服务包装，去调用DAO层，做一些复杂些的业务 ————MessageService](#4service服务包装去调用dao层做一些复杂些的业务-messageservice)
             - [5）Controller：业务入口：增加消息，显示消息详情页--MessageController](#5controller业务入口增加消息显示消息详情页--messagecontroller)
         - [6.4.2 代码二：会话页【你与所有人的会话都显示最新的一条作为代表】](#642-代码二会话页你与所有人的会话都显示最新的一条作为代表)
-    - [问题：](#问题)
+- [第七周 Redis入门以及redis实现赞踩功能](#第七周-redis入门以及redis实现赞踩功能)
+    - [总结：](#总结)
+    - [7.1 Redis简介:Redis 是key-value数据库，支持主从同步，数据存储在内存，性能卓越。](#71-redis简介redis-是key-value数据库支持主从同步数据存储在内存性能卓越)
+        - [7.1.1 操作](#711-操作)
+            - [1）连接redis：redis-cli.exe【cmd】](#1连接redisredis-cliexecmd)
+            - [2）配置文件：redis.windows.conf](#2配置文件rediswindowsconf)
+            - [3）redis 有两种备份（存储）机制：RDB 、 AOF](#3redis-有两种备份存储机制rdb--aof)
+                - [RDB：如果我有100条数据，那么我每隔一段时间我就保存这100条数据一次 【相当于只保存最后的结果】](#rdb如果我有100条数据那么我每隔一段时间我就保存这100条数据一次-相当于只保存最后的结果)
+                - [AOF：我把对数据的操作【命令】保存下来 【相当于保存过程，通过这个过程我可以得到最后的结果】](#aof我把对数据的操作命令保存下来-相当于保存过程通过这个过程我可以得到最后的结果)
+    - [7.2 赞踩实现：通过集合](#72-赞踩实现通过集合)
+        - [7.2.1 Redis 在牛客中的应用](#721-redis-在牛客中的应用)
+            - [1）PV ：这些浏览数这些都是在redis中存储的，然后再慢慢同步到额外的字段](#1pv-这些浏览数这些都是在redis中存储的然后再慢慢同步到额外的字段)
+            - [2）点赞 ：你点一个赞，我就会把userid放到帖子的集合里面，再点赞，就从集合删掉，我只需要知道集合里有多少数据既可以了](#2点赞-你点一个赞我就会把userid放到帖子的集合里面再点赞就从集合删掉我只需要知道集合里有多少数据既可以了)
+            - [3）关注 ： 我关注谁，谁关注我，这些都是一个个的集合，删除关注就从集合中拿出来](#3关注--我关注谁谁关注我这些都是一个个的集合删除关注就从集合中拿出来)
+            - [4）排行榜 ：所有排行榜都是用的redis的 Sorted set ,即优先队列集合，比如登陆排行榜，你每登陆一次，我就把你的数字加1](#4排行榜-所有排行榜都是用的redis的-sorted-set-即优先队列集合比如登陆排行榜你每登陆一次我就把你的数字加1)
+            - [5）验证码 ：setex 设置过期时间](#5验证码-setex-设置过期时间)
+            - [6）缓存 ： 在底层MySQL数据库上做一个缓存，你所有的数据都是放在redis上的，也会做一个缓存的时间，当用户更新的时候，就把缓存失效掉，每次优先从缓存里取，缓存没有再去数据库，这样就可以大大降低数据库的压力](#6缓存--在底层mysql数据库上做一个缓存你所有的数据都是放在redis上的也会做一个缓存的时间当用户更新的时候就把缓存失效掉每次优先从缓存里取缓存没有再去数据库这样就可以大大降低数据库的压力)
+            - [7）异步队列 ：我给你点了一个赞，你就会收到一条消息谁谁谁给你点了一个赞，这些都是异步队列，其实就是 list 结构，发生什么事情，就抛一个事件到 list ，然后有一个额外的线程去处理](#7异步队列-我给你点了一个赞你就会收到一条消息谁谁谁给你点了一个赞这些都是异步队列其实就是-list-结构发生什么事情就抛一个事件到-list-然后有一个额外的线程去处理)
+            - [8）判题队列 ： 大家都在提交代码编程，我不可能实时同步的处理，所以放在一个队列里，哪台机器有空闲的时候再去跑这个代码编译](#8判题队列--大家都在提交代码编程我不可能实时同步的处理所以放在一个队列里哪台机器有空闲的时候再去跑这个代码编译)
+        - [7.2.2 赞功能的实现](#722-赞功能的实现)
+            - [1）Redis数据库没有 model、DAO 这些概念，所以直接在service里定义功能即可](#1redis数据库没有-modeldao-这些概念所以直接在service里定义功能即可)
+                - [1.1 我们采用连接池 JedisPool ,所以需要对jedis 的操作进行包装，做一个包装类JedisAdapter在util下,数据不再通过DAO，而是 JedisAdapter 来读取操作](#11-我们采用连接池-jedispool-所以需要对jedis-的操作进行包装做一个包装类jedisadapter在util下数据不再通过dao而是-jedisadapter-来读取操作)
+                - [1.2 在 service 下定义一个 LikeService](#12-在-service-下定义一个-likeservice)
+                - [1.3 定义入口 LikeController](#13-定义入口-likecontroller)
+                - [1.4 注意事项：一个资讯可能对应有 pv、赞、踩这些不同的集合，所以集合的命名要有规范，一般我们把业务作为集合的前缀](#14-注意事项一个资讯可能对应有-pv赞踩这些不同的集合所以集合的命名要有规范一般我们把业务作为集合的前缀)
+                - [1.5 注意事项：要修改首页的显示，在home.html里，根据你点的喜欢不喜欢进行加量【不同显示】,](#15-注意事项要修改首页的显示在homehtml里根据你点的喜欢不喜欢进行加量不同显示)
+                - [1.6 注意事项：同时在HomeController里也要修改一下，把vo.like 传进去](#16-注意事项同时在homecontroller里也要修改一下把volike-传进去)
+                - [1.7 注意事项：在NewsController也要改一下，把like 传进去，因此detail也要修改【detail的修改和home一样】](#17-注意事项在newscontroller也要改一下把like-传进去因此detail也要修改detail的修改和home一样)
+- [第八周 异步设计和站内邮件通知系统](#第八周-异步设计和站内邮件通知系统)
+    - [一、异步队列](#一异步队列)
+        - [1.1 通过队列来实现异步结构](#11-通过队列来实现异步结构)
+            - [1.1.1 流程：](#111-流程)
+            - [1.1.2 异步的好处：](#112-异步的好处)
+        - [1.2 代码实现：在LikeController 里面把like事件用 EventProducer 发（lpush）到阻塞队列,在EventConsumer 里从阻塞队列不断阻塞（brpop）取出事件,处理它](#12-代码实现在likecontroller-里面把like事件用-eventproducer-发lpush到阻塞队列在eventconsumer-里从阻塞队列不断阻塞brpop取出事件处理它)
+            - [1.把事件放进队列，取出来，涉及到队列的序列化【event 序列化存进队列，取出来时再反序列化】](#1把事件放进队列取出来涉及到队列的序列化event-序列化存进队列取出来时再反序列化)
+            - [2、先创一个异步包 async 用于存放异步相关的代码](#2先创一个异步包-async-用于存放异步相关的代码)
+                - [1）EventType：表示刚刚发生了什么事件，事件是什么类型【是一个枚举类】](#1eventtype表示刚刚发生了什么事件事件是什么类型是一个枚举类)
+                - [2）EventModel：事件发生时现场的数据信息都打包在这个 EventModel里面【事件的数据】](#2eventmodel事件发生时现场的数据信息都打包在这个-eventmodel里面事件的数据)
+                - [3) EventHandle 接口：可以处理各种各样的事情，比如LikeHandle 处理踩赞相关的事情 需要实现这个接口](#3-eventhandle-接口可以处理各种各样的事情比如likehandle-处理踩赞相关的事情-需要实现这个接口)
+                - [3）EventProducer：用于把事件发给阻塞队列，即把事件序列化后放到 Redis 的一个队列里面](#3eventproducer用于把事件发给阻塞队列即把事件序列化后放到-redis-的一个队列里面)
+                - [4）EventConsumer：去取队列里面的事件，取出来后反序列化成 事件发生时的现场（EventModel）,根据事件去找到它对应的 Handler ，把事件处理掉](#4eventconsumer去取队列里面的事件取出来后反序列化成-事件发生时的现场eventmodel根据事件去找到它对应的-handler-把事件处理掉)
+            - [3、在LikeController 里试验，赞一下，把赞事件加入队列处理](#3在likecontroller-里试验赞一下把赞事件加入队列处理)
+    - [二、站内邮件通知系统：写一个异常登陆通知](#二站内邮件通知系统写一个异常登陆通知)
+        - [1）在 LoginController 里通过 EventProducer 把登陆这个事件发给队列](#1在-logincontroller-里通过-eventproducer-把登陆这个事件发给队列)
+        - [2）处理队列，如果登陆有异常就发送邮件和站内信【没有写登陆异常算法，所以一登录就会发邮件和站内信】【**邮件是模板才能个性化】](#2处理队列如果登陆有异常就发送邮件和站内信没有写登陆异常算法所以一登录就会发邮件和站内信邮件是模板才能个性化)
+- [问题：](#问题)
+- [第九周 多种资讯排序算法以及多线程讲解](#第九周-多种资讯排序算法以及多线程讲解)
+    - [一、资讯排序](#一资讯排序)
+        - [1.1 通用排序：根据某个值来排序，order by](#11-通用排序根据某个值来排序order-by)
+            - [1.按单位时间内的交互数，del.icio.us按1小时内收藏排行来排序：参与的人越多，认为它越火](#1按单位时间内的交互数delicious按1小时内收藏排行来排序参与的人越多认为它越火)
+            - [2.按总交互数，按总点赞数来排序：可能这个话题比较有争议，所以数据很大，然而并没有随着时间的推移沉下去](#2按总交互数按总点赞数来排序可能这个话题比较有争议所以数据很大然而并没有随着时间的推移沉下去)
+            - [3.按评论数加权：评论比赞有价值，](#3按评论数加权评论比赞有价值)
+            - [4.按时间排序：时间最新放最前面](#4按时间排序时间最新放最前面)
+        - [1.2代码实现：以log 得方式大幅度降低大流量导致得数据的波动、用指数来提升权重](#12代码实现以log-得方式大幅度降低大流量导致得数据的波动用指数来提升权重)
+        - [1.3 Hacker News 的排序：//一个资讯网站：核心就是通过一个公式算一个分数](#13-hacker-news-的排序一个资讯网站核心就是通过一个公式算一个分数)
+        - [1.3 Reddit  //也是分享资讯的一个网站 ：核心也是通过一个资讯算一个分数 【时间是最重要的权重，以log 得方式大幅度降低大流量导致的点赞数，适合流量大的新闻类排序】](#13-reddit--也是分享资讯的一个网站-核心也是通过一个资讯算一个分数-时间是最重要的权重以log-得方式大幅度降低大流量导致的点赞数适合流量大的新闻类排序)
+        - [1.4 StackOverflow //一个问答网站](#14-stackoverflow-一个问答网站)
+        - [1.5 IMDB  //一个电影评分网站 分为两拨：总的平均值和当前电影投票的平均值](#15-imdb--一个电影评分网站-分为两拨总的平均值和当前电影投票的平均值)
+    - [二、多线程：怎么通过多线程处理任务](#二多线程怎么通过多线程处理任务)
+        - [2.1 多线程的优势和挑战](#21-多线程的优势和挑战)
+            - [1） 优势：可以充分利用多处理器；可以异步处理任务](#1-优势可以充分利用多处理器可以异步处理任务)
+            - [2） 挑战：数据会被多个线程访问，有安全性问题；不活跃的线程也会占用内存资源； 可能导致死锁](#2-挑战数据会被多个线程访问有安全性问题不活跃的线程也会占用内存资源-可能导致死锁)
+        - [2.2 Thread ,Synchronized](#22-thread-synchronized)
+        - [2.3 BlockingQueue,AtomicInteger](#23-blockingqueueatomicinteger)
+        - [2.4 ThreadLocal,Executor,Future](#24-threadlocalexecutorfuture)
 
 <!-- /TOC -->
 
@@ -1354,7 +1419,35 @@ public interface LoginTicketDAO {
 }
 
 ```
+##### 2.4) LoginController里写登陆的函数 login 
+```java
+    //登陆
+    @RequestMapping(path={"/login/"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String login(Model model, @RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam(value = "rember",defaultValue = "0") int rememberme,
+                        HttpServletResponse response) {//即是否记住登录
+        try {
+            Map<String ,Object>  map = userService.login(username,password);
+            if(map.containsKey("ticket")){  //登陆成功会下发一个ticket
+                Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+                cookie.setPath("/");
+                if (rememberme > 0) {
+                    cookie.setMaxAge(3600*24*5);
+                }
+                response.addCookie(cookie);
+                return ToutiaoUtil.getJSONString(0,map);
+            }else {
+                return ToutiaoUtil.getJSONString(1,map);
+            }
 
+        }catch (Exception e){
+            logger.error("注册异常"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"注册异常");
+        }
+    }
+```
 
 ### 4.2.2 登出：把ticket对应的status设置为1，就表示这个无效了
 #### 1） 首先LoginController里进入登出的函数
@@ -1398,10 +1491,17 @@ public class LoginController {
     @ResponseBody
     public String login(Model model, @RequestParam("username") String username,
                       @RequestParam("password") String password,
-                      @RequestParam(value = "remenber",defaultValue = "0") int rememberme) {//即是否记住登录
+                      @RequestParam(value = "rember",defaultValue = "0") int rememberme,
+                        HttpServletResponse response) {//即是否记住登录
         try {
-            Map<String ,Object>  map = userService.register(username,password);
+            Map<String ,Object>  map = userService.login(username,password);
             if(map.containsKey("ticket")){  //登陆成功会下发一个ticket
+                Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+                cookie.setPath("/");
+                if (rememberme > 0) {
+                    cookie.setMaxAge(3600*24*5);
+                }
+                response.addCookie(cookie);
                 return ToutiaoUtil.getJSONString(0,map);
             }else {
                 return ToutiaoUtil.getJSONString(1,map);
@@ -2394,6 +2494,970 @@ public class MessageController {
 
 ```
 
+# 第七周 Redis入门以及redis实现赞踩功能
+## 总结：
+* redis 数据结构：
+    * List：双向列表，适用于最新列表，关注列表 
+        * 【lpush、lpop、blpop、lindex、lrange、lrem、linsert、lset、rpush】
+    * Set：适用于无顺序的集合，点赞点踩，抽奖，已读，共同好友
+        * sdiff、smembers、sinter、scard
+    * SortedSet：排行榜，优先队列
+        * zadd、zscore、zrange、zcount、zrank、zrevrank
+    * Hash：对象属性，不定长属性数
+        * hset、hget、hgetAll、hexists、hkeys、hvals
+    * KV：单一数值，验证码，PV，缓存
+        * set、setex、incr
+## 7.1 Redis简介:Redis 是key-value数据库，支持主从同步，数据存储在内存，性能卓越。
+* 哈希的概念，给我一个key，我给你返回一个值。官方网址：http://redis.io/
+* Redis是一个开源（BSD许可），内存存储的数据结构服务器，可用作数据库，高速缓存和消息队列代理。它支持字符串、哈希表、列表、集合、有序集合，位图，hyperloglogs等数据类型。内置复制、Lua脚本、LRU收回、事务以及不同级别磁盘持久化功能，同时通过Redis Sentinel提供高可用，通过Redis Cluster提供自动分区。
+### 7.1.1 操作
+#### 1）连接redis：redis-cli.exe【cmd】
+```
+C:\Windows\system32>redis-cli
+127.0.0.1:6379> //默认端口
+```
+* 我们可以在命令行操作，如果用Java操作，需要第三方类库，在redis里就是各种各样的clients，找到java的，我们选择用jedis,它对redis的命令这些都进行了包装，只需要在maven里面包含
+```xml
+
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+    <version>2.9.0</version>
+    <type>jar</type>
+    <scope>compile</scope>
+</dependency>
+```
+#### 2）配置文件：redis.windows.conf
+```
+bind 127.0.0.1 #绑定的地址，只有本地访问；如果外网要想访问，可以改成0.0.0.0，开放所有ip访问【应该设置密码，默认是没设置的】
+port 6379      #默认监听6379端口
+
+# redis是一个数据库，数据默认保存在安装目录下的 dump.rdb
+# 这里是保存策略，设置条件来触发它的持久化的进程
+save 900 1    # 900s以后如果有至少 1 个key 改变了，就保存一次
+save 300 10   # 300s以后如果有至少 10 个key 改变了，就保存一次
+save 60 10000 #
+
+
+dbfilename dump.rdb  #存储的文件
+```
+#### 3）redis 有两种备份（存储）机制：RDB 、 AOF
+##### RDB：如果我有100条数据，那么我每隔一段时间我就保存这100条数据一次 【相当于只保存最后的结果】
+##### AOF：我把对数据的操作【命令】保存下来 【相当于保存过程，通过这个过程我可以得到最后的结果】
+```java
+package com.nowcode.toutiao.util;
+
+
+import redis.clients.jedis.BinaryClient;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Tuple;
+
+//用于演示jedis
+public class JedisAdapter {
+
+    //用于演示，帮助打印
+    public static void print(int index,Object object){
+        System.out.println(String.format("%d,%s",index,object));
+    }
+
+    public static void main(String[] args) {
+        Jedis jedis = new Jedis(); //得到Jedis 的句柄，默认连接的是本机的6379端口 //里面有很多构造器，你可以知道host，端口这些
+        jedis.flushAll(); //把所有数据库都清空
+
+        //这些函数就对应redis里支持的所有的命令，key,value能是各种类型
+        //jedis.blpop(); //brock,这是一个阻塞式的pop【同步】
+
+        //1）只有一个值，把值放进去 类似 Map<> map = new HashMap<>();
+        jedis.set("hello","world");  //key--value
+        print(1,jedis.get("hello"));
+        jedis.rename("hello","newhello"); //对 key 改名字
+        print(2,jedis.get("newhello"));
+        jedis.setex("hello2",15,"world");  //你可以在设置一个值时候同时设置一个过期时间【15秒】；比如验证码这些
+
+        //2）
+        //pv：网页访问人数100人。如果来一个人就增加，会卡死；所以高并发场景，对pv这些正常应该先存起来【比如存在redis里或内存】，定期更新到数据库
+        jedis.set("pv","100");
+        jedis.incr("pv");  //增加1，比Java里面取出来增加再放进去更方便
+        jedis.incrBy("pv",5); //一次性增加5
+        print(2,jedis.get("pv"));
+
+        //list 列表操作，是在表头插入，后插入的在前面
+        String listName = "list";
+        for(int i= 0;i<10;i++){
+            jedis.lpush(listName,"a"+String.valueOf(i));
+        }
+        print(3,jedis.lrange(listName,0,12));
+        print(4,jedis.llen(listName));  //链表的长度
+        print(5,jedis.lpop(listName));  //弹出一个数据
+        print(6,jedis.llen(listName));
+        print(7,jedis.lindex(listName,3)); //找第3个位置是什么
+        //插入某个位置，插在 a4 的后面
+        print(8,jedis.linsert(listName,BinaryClient.LIST_POSITION.AFTER,"a4","xx"));
+        print(9,jedis.linsert(listName,BinaryClient.LIST_POSITION.BEFORE,"a4","bb"));
+        print(10,jedis.lrange(listName,0,13));
+
+        //3)类似 hashMap，通过一个key，关联一个 Map ,应用于属性不定，你可以随时给这个用户加属性
+        String userKey = "user12";
+        jedis.hset(userKey,"name","jim"); //key-field-value
+        jedis.hset(userKey,"age","12");
+        jedis.hset(userKey,"phone","12423534534");
+
+        print(12,jedis.hget(userKey,"name")); //取出这个人的name字段对应的值
+        print(13,jedis.hgetAll(userKey));  //取出与这个人相关的所有属性及对应值
+        jedis.hdel(userKey,"phone"); //删除这个属性
+        print(13,jedis.hgetAll(userKey));
+        print(14,jedis.hkeys(userKey));  //得到这个对象所有的属性
+        print(15,jedis.hvals(userKey));  //得到这个对象所有的属性值
+        print(16,jedis.hexists(userKey,"name")); //判断这个对象是否存在某个属性
+        jedis.hsetnx(userKey,"school","zju"); //只有不存在的时候才设置，有的话不会更新
+        print(17,jedis.hkeys(userKey));
+
+        //4) 集合的概念，set,以s 开头，可以做集合类的操作
+        String likeKeys1 = "newsLike1";
+        String likeKeys2 = "newsLike2";
+        for (int i=0;i<10; i++){
+            jedis.sadd(likeKeys1,String.valueOf(i));    //加入likeKeys1集合
+            jedis.sadd(likeKeys2,String.valueOf(i*2));
+        }
+        print(20,jedis.smembers(likeKeys1)); //集合里面的全部元素
+        print(21,jedis.smembers(likeKeys2));
+        print(22,jedis.sinter(likeKeys1,likeKeys2)); //两个集合求交，用于找两个人的共同好友
+        print(23,jedis.sunion(likeKeys1,likeKeys2)); //求并
+        print(24,jedis.sdiff(likeKeys1,likeKeys2)); // 求不同【求异】，我有你没有的
+        print(25,jedis.sismember(likeKeys1,"5")); // 用于判断5是不是存在，应用于你是否点过赞，没点过我才加
+        jedis.srem(likeKeys1,"5"); //删除某个集合的某个元素
+        print(26,jedis.smembers(likeKeys1));
+        print(27,jedis.scard(likeKeys1));  //用于查看这个集合有多少个值
+        jedis.smove(likeKeys2,likeKeys1,"14"); //将 14 从 likeKey2 移动到 likeKey1
+        print(28,jedis.smembers(likeKeys1));
+
+
+        // 5) Sorted Set 优先队列【从低到高】，以 z 开头;  这个能非常方便的用于排行榜
+        String rankKey = "rankKey";
+        jedis.zadd(rankKey,15,"jim");  //出了添加value,还要给予它一个分值
+        jedis.zadd(rankKey,13,"ben");
+        jedis.zadd(rankKey,90,"lucy");
+        jedis.zadd(rankKey,80,"mei");
+        jedis.zadd(rankKey,60,"lee");
+        print(30,jedis.zcard(rankKey));  //这个队列有多少个值
+        print(31,jedis.zcount(rankKey,61,100)); //用于查看在61-100区间内有多少人
+        print(32,jedis.zscore(rankKey,"lucy")); //用于查看某个人的分值
+        jedis.zincrby(rankKey,2,"lucy");  //把lucy的成绩提高2分
+        jedis.zincrby(rankKey,2,"luc");   //给不存在的人提分,相当于让这个人只有2分
+        print(33,jedis.zcount(rankKey,0,100));
+        print(34, jedis.zrange(rankKey,0,3));  //顺序从小到大，得到第0名到第三名，luc 2分排在最前面
+        print(35,jedis.zrevrange(rankKey,0,3)); //**** 顺序从大到小
+
+        for (Tuple tuple: jedis.zrangeByScoreWithScores(rankKey,"0","100")){ //**** tuple是元组，相当于 Map 的entity
+            print(36,tuple.getElement() + ":"+tuple.getScore());
+        }
+
+        print(37,jedis.zrank(rankKey,"ben")); //ben 是第几名
+        print(38,jedis.zrevrank(rankKey,"ben"));
+
+
+        JedisPool pool = new JedisPool();  //连接池，默认是 8 条线程，类似线程池
+        for (int i=0; i<100 ;i++){
+            Jedis j = pool.getResource();  //从池子里取一个资源
+            j.get("a");
+            System.out.println("POOL"+i);
+            j.close();  //必须关闭，资源才会还回去
+        }
+
+    }
+}
+
+```
+## 7.2 赞踩实现：通过集合
+### 7.2.1 Redis 在牛客中的应用
+#### 1）PV ：这些浏览数这些都是在redis中存储的，然后再慢慢同步到额外的字段
+#### 2）点赞 ：你点一个赞，我就会把userid放到帖子的集合里面，再点赞，就从集合删掉，我只需要知道集合里有多少数据既可以了
+#### 3）关注 ： 我关注谁，谁关注我，这些都是一个个的集合，删除关注就从集合中拿出来
+#### 4）排行榜 ：所有排行榜都是用的redis的 Sorted set ,即优先队列集合，比如登陆排行榜，你每登陆一次，我就把你的数字加1
+#### 5）验证码 ：setex 设置过期时间
+#### 6）缓存 ： 在底层MySQL数据库上做一个缓存，你所有的数据都是放在redis上的，也会做一个缓存的时间，当用户更新的时候，就把缓存失效掉，每次优先从缓存里取，缓存没有再去数据库，这样就可以大大降低数据库的压力
+#### 7）异步队列 ：我给你点了一个赞，你就会收到一条消息谁谁谁给你点了一个赞，这些都是异步队列，其实就是 list 结构，发生什么事情，就抛一个事件到 list ，然后有一个额外的线程去处理
+#### 8）判题队列 ： 大家都在提交代码编程，我不可能实时同步的处理，所以放在一个队列里，哪台机器有空闲的时候再去跑这个代码编译
+
+### 7.2.2 赞功能的实现
+#### 1）Redis数据库没有 model、DAO 这些概念，所以直接在service里定义功能即可
+##### 1.1 我们采用连接池 JedisPool ,所以需要对jedis 的操作进行包装，做一个包装类JedisAdapter在util下,数据不再通过DAO，而是 JedisAdapter 来读取操作
+```java
+package com.nowcode.toutiao.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
+//这个类包装了 Jedis 的功能，所以是个工具类？
+@Component  //或者@Service也可以
+public class JedisAdapter implements InitializingBean {  //为了让它初始化的时候就把pool初始化好，我们继承一个接口
+    //使用指定类初始化日志对象，在日志输出的时候，可以打印出日志信息所在类
+    private static Logger logger = LoggerFactory.getLogger(JedisAdapter.class);
+
+    private JedisPool pool = null;   //服务一起来的时候我们就定义一个连接池pool
+
+    @Override
+    public void afterPropertiesSet() throws Exception {  //初始化的时候把pool初始化好
+        pool = new JedisPool("localhost",6379);
+    }
+
+    //获取一个连接池资源去执行操作
+    public Jedis getJedis(){
+        return  pool.getResource();
+    }
+
+    //***以下是对集合方法的包装，因为我们用到了pool,所以不能直接调用方法，在调用方法前需要先获得一个连接池资源
+
+    // * sadd方法的包装，一个对象放入集合key
+    public long sadd(String key,String value){
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();  // 1）取得一个资源
+            return jedis.sadd(key,value); // 2) 执行操作，加入集合
+        }catch (Exception e){
+            logger.error("sadd发生异常"+e.getMessage());
+            return 0;
+        }finally {  //无论如何都要管资源
+            if (jedis != null){
+                jedis.close();  // 3）关闭此资源，不然因为连接池默认只有8个资源，你不还，别人就无法用
+            }
+        }
+    }
+
+    // * srem方法的包装，删除某对象
+    public long srem(String key,String value){
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();  // 1）取得一个资源
+            return jedis.srem(key,value); // 2) 执行操作，删除对象
+        }catch (Exception e){
+            logger.error("srem发生异常"+e.getMessage());
+            return 0;
+        }finally {  //无论如何都要管资源
+            if (jedis != null){
+                jedis.close();  // 3）关闭此资源，不然因为连接池默认只有8个资源，你不还，别人就无法用
+            }
+        }
+    }
+
+    // * sismember方法的包装,判断自己是否在集合内
+    public boolean sismenmber(String key,String value){
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();  // 1）取得一个资源
+            return jedis.sismember(key,value); // 2) 执行操作，删除对象
+        }catch (Exception e){
+            logger.error("sismember发生异常"+e.getMessage());
+            return false;
+        }finally {  //无论如何都要管资源
+            if (jedis != null){
+                jedis.close();  // 3）关闭此资源，不然因为连接池默认只有8个资源，你不还，别人就无法用
+            }
+        }
+    }
+
+    // * scard方法的包装，集合中有多少人
+    public long scard(String key){
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();  // 1）取得一个资源
+            return jedis.scard(key); // 2) 执行操作，删除对象
+        }catch (Exception e){
+            logger.error("scard发生异常"+e.getMessage());
+            return 0;
+        }finally {  //无论如何都要管资源
+            if (jedis != null){
+                jedis.close();  // 3）关闭此资源，不然因为连接池默认只有8个资源，你不还，别人就无法用
+            }
+        }
+    }
+}
+
+```
+
+##### 1.2 在 service 下定义一个 LikeService
+```java
+@Service  //赞服务
+public class LikeService {
+
+    @Autowired
+    JedisAdapter jedisAdapter;
+
+    // 如果喜欢返回1，不喜欢返回-1，否则返回0
+    //函数一：判断某个用户对某个资讯/评论 是否喜欢
+    public int getLikeStatus(int userId, int entityType,int entityId){
+        String likeKey = RedisKeyUtil.getLikeKey(entityType,entityId); //得到这条资讯的赞集合
+        if(jedisAdapter.sismenmber(likeKey,String.valueOf(userId))){//判断这个用户是否喜欢这条资讯
+            return 1;
+        }
+        String dislikeKey = RedisKeyUtil.getDisLikeKey(entityType,entityId);
+        if(jedisAdapter.sismenmber(dislikeKey,String.valueOf(userId))){//判断这个用户是否厌恶这条资讯
+            return -1;
+        }
+        return 0; //说明不喜欢也不讨厌
+    }
+
+    //函数二、用户赞了这个资源，就把他添加进这个资源的赞集合
+    public long like(int userId,int entityType, int entityId){
+        String likeKey = RedisKeyUtil.getLikeKey(entityType,entityId);
+        jedisAdapter.sadd(likeKey,String.valueOf(userId));  //把用户加入该资源的赞集合
+
+        //因为喜欢和不喜欢是相背的，所以用户喜欢，就要把用户从踩集合中取消掉
+        String dislikeKey = RedisKeyUtil.getDisLikeKey(entityType,entityId);
+        jedisAdapter.srem(dislikeKey,String.valueOf(userId));
+
+        return jedisAdapter.scard(likeKey);//返回当前有多少人赞了,不能直接+1，因为这是多线程的，所以要用查的
+    }
+
+    //函数三、用户踩了这个资源，就把他添加进这个资源的踩集合
+    public long disLike(int userId,int entityType, int entityId){
+        String likeKey = RedisKeyUtil.getLikeKey(entityType,entityId);
+        jedisAdapter.srem(likeKey,String.valueOf(userId));  //把用户从赞集合中删除
+
+        //将用户加入踩集合
+        String dislikeKey = RedisKeyUtil.getDisLikeKey(entityType,entityId);
+        jedisAdapter.sadd(dislikeKey,String.valueOf(userId));
+
+        return jedisAdapter.scard(dislikeKey);//返回当前有多少人踩了
+    }
+}
+
+```
+##### 1.3 定义入口 LikeController
+```java
+@Controller  //赞了，踩了，就把这些数据读取出来
+public class LikeController {
+
+    @Autowired
+    HostHolder hostHolder;
+
+    @Autowired
+    LikeService likeService;
+
+    @Autowired
+    NewsService newsService;
+
+    //赞
+    @RequestMapping(path={"/like"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String like(@RequestParam("newsId") int newsId){
+        int userId = hostHolder.getUser().getId();
+        long likeCount = likeService.like(userId,EntityType.ENTITY_NEWS,newsId);  //把这个用户加入该资源的赞集合
+        newsService.updateLikeCount(newsId,(int) likeCount); //还要更新news表里的字段
+        return ToutiaoUtil.getJSONString(0,String.valueOf(likeCount)); //返回给前端
+    }
+
+    //踩
+    @RequestMapping(path={"/dislike"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String dislike(@RequestParam("newsId") int newsId){
+        int userId = hostHolder.getUser().getId();
+        long dislikeCount = likeService.disLike(userId,EntityType.ENTITY_NEWS,newsId);  //把这个用户加入该资源的赞集合
+        return ToutiaoUtil.getJSONString(0,String.valueOf(dislikeCount)); //返回给前端
+    }
+
+}
+```
+##### 1.4 注意事项：一个资讯可能对应有 pv、赞、踩这些不同的集合，所以集合的命名要有规范，一般我们把业务作为集合的前缀
+```java
+package com.nowcode.toutiao.util;
+
+
+//根据规范生成集合的名字，以业务作为集合名称的前缀，每个集合全局唯一
+public class RedisKeyUtil {
+    private static String SPLIT = ":";
+    private static String BIZ_LIKE="LIKE";
+    private static String BIZ_DISLIKE="DISLIKE";
+
+    //每条资讯/评论 关联的赞集合【存放赞它的人】是不同的
+    public static String getLikeKey(int entityType,int entityId){
+        return BIZ_LIKE + SPLIT + String.valueOf(entityType) + String.valueOf(entityId);
+    }
+
+    //每条资讯/评论 关联的踩集合【存放踩它的人】是不同的
+    public static String getDisLikeKey(int entityType,int entityId){
+        return BIZ_DISLIKE + SPLIT + String.valueOf(entityType) + String.valueOf(entityId);
+    }
+
+}
+
+```
+##### 1.5 注意事项：要修改首页的显示，在home.html里，根据你点的喜欢不喜欢进行加量【不同显示】,
+```html
+<div class="votebar">
+                                #if ($vo.like > 0)
+                                <button class="click-like up pressed" data-id="$!{vo.news.id}" title="赞同"><i class="vote-arrow"></i><span class="count">$!{vo.news.likeCount}</span></button>
+                                #else
+                                <button class="click-like up" data-id="$!{vo.news.id}" title="赞同"><i class="vote-arrow"></i><span class="count">$!{vo.news.likeCount}</span></button>
+                                #end
+                                #if($vo.like < 0)
+                                <button class="click-dislike down pressed" data-id="$!{vo.news.id}" title="反对"><i class="vote-arrow"></i></button>
+                                #else
+                                <button class="click-dislike down" data-id="$!{vo.news.id}" title="反对"><i class="vote-arrow"></i></button>
+                                #end
+                            </div>
+```
+##### 1.6 注意事项：同时在HomeController里也要修改一下，把vo.like 传进去
+```java
+    private List<ViewObject> getNews(int userId, int offset, int limmit){
+        //取前10条新闻数据
+        List<News> newsList= newsService.getLatesNews(userId,offset,limmit);
+        int localUserId = hostHolder.getUser() != null?hostHolder.getUser().getId():0;
+        List<ViewObject> vos = new ArrayList<>();
+        for (News news: newsList){
+            ViewObject vo=new ViewObject();
+            vo.set("news",news);//vo就是一个map,通过“news”字段就可以得到news
+            vo.set("user",userService.getUser(news.getUserId())); //这条资讯对应的作者
+
+            if (localUserId != 0){ //*****说明是登陆状态
+                //通过like 就能知道这条资讯关于我这个用户的状态，喜欢还是不喜欢
+                vo.set("like",likeService.getLikeStatus(localUserId,EntityType.ENTITY_NEWS,news.getId()));
+            }else {
+                vo.set("like",0); //没登录我们就默认是0；
+            }
+            vos.add(vo);
+        }
+        return vos;
+    }
+
+
+    //用于获得资讯那一页的模板
+    @RequestMapping(path={"/","/index"},method = {RequestMethod.GET,RequestMethod.POST})
+    public String index(Model model){
+        //把Vos传到home.html
+        model.addAttribute("vos",getNews(0,0,10));// 这样，到了home.html就可以通过news字段访问news，通过user字段访问user
+        return "home";
+    }
+
+```
+##### 1.7 注意事项：在NewsController也要改一下，把like 传进去，因此detail也要修改【detail的修改和home一样】
+```java
+    //资讯入口，即资讯详情的入口，返回资讯的详情页,newsId,消息的id
+    //实际我们只需要把资讯的信息取出来加入model,通过Model传值给模板
+    @RequestMapping(path = {"/news/{newsId}"},method = {RequestMethod.GET})  //在home.html中，资讯名称的链接即是这个 href="/news/$!{vo.news.id}">$!{vo.news.title}</a>
+    public String newsDetail(@PathVariable("newsId") int newsId,Model model){
+        News news = newsService.getById(newsId);
+        if(news != null){ //这个详情页应该有评论，所以写在这里
+            //取出这条资讯的所有评论
+            int localUserId = hostHolder.getUser() != null?hostHolder.getUser().getId():0;
+            if (localUserId != 0){ //*****说明是登陆状态
+                //通过like 就能知道这条资讯关于我这个用户的状态，喜欢还是不喜欢
+                model.addAttribute("like",likeService.getLikeStatus(localUserId,EntityType.ENTITY_NEWS,news.getId()));  //把like 传进去
+            }else {
+                model.addAttribute("like",0); //没登录我们就默认是0；
+            }
+            List<Comment> comments = commentService.getCommentByEntity(news.getId(),EntityType.ENTITY_NEWS);
+            //因为页面上除了资讯、评论、还应该有评论对应的人的头像，所以做一个ViewObject的list,方便模板显示
+            List<ViewObject> commentVOs = new ArrayList<>();
+            for(Comment comment: comments){ //一条评论对应一个vo，那么既可以在模板里通过vo.comment,vo.user这些字段来获取信息
+                ViewObject vo = new ViewObject();  //里面只有一个hashmap及其存取方法
+                vo.set("comment",comment);
+                vo.set("user",userService.getUser(comment.getUserId()));
+                commentVOs.add(vo);  //commentVOs包含了我们取出的所有评论，方便模板使用
+            }
+            model.addAttribute("comments",commentVOs);  //把这个传递给模板，模板才能用【遍历comments,对每个vo得到vo.comment,vo.user】
+        }
+        model.addAttribute("news",news);  //像页面传输对象，然后再去detail.html文件修改替换一下
+        model.addAttribute("owner",userService.getUser(news.getUserId()));
+        return "detail"; //返回html页面
+    }
+
+```
+
+# 第八周 异步设计和站内邮件通知系统
+## 一、异步队列
+* 网站上的事情牵一发而动全身。
+    * 比如用户给你点了一个赞，那么要考虑成就值要不要增加，我要不要收到一个站内通知，或者其他事情。看起来只是点了一个赞，实际后台要做很多事情。
+    * 比如登陆后，网站还要检查你的IP这些有没有问题，然后给用户发邮件这些。
+    * 现在系统越来越大，杂碎的事情很多，如果每段代码里面都要做一些相似的事情，那么代码就很冗余。【比如点赞，评论或者其他事情都会导致成就值增加，那么成就值增加这行代码每个地方都调的化很麻烦】
+* 综上，所以大型的系统到了最后都是服务化和异步化的：
+    * 服务化：我要做很多事情，然后我把每个模块，在以前的系统里面可能就是一个service、一个类，把它们单独出来做成一个工程，再把相关的接口暴露出来供给所有的业务部门用，这就叫服务化。单独去维护这个服务，提供接口。
+        * 一个大系统里面，一些主要的核心模块就逐步切出来，切出来后再独立成工程，工程完后再服务化，就可以暴露一些公共的接口来给其他部门所用。比如用户交给一个团队，数据库交给一个团队
+    * 异步化：异步化把一些复杂的业务处理流程切开，把那些需要及时反馈的数据直接返回，对那些可以滞后更新的数据慢慢地在后台更新
+        * 用户点了赞，你需要迅速地把点赞结果返回去，至于点赞引起的一些成就值增加等等，这些事情暂时都不管，我只需要告诉别人这件事发生了，再通过一个异步化的框架处理掉它们。
+### 1.1 通过队列来实现异步结构
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E5%BC%82%E6%AD%A5%E9%98%9F%E5%88%97.png?raw=true)
+#### 1.1.1 流程：
+* Biz：业务部门，发送事件到事件统一的构造点
+* Event Producer：事件构造点，发送事件到队列
+* 队列：用于存储发过来的事件。可以单向队列【先进先出】或者优先队列【redis里有sorted set】
+* 右边则是通过消费线程把这些事件处理掉：得到事件后去找到与事件相关联的Handler【哪些在关注这个事件】去处理
+
+#### 1.1.2 异步的好处：
+* 即使系统全部挂掉，也只是意味着这些数据的更新及相关联的操作都是延后而已，重启服务器后只要队列还在，继续慢慢处理即可。
+
+### 1.2 代码实现：在LikeController 里面把like事件用 EventProducer 发（lpush）到阻塞队列,在EventConsumer 里从阻塞队列不断阻塞（brpop）取出事件,处理它
+#### 1.把事件放进队列，取出来，涉及到队列的序列化【event 序列化存进队列，取出来时再反序列化】
+* 在JedisAdapter 里增加两个函数setObject 和 getObject，我可以序列化保存对象，也可以取出对象
+```java
+   //set 方法的包装
+    public void set(String key, String value) {
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            jedis.set(key, value);
+        } catch (Exception e) {
+            logger.error("发生异常" + e.getMessage());
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    //get方法的包装
+    public String get(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            return jedis.get(key);
+        } catch (Exception e) {
+            logger.error("发生异常" + e.getMessage());
+            return null;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+    
+    //往队列里增加一个对象，对象以json 串的方式存储
+    public void setObject(String key,Object obj){
+        set(key, JSON.toJSONString(obj));  //set是redis 里面的set
+    }
+
+    //从队列取出一个对象,通过key取对象，并且传入这是一个什么对象
+    public <T> T getObject(String key, Class<T> clazz ){
+        String value = get(key);  // 通过key 取出对象
+        if(value != null){
+            return JSON.parseObject(value,clazz);  //反序列化返回正确类型的对象
+        }
+        return null;
+    }
+```
+#### 2、先创一个异步包 async 用于存放异步相关的代码
+##### 1）EventType：表示刚刚发生了什么事件，事件是什么类型【是一个枚举类】
+```java
+public enum EventType {
+    LIKE(0),
+    COMMENT(1),
+    LOGIN(2),
+    MAIL(3);   //事件的类型
+    
+    private int value;
+    EventType(int value){
+        this.value=value;
+    }
+    public int getValue(){
+        return value;
+    }
+}
+```
+##### 2）EventModel：事件发生时现场的数据信息都打包在这个 EventModel里面【事件的数据】
+```java
+package com.nowcode.toutiao.async;
+
+import java.util.HashMap;
+import java.util.Map;
+
+//即放进队列里的事件本身 【保存了事件发生时的现场】
+public class EventModel {
+    //比如赞事件，type：类型是LIKE
+    // actorId：当前线程用户触发了该事件
+    // entityType 和 entityId 表示触发对象是资讯
+    // entityOwnerId;  触发对象的拥有者是谁，即资讯的拥有者是谁
+    private EventType type; //刚刚发生的事件的类型是什么：LIKE(0),COMMENT(1),LOGIN(2),MAIL(3);
+    private int actorId;  //谁触发了事件
+    private int entityType;
+    private int entityId;   //entityType 和 entityId 表示触发对象是什么
+    private int entityOwnerId;  //触发对象的拥有者是谁
+    //用于保存触发现场数据
+    private Map<String,String> exts = new HashMap<>();
+
+    // 1）构造函数
+    public EventModel(EventType type){
+        this.type = type;
+    }
+    public EventModel(){  //从JSON串 反序列化构造出事件需要默认的构造函数
+
+    }
+
+    // 2）获取和存放现场数据
+    public String getExt(String key){
+        return exts.get(key);   //获取现场数据
+    }
+
+    public EventModel setExt(String key,String value){
+        exts.put(key,value);  //存放现场数据
+        return this;     //****** 为了能更快设置数据（可以不断调用set）
+        // eventProducer.fireEvent(new EventModel(EventType.LIKE).setActorId(hostHolder.getUser().getId())
+        // .setEntityId(newsId).setEntityType(EntityType.ENTITY_NEWS)
+        // .setEntityOwnerId(news.getUserId()));
+    }
+
+    // 3） 设置其他信息
+    public EventType getType() {
+        return type;
+    }
+
+    public EventModel setType(EventType type) {
+        this.type = type;
+        return this;
+    }
+
+    public int getActorId() {
+        return actorId;
+    }
+
+    public EventModel setActorId(int actorId) {
+        this.actorId = actorId;
+        return this;
+    }
+
+    public int getEntityType() {
+        return entityType;
+    }
+
+    public EventModel setEntityType(int entityType) {
+        this.entityType = entityType;
+        return this;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public EventModel setEntityId(int entityId) {
+        this.entityId = entityId;
+        return this;
+    }
+
+    public int getEntityOwnerId() {
+        return entityOwnerId;
+    }
+
+    public EventModel setEntityOwnerId(int entityOwnerId) {
+        this.entityOwnerId = entityOwnerId;
+        return this;
+    }
+
+    public Map<String, String> getExts() {
+        return exts;
+    }
+
+    public EventModel setExts(Map<String, String> exts) {
+        this.exts = exts;
+        return this;
+    }
+}
+
+
+```
+##### 3) EventHandle 接口：可以处理各种各样的事情，比如LikeHandle 处理踩赞相关的事情 需要实现这个接口
+* 3.1）事件处理的接口
+```java
+public interface EventHandle {
+    void doHandle(EventModel model);  //用于处理model 这个具体的事件
+    List<EventType> getSupportEventType();  //用于 得知我要关注哪些类型的的事件，只要这些事件发生，我都要处理一下
+}
+
+```
+* 3.2）事件处理的实现，先创建一个handler包，用于存放各种事件的处理 ,比如LikeHandler
+    * 不同的事件对应不同的处理，比如我们可以对Like事件，我们会给被点赞的资讯的拥有者发一个站内信，告诉他谁点赞了 【LikeHandler 来实现这件事】
+```java
+
+@Component
+public class LikeHandler implements EventHandle {
+    @Autowired
+    UserService userService;
+
+    @ Autowired
+    MessageService messageService;
+
+    @Override
+    //处理事件的代码，给被赞的资讯的拥有者发一个站内信
+    public void doHandle(EventModel model)
+    {
+        Message message = new Message();
+        User user = userService.getUser(model.getActorId());  //哪个用户赞了
+        message.setFromId(3);  //谁发出的这条资讯，这应该是系统
+        message.setToId(model.getEntityOwnerId());
+        message.setContent("用户"+user.getName()
+                +"赞了你的资讯：http://127.0.0.1:8080/news/"+model.getEntityId());
+        message.setCreatedDate(new Date());
+        messageService.adddMessage(message);
+
+    }
+
+    @Override
+    public List<EventType> getSupportEventType() {
+        return Arrays.asList(EventType.LIKE);  //likeHandler 只关心点赞，只用于处理点赞
+    }
+}
+
+```
+
+
+##### 3）EventProducer：用于把事件发给阻塞队列，即把事件序列化后放到 Redis 的一个队列里面
+```java
+
+@Service   //因为要供给各种各样的业务来用，发送事件到阻塞队列
+public class EventProducer {
+    @Autowired
+    JedisAdapter jedisAdapter;  //用的jedis 的阻塞队列
+
+    //发送一个事件到阻塞队列
+    public boolean fireEvent(EventModel model){
+        try{
+            String json = JSONObject.toJSONString(model);  // 1）把事件序列化
+            String key = RedisKeyUtil.getEventQueueKey();  // 2) 通过工具类得到你的阻塞队列的名字【“EVENT"】
+            jedisAdapter.lpush(key,json);   //放到队列里去
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
+    }
+}
+
+```
+##### 4）EventConsumer：去取队列里面的事件，取出来后反序列化成 事件发生时的现场（EventModel）,根据事件去找到它对应的 Handler ，把事件处理掉
+```java
+@Service //用于处理掉队列里的事件，是消费出口
+public class EventConsumer implements InitializingBean ,ApplicationContextAware {
+    @Autowired
+    JedisAdapter jedisAdapter;
+
+    private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
+    private Map<EventType, List<EventHandle>> config = new HashMap<>(); //对某个事件，找到所有需要对它进行处理的Handler
+    private ApplicationContext applicationContext; //应用上下文
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 一 、初始化：需要一个映射表 config，来了一个事件，我要用哪些handler 来处理 ，
+        // 在Spring 一启动后就把这些初始化好，步骤如下：
+        // 1) 找出spring中所有实现了EventHandle 的类
+        Map<String,EventHandle> beans = applicationContext.getBeansOfType(EventHandle.class);
+        if (beans != null) {
+            // 2) 遍历这些handler，找到它支持的type；比如LIKE(0),COMMENT(1),LOGIN(2),MAIL(3);
+            for (Map.Entry<String, EventHandle> entry : beans.entrySet()) {
+                List<EventType> eventTypes = entry.getValue().getSupportEventType();
+                // 3） 对它支持的每一个事件类型，把自己注册进去，即让每个事件对应上处理它的 Handler
+                for (EventType type : eventTypes) {
+                    if (!config.containsKey(type)) {
+                        config.put(type, new ArrayList<EventHandle>());
+                    }
+                    //把自己注册了进去，即把handler 加入事件对应的 handler 链表中
+                    config.get(type).add(entry.getValue());
+                }
+            }
+        }
+
+        // 二、开一个线程去不断处理事件（从阻塞队列获取事件，然后根据事件知道它需要被哪些 Handler处理）
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){  //不断处理事件
+                    String key = RedisKeyUtil.getEventQueueKey();  //从哪个队列取事件，队列名称
+                    // 1）取得事件：lpush - brpop 阻塞队列，有事件我就处理，没有事件就阻塞等着,0表示一直等待
+                    List<String> events = jedisAdapter.brpop(0,key);
+                    // 2） 处理事件
+                    for(String message:events){
+                        if(message.equals(key)){ //list 的第一个是阻塞队列名字
+                            continue;
+                        }
+                        // 2.1 反序列化得到事件
+                        EventModel eventModel = JSON.parseObject(message,EventModel.class); 
+                        // 如果这个事件没有被注册过，说明我们没有定义它的处理方法
+                        if(!config.containsKey(eventModel.getType())){
+                            logger.error("不能识别的事件");
+                            continue;
+                        }
+                        // 2.2 根据事件类型 遍历需要处理它的handler 来处理它
+                        for (EventHandle handle : config.get(eventModel.getType())){
+                            handle.doHandle(eventModel);
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
+}
+
+```
+
+#### 3、在LikeController 里试验，赞一下，把赞事件加入队列处理
+```java
+    //赞
+    @RequestMapping(path={"/like"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String like(@RequestParam("newsId") int newsId){
+        int userId = hostHolder.getUser().getId();
+        long likeCount = likeService.like(userId,EntityType.ENTITY_NEWS,newsId);  //把这个用户加入该资源的赞集合
+        newsService.updateLikeCount(newsId,(int)likeCount); //还要更新news表里的字段
+ 
+        //异步处理由赞引发的操作，把赞事件加入队列
+        News news = newsService.getById(newsId);
+        eventProducer.fireEvent(new EventModel(EventType.LIKE)  //因为return 了this,所以这么方便
+                .setActorId(hostHolder.getUser().getId())   //此线程的用户触发了这个事件
+                .setEntityId(newsId)   //触发的对象:是哪个资讯
+                .setEntityType(EntityType.ENTITY_NEWS)
+                .setEntityOwnerId(news.getUserId())); //资讯的拥有者是谁
+        return ToutiaoUtil.getJSONString(0,String.valueOf(likeCount)); //返回给前端
+    }
+```
+
+
+
+
+
+## 二、站内邮件通知系统：写一个异常登陆通知 
+* 综：在pom中引入java扩展的库javax.mail，
+    * 设置发邮件的地址、用户名  【相当于你这个网站的的邮箱就是这个】
+    * 真正发邮件的时候把发件人、目标地址、邮件标题、邮件内容设置上，最重要的是邮件内容需要通过模板引擎去渲染【这样就可以实现个性化】
+### 1）在 LoginController 里通过 EventProducer 把登陆这个事件发给队列
+```java
+    //登陆
+    @RequestMapping(path={"/login/"},method = {RequestMethod.GET,RequestMethod.POST})
+    @ResponseBody
+    public String login(Model model, @RequestParam("username") String username,
+                      @RequestParam("password") String password,
+                      @RequestParam(value = "rember",defaultValue = "0") int rememberme,
+                        HttpServletResponse response) {//即是否记住登录
+        try {
+            Map<String ,Object>  map = userService.login(username,password);
+            if(map.containsKey("ticket")){  //登陆成功会下发一个ticket
+                Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+                cookie.setPath("/");  //这个cookie是全站有效的
+                if (rememberme > 0) {
+                    cookie.setMaxAge(3600*24*5);  //有效为5天，如果不写就默认是浏览器关闭就没有了
+                }
+                response.addCookie(cookie);
+
+                //上面登陆的事都处理完了，我们就发一个事件到异步队列里，让那些需要处理登陆的Handler去处理
+                eventProducer.fireEvent(new EventModel(EventType.LOGIN)
+                        .setActorId((int) map.get("userId"))  //在UserService.Login里有： map.put("userId", user.getId());
+                        .setExt("username", username).setExt("email", "21715086@zju.edu.cn")); //由我的qq邮箱发到这个邮箱
+
+                return ToutiaoUtil.getJSONString(0,map);
+            }else {
+                return ToutiaoUtil.getJSONString(1,map);
+            }
+
+        }catch (Exception e){
+            logger.error("登陆异常"+e.getMessage());
+            return ToutiaoUtil.getJSONString(1,"登陆异常");
+        }
+    }
+```
+
+### 2）处理队列，如果登陆有异常就发送邮件和站内信【没有写登陆异常算法，所以一登录就会发邮件和站内信】【**邮件是模板才能个性化】
+* 2.1) 在pom.xml中引入邮件
+```html 
+<dependency>
+    <groupId>javax.mail</groupId>
+    <artifactId>mail</artifactId>
+    <version>1.4.7</version>
+</dependency>
+```
+* 2.2 ) 邮件是一个独立的功能，所以写一个Service来发邮件：邮件有模板，这样才能针对每个人发，发的时候替换掉对应字段，那就成了个性化的邮件
+```java
+@Service  //专门用于发邮件
+public class MailSender implements InitializingBean {
+    private  static final Logger logger = LoggerFactory.getLogger(MailSender.class);
+    private JavaMailSenderImpl mailSender;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
+
+    @Override  //在bean初始化的时候要设置的属性
+    public void afterPropertiesSet() throws Exception {
+        mailSender = new JavaMailSenderImpl();
+        mailSender.setUsername("zhaojing9563@qq.com");  //发送方的邮箱和密码
+        mailSender.setPassword("mtpsatvppdgmbijj");
+        mailSender.setHost("smtp.qq.com");   //QQ邮箱的发送方服务器地址
+        mailSender.setPort(465);     //QQ邮箱的发送方服务器的端口号
+        mailSender.setProtocol("smtps");  //协议是smtp+ssl
+        mailSender.setDefaultEncoding("utf8");
+        Properties javaMailProperties = new Properties();
+        javaMailProperties.put("mail.smtp.ssl.enable",true);  //属性设置进来
+        mailSender.setJavaMailProperties(javaMailProperties);  //这样mailSender的属性就全部设置好了
+    }
+
+
+    //发送邮件，邮件是以html 形式
+    public boolean sendWithHTMLTemplate(String to,String subject,
+                                        String template,
+                                        Map<String,Object> model){//model是传入的一些参数
+        try {
+            String nick = MimeUtility.encodeText("赵静");  //邮件是谁发的（它的昵称）
+            InternetAddress from = new InternetAddress(nick + "<zhaojing9563@qq.com>");  //发件人是谁
+            MimeMessage mimeMessage = mailSender.createMimeMessage();  //构造一封邮件
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+            String result = VelocityEngineUtils    //*******邮件有模板，这样才能针对每个人发，发的时候替换掉对应字段
+                    .mergeTemplateIntoString(velocityEngine,template,"UTF-8",model);
+            mimeMessageHelper.setTo(to);  //邮件去哪里
+            mimeMessageHelper.setFrom(from);  //从哪里来
+            mimeMessageHelper.setSubject(subject); //标题是什么
+            mimeMessageHelper.setText(result,true);  //内容是什么，【即result这份邮件模板】
+            mailSender.send(mimeMessage);  //发送
+            return true;
+        }catch (Exception e){
+            logger.error("发送邮件失败"+e.getMessage());
+            return false;
+        }
+    }
+}
+
+```
+
+* 2.3 ) 然后你的 EventConsumer 从队列里取得事件，让需要处理这件事的 Handle 去处理，比如 LoginExceptionHandler 
+```java
+@Component
+public class LoginExceptionHandler implements EventHandle {
+    @Autowired
+    MessageService messageService;
+
+    @Autowired
+    MailSender mailSender;    //********即上面那个发送邮件的服务
+
+    @Override
+    public void doHandle(EventModel model) {
+        // 1）判断是否由异常登陆，
+        // 2）如果有异常登陆，发站内信
+        Message message = new Message();
+        message.setToId(model.getActorId());
+        message.setContent("你上次的登陆Ip异常");
+        message.setFromId(3);  //用户3是系统
+        message.setCreatedDate(new Date());
+        messageService.adddMessage(message);
+
+        // 2）如果有异常登陆，给你发一封邮件
+        Map<String ,Object> map = new HashMap<>();  //传进去方便模板使用
+        map.put("username",model.getExt("username"));
+        mailSender.sendWithHTMLTemplate(model.getExt("email"), //发给谁
+                "登录异常",  //邮件的标题
+                "mails/welcome.html", //邮件使用的模板
+                map);
+    }
+
+    @Override
+    public List<EventType> getSupportEventType() {
+            return Arrays.asList(EventType.LOGIN); // 1) 我要关注的是登陆这件事
+    }
+}
+```
 
 
 
@@ -2406,7 +3470,319 @@ public class MessageController {
 
 
 
-## 问题：
+# 第九周 多种资讯排序算法以及多线程讲解
+## 一、资讯排序
+### 1.1 通用排序：根据某个值来排序，order by
+#### 1.按单位时间内的交互数，del.icio.us按1小时内收藏排行来排序：参与的人越多，认为它越火
+#### 2.按总交互数，按总点赞数来排序：可能这个话题比较有争议，所以数据很大，然而并没有随着时间的推移沉下去
+#### 3.按评论数加权：评论比赞有价值，
+#### 4.按时间排序：时间最新放最前面
+### 1.2代码实现：以log 得方式大幅度降低大流量导致得数据的波动、用指数来提升权重
+* 1）找出需要参与排序的元素，比如用户，资讯等
+* 2）利用redis的优先队列，把元素和它算出来的分值放进去
+* 3）数据的更新：可以用一条线程定时的去触发计算更新【优化：只排序最近几天【或者前几页】的数据或者只重新计算改变过的数据】
+### 1.3 Hacker News 的排序：//一个资讯网站：核心就是通过一个公式算一个分数
+* 对每个资讯都算了一个值，根据点赞数，发布时间来排序，因为是资讯网站，所以注重时间，对时间加了重力加速度，提升了时间的权重，你如果注重点赞数，也可以提升点赞数的权重【用指数来提升权重********】
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/hacker.png?raw=true)
+
+### 1.3 Reddit  //也是分享资讯的一个网站 ：核心也是通过一个资讯算一个分数 【时间是最重要的权重，以log 得方式大幅度降低大流量导致的点赞数，适合流量大的新闻类排序】
+* 依据时间差来做后面的一个参数，在依据投票的赞和踩的差来表明后面的时间差对你来说是正相关还是负相关，踩的多，后面就是负数，分值降低【时间越近降得越快】，赞的多，则时间越近，升得越多
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/re.png?raw=true)
+* 1) t<sub>s</sub> = A -B ;【A：发帖时间，B：网站创建时间； 二者的差值】
+* 2）x = U - D ;【U：赞，D：踩； 踩和赞的差值：秒差】
+* 3）y ：
+    * x>0：表明这是一个好帖子，y=1
+    * x=0: 不好不差：         y=0
+    * x<0：这是一个不好的帖子  y=-1
+* 4) z：赞和踩的差
+* 5）得到分数 f(t<sub>s</sub>,y,z)
+    * 时间越新，如果y为正，你的分值就越高，如果y为负，你的分值就越低，基本线性
+    * log<sub>10</sub> z ,用于平滑【以log 得方式大幅度降低大流量导致得数据的波动**********】，对数你要显示价值，你得很大才可以
+        * 86400（一天的秒数）/45000=1.92 一天权重调整【赞就是增加1.92，踩就是减少1.92】，10<sup>1.92</sup>=83 投票差要涨83倍才能和前一天的权重等价【45000用于调整时间带来的影响】
+        * 且投票差前10【log<sub>10</sub> 10 =1 】和接下来的100【log<sub>10</sub> 100 =2 】等权；认为前面10个赞更有价值，后面可能存在跟随点赞
+### 1.4 StackOverflow //一个问答网站
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/stackOverFlow.png?raw=true)
+### 1.5 IMDB  //一个电影评分网站 分为两拨：总的平均值和当前电影投票的平均值
+* 加权排名(WR) = (v ÷(v+m)) ×R + (m ÷(v+m)) × C
+    * R = 某电影投票平均分
+    * v = 有效投票人数 ：有效投票人数越多，左边就逐步偏向于1，电影得分就基本越来越相信这些投票人，而人数越少，左边偏向于0，右边偏向于1，电影得分倾向于平均值C
+        * 你这个人投过很多票了，我就认为你是认真看电影的人，是有效的，防止水军
+    * m = 最低投票人数，1250
+    * C = 所有电影平均值
+* 投票人数越多，越偏向于用户打分值，防止冷门电影小数人高分导致的高分
+
+## 二、多线程：怎么通过多线程处理任务
+### 2.1 多线程的优势和挑战
+#### 1） 优势：可以充分利用多处理器；可以异步处理任务
+#### 2） 挑战：数据会被多个线程访问，有安全性问题；不活跃的线程也会占用内存资源； 可能导致死锁
+### 2.2 Thread ,Synchronized
+* 实现线程的方式：
+    * 1.extends Thread，重载run()方法
+    * 2.implements Runnable()，实现run()方法
+* Synchronized－内置锁
+    * 1.放在方法上会锁住所有synchronized方法
+    * 2.synchronized(obj) 锁住相关的代码段【要获取obj对象的锁】
+### 2.3 BlockingQueue,AtomicInteger
+* BlockingQueue 同步队列
+    * put / take 插入和取出【阻塞】
+### 2.4 ThreadLocal,Executor,Future
+* ThreadLocal
+    * 1.线程局部变量。即使是一个static成员，每个线程访问的变量是不同的。
+    * 2.常见于web中存储当前用户到一个静态工具类中，在线程的任何地方都可以访问到当前线程的用户。
+    * 3.参考HostHolder.java里的users
+* Executor
+    * 1.提供一个运行任务的框架。
+    * 2.将任务和如何运行任务解耦。
+    * 3.常用于提供线程池或定时任务服务
+* Future 
+    * 1.返回异步结果
+    * 2.阻塞等待返回结果【异步等待返回结果】
+    * 3.timeout
+    * 4.获取线程中的Exception
+```java
+public static void testFuture(){
+        ExecutorService service =Executors.newSingleThreadExecutor();
+        Future<Integer> future = service.submit(new Callable<Integer>() {  //用callable才有返回值
+            @Override
+            public Integer call() throws Exception {
+                Thread.sleep(1000);
+                return 1;
+            }
+        });
+
+        service.shutdown();
+        try {
+            System.out.println(future.get());  //卡着一直等它的返回值
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+```
+
+
+# 第十周 JavaWeb项目测试和部署，课程总结回顾
+## 一、单元测试JUnit简介：测试某个模块或者细小的接口是否正常
+*  Junit 测试也是程序员测试，即所谓的白盒测试，它需要程序员知道被测试的代码如何完成功能，以及完成什么样的功能
+*  Junit 能很好地简化单元测试，写一点测一点，在编写以后的代码中如果发现问题可以较快的追踪到问题的原因，减小回归错误的纠错难度。
+*  Junit 的几种类似于 @Test 的注解：
+    * 1.@Test: 测试方法
+        * a)(expected=XXException.class)如果程序的异常和XXException.class一样，则测试通过
+        * b)(timeout=100)如果程序的执行能在100毫秒之内完成，则测试通过
+    * 2.@Ignore: 被忽略的测试方法：加上之后，暂时不运行此段代码
+    * 3.@Before: 每一个测试方法之前运行
+    * 4.@After: 每一个测试方法之后运行
+    * 5.@BeforeClass: 方法必须必须要是静态方法（static 声明），所有测试开始之前运行，注意区分before，是所有测试方法
+    * 6.@AfterClass: 方法必须要是静态方法（static 声明），所有测试结束之后运行，注意区分 @After
+* 编写测试类的原则：　
+    * 1）测试方法上必须使用@Test进行修饰
+    * 2）测试方法必须使用public void 进行修饰，不能带任何的参数
+    * 3）新建一个源代码目录来存放我们的测试代码，即将测试代码和项目业务代码分开
+    * 4）测试类所在的包名应该和被测试类所在的包名保持一致
+    * 5）测试单元中的每个方法必须可以独立测试，测试方法间不能有任何的依赖
+    * 6）测试类使用Test作为类名的后缀（不是必须）
+    * 7）测试方法使用test作为方法名的前缀（不是必须）
+### 1.1 测试四部曲：【代码演示：验证点赞是否有效】【每个service都写一个对应的serviceTest】
+* 先创建一个 LikeServiceTest：运行顺序是：beforeClass【只运行一次】——before【每次测试开始前都运行】——test1———after——before————test2——after——afterclass
+#### 1）初始化数据
+#### 2）执行要测试的业务：有正确测试，异常测试，压力测试【疯狂地调用】等
+#### 3）验证测试数据
+#### 4）清理数据
+```java
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = ToutiaoApplication.class)
+public class LikeServiceTest {
+    @Autowired
+    LikeService likeService;
+
+    @Test  // 2）用于测试数据,正确测试
+    public void testLike1(){
+        likeService.like(123,1,1);  //用户123喜欢资讯1
+        //断言，确认这个必须是这样，不然就报错
+        Assert.assertEquals(likeService.getLikeStatus(123,1,1),1);
+        System.out.println("testLike1");
+    }
+    @Test   //2）用于测试数据,正确测试
+    public void testLike2(){
+        likeService.disLike(123,1,1);
+        Assert.assertEquals(1,likeService.getLikeStatus(123,1,1));
+        System.out.println("testLike2");
+    }
+
+    @Test(expected=IllegalArgumentException.class)  //正常情况是要抛某个异常的。【把那个异常的类注释一下】
+    public void exceptionTest(){
+        throw new IllegalArgumentException("xxxx");
+    }
+
+    @Before  // 1）用于初始化数据，在每一个测试用例开始前都会跑一次
+    public void serUp(){
+        System.out.println("serUp");
+    }
+
+    @After  // 4） 用于清理数据
+    public void tearDown(){
+        System.out.println("tearDown");
+    }
+
+    @BeforeClass  //在跑所有的测试用例前只跑一次,而Before 是每跑一次测试用例就会跑一次
+    public static void beforeClass(){
+        System.out.println("beforeClass");
+    }
+
+    @AfterClass
+    public static void afterClass(){
+        System.out.println("afterClass");
+    }
+}
+
+```
+## 二、打包步骤：【用maven把项目打成war包】
+* 1.application 继承SpringBootServletInitializer
+* 2.pom.xml 里面的打包jar改为war
+* 3.mvn package -Dmaven.test.skip=true  ：打包好的war 会在项目的target目录下：toutiao-0.0.1-SNAPSHOT.war
+    * 1)自己装一个maven: https://jingyan.baidu.com/article/3065b3b6a00792becef8a46c.html
+    * 2)在cmd 下面转到项目的目录下
+    * 3）mvn package：打包，会跑测试用例
+    * 4）mvn package -Dmaven.test.skip=true  //不跑测试用例
+* 4.去除多余的main函数
+原来的样子
+```java
+@SpringBootApplication
+public class ToutiaoApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ToutiaoApplication.class, args);
+	}
+}	
+```
+现在的样子
+```java
+@SpringBootApplication
+public class ToutiaoApplication extends SpringBootServletInitializer {
+	@Override  //重写这个方法
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(ToutiaoApplication.class);
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(ToutiaoApplication.class, args);
+	}
+}
+```
+## 三、部署:【把war包拷贝到tomcat的webapps下】//【未弄linux下的部署】
+### 1）War包
+* War包一般是在进行Web开发时，通常是一个网站Project下的所有源码的集合，里面包含前台HTML/CSS/JS的代码，也包含Java的代码。
+* 当开发人员在自己的开发机器上调试所有代码并通过后，为了交给测试人员测试和未来进行产品发布，都需要将开发人员的源码打包成War进行发布。
+
+### 2）Tomcat服务器
+* Tomcat服务器是一个免费的开放源代码的Web应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP程序的首选，最新的Servlet和JSP规范总是能在Tomcat中得到体现。安装：https://www.cnblogs.com/huangwentian/p/7542280.html
+#### 2.1)window下的部署：
+* War包【我们改名为ROOT就可以直接通过http://localhost:8080来访问【因为tomcat的root是根目录】，不改名字的化就需要通过http://localhost:8080/projectName来访问】可以放在Tomcat下的webapps目录下，随着tomcat服务器的启动【bin/startup.bat，启动Tomcat服务器】，它可以自动被解压 
+* 可以将tomcat的默认端口改为7777【原本是8080，但这个和我们开发用的端口一样冲突了，所以改一下】，此后就通过：http://localhost:7777来访问
+```xml
+  <Connector port="7777" protocol="HTTP/1.1" 
+               connectionTimeout="20000"
+               redirectPort="8443" />
+```
+#### 2.2）Linux下的部署
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/nginx.png?raw=true)
+
+* 1) 服务器安装Nginx
+    * apt-get install nginx mysql-server libmysqlclient-dev maven redis
+* 2）打开Nginx 的配置文件：/etc/nginx/sites-enabled/c2
+    * 一个访问来，并不是直接访问tomcat,而是访问 Nginx 【一个具有负载均衡的web server：把进来的流量平均分给后台的机器，也可以做反向代理、域名指定等，用一台机器同时服务N个域名】
+```
+server {
+listen 80;  //服务器监听在80端口
+server_name c2.nowcoder.com;  //如果访问的域名是c2.nowcoder.com，就反向代理到http://127.0.0.1:8080这个端口【分给后台的机器】
+location / {
+proxy_pass http://127.0.0.1:8080;
+}
+}
+```
+* 注意事项：
+    *  启动WEB：tomcat目录增加执行权限。chmod +x startup.sh
+    * 配置Java：update-alternatives –config java  【tomcat这些有版本要求，1.8的，你用1.6的java可能就跑不起来】
+    * Redis链接修改
+
+
+## 四、总结
+### 1.开发工具Git，IntilliJ
+### 2.Spring Boot，Velocity
+#### 一、做网站从宏观上来看，分为几个层次,
+* http请求过来后：
+    * controller：所有的入口：指定了网页访问的地址，指定了参数，http的方法（get,post还是其他）
+        * 它会调用底层的service
+    * service：对业务进行一些包装：比如取数据等等，这些又依赖于底层的DAO层
+    * DAO（数据库层）：我们用的是Mybatis：可以通过注解的方式写各种sql语句，直接对数据库进行操作【并且直接和对象里面的数据做一些匹配】
+        * mybatis的配置十分简单，就一个mybatis-config.xml 【直接从官网抄】
+        * 在application.properties里 指定一下数据源，指定一下访问的用户名和密码，指定一下mybatis的配置文件【为mybatis-config.xml】
+        * 除了用代码注解的方式，还可以用xml的方式：此时要注意namespace不要写错了，要和DAO的包名一样
+* 数据从DAO层返回到controller层，有两种展示模式：
+    * ResponseBody：直接就是一个JSON串
+    * 可以返回一个模板 【这个时候没有 ResponseBody】
+        * 模板可以做for循环，属性这些的调用，还可以定义宏，调用方法等 【通过controller里面的数据传递到模板，模板进行解析，页面就显示出来了】
+#### 二、还讲了interceptor【拦截器】：
+* 对完整的http请求：
+    * preHandle：请求开始之前要判断一下做什么事情：知道用户是谁，这个用户是否合法
+    * postHandle：在渲染之前把用户传给模板【在请求已经执行好了，渲染之前】
+    * afterCompletion：在整个http请求结束以后执行【做清理工作】
+### 三、还讲了面向切面编程 @Aspect
+* 可以切入到所有的业务里面去
+    * @Before：在执行哪些方法时都要先执行我这个方法
+    * @After：在方法执行完后调用这个方法
+### 四、还讲了redis 【JedisAdapter】
+* Redis是一个Key-Value（K-V）系统的数据库，通过各种命令来读取或者设置他的数据
+    * 支持简单的get和set，数值操作（incr,decrBy,）  【maybe是变量的概念？】
+    * 有列表List的概念：可以加/减数据，筛选一部分数据
+    * 哈希的概念：插入，读取【maybe是哈希表的概念？】
+    * 有集合的概念：对集合加/减 元素，对集合求并、求交、判断集合是否有一些元素【用于点赞】
+    * 有排序集合、即优先队列的概念：可以给每一个key设置一个分值，于是之后可以取范围、逆着取范围，以及根据分数取对应的值【用于各种各样的排行榜】*****
+* redis有两种连接方式：
+    * 一个连接
+    * 连接池：记得每次从中取一个资源，用完以后一定要记得把它关闭返回给数据库
+### 五、还讲了异步框架
+* 我要执行一些事件，但我并不是马上执行，而是通过一个队列，比如登陆后我还想异步做一些事情
+    * 在controller里面，通过一个producer来发送一个事件到队列
+    * 我的EventConsumer会在起来的时候把各种事件都注册好，然后死循环地取事件，一旦取到事件，再根据一开始就注册的的所有的handler对这个事件进行处理
+### 六、还做了云存储，用的七牛云
+* 把一张图片【网页传上来的MutipartFile 】直接传到七牛云里，调用七牛云的接口返回记录的是七牛云给我们的URL【所以很快，不需要存到我们本地】
+### 七、登陆注册，用了拦截器，拦截器这里的核心是hostHolder  ***
+* 在拦截器里给每一条线程都保存了当前用户，【这个用户从你每次访问的cookie来的，cookie怎么知道你是谁，因为在每次登陆的时候都通过 LoginTicket 存储了数据】
+### 7.发邮件
+* 用的javax.mail模块，我们发的邮件要是高端邮件，个性化的邮件，而不是纯文本【用了VelocityEngineUtils】
+* 核心代码：在初始化的时候把邮件服务器，邮件账号，邮件密码等参数【标准邮件SMTP协议要指定的】
+    * 发邮件的时候指定好发送给谁，把邮件模板传进来就好
+
+### 8.单元测试/部署
+## 五、扩展
+* 1) 产品功能扩展
+    * 1.用户注册，邮箱激活流程
+    * 2.站内信互发【现在的站内信还是系统发起的，我们可以做成人与人之间的】
+    * 3.首页滚动到底部自动加载更多
+    * 4.管理员后台管理
+    * 5.运营推荐置顶
+    * 6.广告推广（smzdm.com）
+    * 7.SNS关注，个性化首页
+* 2) 技术深度扩展
+    * 1.自定义排序：做一个资讯的排序
+    * 2.缩图服务：现在用的缩图
+    * 3.爬虫自动填充资讯：
+    * 4.个性化推荐
+## 六、面试怎么讲
+* myBatis和数据库：需要深入了解，mybatis是怎么和数据库关联起来的，把JDBC这些这些都包装好了，只是把最核心的sql语句部分暴露出来
+* MVC，前后端分离，模板：后端怎么数据暴露给前端，前端的数据怎么展现的
+* 单元测试：面试官会觉得你有大局观
+* 云SDK接入：只是用了，接触知识面宽泛一些
+//* AJAX：后端不太有关，
+* Spring框架***：我们主要用的是SpringMVC里面的东西【它是怎么解析各种参数、控制反转和依赖注入，各种对象是怎么初始化的，上下文是怎么构造的*，以及spring里的面向切面编程，拦截器，为什么有这些东西，它是怎么暴露留好这些接口，保证我框架设计未来使用者可以方便扩展实现各种各样的需求；控制反转是怎么初始化对象的，怎么把对象间的依赖关系构建好的；】
+* Git工具
+
+
+
+
+
+# 附录：问题
 * 1、这里面的@CookieValue是什么意思，为什么
     * 输入是http://127.0.0.1:8080/response?key=nowcodeid&value=54时才会返回Nowcoderid from cookie: 54
     
@@ -2450,8 +3826,12 @@ public String addNews(@RequestParam("image") String image,
 ```
 
 3、在登陆框跳出来后，点击注册可以正常运行出用户已经登陆的页面，但点击登陆，还是原来那个页面，没反应
+* 因为你登陆入口写错了
+3.1 第七章无法跳出登陆框？
+* 解决办法，在header.html中加入 home.js
 4、不管是图片还是评论输入中文都无法识别，显示？
 5、news表中没有 dislikeCount字段，那么，这是怎么回事？
+* 因为我只需要在likeCount字段操作就可以了，不喜欢，就从喜欢集合中减少他，在不喜欢集合中加上他
 ```java
    @RequestMapping(path = {"/like"}, method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
