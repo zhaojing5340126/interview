@@ -3683,7 +3683,7 @@ public class BFS {
 
 * 举例：现在我们从1号顶点开始遍历这个图（遍历指的是把每一个顶点都访问一次）。使用深度优先搜索来遍历这个图我们将得到以下结果：
 
-!{}(https://images2017.cnblogs.com/blog/922928/201801/922928-20180110172943722-258557730.png)
+![](https://images2017.cnblogs.com/blog/922928/201801/922928-20180110172943722-258557730.png)
 
 * 使用深度优先搜索来遍历这个图的具体过程是：
     * 首先从一个未走到过的顶点作为起始顶点，比如1号顶点作为起点。
@@ -3727,6 +3727,7 @@ public class DFS {
                     stack.push(cur);
                     stack.push(next);
                     set.add(next);
+		    System.out.println(next.value);
                     break;  //只要找到了一个就开始遍历它
                 }
             }
