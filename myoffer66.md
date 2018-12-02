@@ -78,6 +78,21 @@
 - [20. 表示数值的字符串](#20-表示数值的字符串)
     - [题目描述](#题目描述-20)
     - [解题思路](#解题思路-22)
+- [23. 链表中环的入口结点](#23-链表中环的入口结点)
+    - [题目描述](#题目描述-21)
+    - [解题思路](#解题思路-23)
+- [18.2 删除链表中重复的结点](#182-删除链表中重复的结点)
+    - [题目描述](#题目描述-22)
+    - [解题描述](#解题描述)
+- [32.3 * 按之字形顺序打印二叉树](#323--按之字形顺序打印二叉树)
+    - [题目描述](#题目描述-23)
+    - [解题思路](#解题思路-24)
+- [41.1 数据流中的中位数](#411-数据流中的中位数)
+    - [题目描述](#题目描述-24)
+    - [解题思路](#解题思路-25)
+- [59.*  滑动窗口的最大值](#59--滑动窗口的最大值)
+    - [题目描述](#题目描述-25)
+    - [解题思路](#解题思路-26)
 
 <!-- /TOC -->
 # 1.常用注意
@@ -1439,5 +1454,132 @@ public class Solution {
         }
         return head;
     }
+}
+```
+
+# 32.3 * 按之字形顺序打印二叉树
+
+[NowCoder](https://www.nowcoder.com/practice/91b69814117f4e8097390d107d2efbe0?tpId=13&tqId=11212&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+## 题目描述
+
+请实现一个函数按照之字形打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右至左的顺序打印，第三行按照从左到右的顺序打印，其他行以此类推。
+
+## 解题思路
+
+```java
+public class Solution {
+    ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer> >();
+    public ArrayList<ArrayList<Integer> > Print(TreeNode root) {
+        if(root == null){
+            return res;
+        }
+        Stack<TreeNode> s1 = new Stack<>();
+        Stack<TreeNode> s2 = new Stack<>();
+        s1.push(root);
+        while(!s1.isEmpty() || !s2.isEmpty()){
+            if(!s1.isEmpty()){
+                ArrayList<Integer> temp = new ArrayList<>();
+                while(!s1.isEmpty()){
+                    TreeNode node = s1.pop();
+                    temp.add(node.val);
+                    if(node.left != null){
+                        s2.push(node.left);
+                    }
+                    if(node.right !=null){
+                        s2.push(node.right);
+                    }
+                }
+                res.add(temp);
+            }else{
+                ArrayList<Integer> temp = new ArrayList<>();
+                while(!s2.isEmpty()){
+                    TreeNode node = s2.pop();
+                    temp.add(node.val);
+                    if(node.right!= null){
+                        s1.push(node.right);
+                    }
+                    if(node.left !=null){
+                        s1.push(node.left);
+                    }
+                }
+                res.add(temp);
+            }
+        }
+          return res;
+    }
+
+}
+```
+
+
+# 41.1 数据流中的中位数
+
+[NowCoder](https://www.nowcoder.com/practice/9be0172896bd43948f8a32fb954e1be1?tpId=13&tqId=11216&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+## 题目描述
+
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
+
+## 解题思路
+
+```java
+/* 大顶堆，存储左半边元素 */
+private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);
+/* 小顶堆，存储右半边元素，并且右半边元素都大于左半边 */
+private PriorityQueue<Integer> right = new PriorityQueue<>();
+/* 当前数据流读入的元素个数 */
+private int N = 0;
+
+public void Insert(Integer val) {
+    /* 插入要保证两个堆存于平衡状态 */
+    if (N % 2 == 0) {
+        /* N 为偶数的情况下插入到右半边。
+         * 因为右半边元素都要大于左半边，但是新插入的元素不一定比左半边元素来的大，
+         * 因此需要先将元素插入左半边，然后利用左半边为大顶堆的特点，取出堆顶元素即为最大元素，此时插入右半边 */
+        left.add(val);
+        right.add(left.poll());
+    } else {
+        right.add(val);
+        left.add(right.poll());
+    }
+    N++;
+}
+
+public Double GetMedian() {
+    if (N % 2 == 0)
+        return (left.peek() + right.peek()) / 2.0;  //***记得是2.0
+    else
+        return (double) right.peek();  //****要加double,而非Double
+}
+```
+
+# 59.*  滑动窗口的最大值
+
+[NowCoder](https://www.nowcoder.com/practice/1624bc35a45c42c0bc17d17fa0cba788?tpId=13&tqId=11217&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+## 题目描述
+
+给定一个数组和滑动窗口的大小，找出所有滑动窗口里数值的最大值。
+
+例如，如果输入数组 {2, 3, 4, 2, 6, 2, 5, 1} 及滑动窗口的大小 3，那么一共存在 6 个滑动窗口，他们的最大值分别为 {4, 4, 6, 6, 6, 5}。
+
+## 解题思路
+
+```java
+public ArrayList<Integer> maxInWindows(int[] num, int size) {
+    ArrayList<Integer> ret = new ArrayList<>();
+    if (size > num.length || size < 1)   //***不要忘了size<1的判断
+        return ret;
+    PriorityQueue<Integer> heap = new PriorityQueue<>((o1, o2) -> o2 - o1);  /* 大顶堆 */
+    for (int i = 0; i < size; i++)  
+        heap.add(num[i]);
+    ret.add(heap.peek());
+    for (int i = 0, j = i + size; j < num.length; i++, j++) {            /* 维护一个大小为 size 的大顶堆 */
+        heap.remove(num[i]);  //*****i得从0开始哈
+        heap.add(num[j]);
+        ret.add(heap.peek());
+    }
+    return ret;
 }
 ```
