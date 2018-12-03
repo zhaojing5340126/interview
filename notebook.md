@@ -3400,7 +3400,7 @@ public class EventConsumer implements InitializingBean ,ApplicationContextAware 
     <version>1.4.7</version>
 </dependency>
 ```
-* 2.2 ) 邮件是一个独立的功能，所以写一个Service来发邮件：邮件有模板，这样才能针对每个人发，发的时候替换掉对应字段，那就成了个性化的邮件
+* 2.2 ) 邮件是一个独立的功能，所以写一个Service来发邮件【JavaMailSenderImpl】：邮件有模板，这样才能针对每个人发，发的时候替换掉对应字段，那就成了个性化的邮件
 ```java
 @Service  //专门用于发邮件
 public class MailSender implements InitializingBean {
@@ -3450,8 +3450,28 @@ public class MailSender implements InitializingBean {
 }
 
 ```
+* 2.3) LoginController里面会会发送一个登陆事件到阻塞队列
+```java
+@Service   //因为要供给各种各样的业务来用，发送事件到阻塞队列
+public class EventProducer {
+    @Autowired
+    JedisAdapter jedisAdapter;  //用的jedis 的阻塞队列
 
-* 2.3 ) 然后你的 EventConsumer 从队列里取得事件，让需要处理这件事的 Handle 去处理，比如 LoginExceptionHandler 
+    //发送一个事件到阻塞队列
+    public boolean fireEvent(EventModel model){
+        try{
+            String json = JSONObject.toJSONString(model);  // 1）把事件序列化
+            String key = RedisKeyUtil.getEventQueueKey();  // 2) 通过工具类得到你的阻塞队列的名字【“EVENT"】
+            jedisAdapter.lpush(key,json);   //放到队列里去
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
+    }
+}
+```
+* 2.4 ) 然后你的 EventConsumer 从队列里取得事件，让需要处理这件事的 Handle 去处理，比如 LoginExceptionHandler 
 ```java
 @Service //用于处理掉队列里的事件，是消费出口
 public class EventConsumer implements InitializingBean ,ApplicationContextAware {
@@ -3521,7 +3541,7 @@ public class EventConsumer implements InitializingBean ,ApplicationContextAware 
 }
 
 ```
-* 2.4) 比如 LoginExceptionHandler
+* 2.5) 比如 LoginExceptionHandler
 ```java
 @Component
 public class LoginExceptionHandler implements EventHandle {
