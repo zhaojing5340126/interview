@@ -9,14 +9,14 @@
         - [3）DAO：跟数据库连接](#3dao跟数据库连接)
         - [4）Database：数据库存放所有的数据](#4database数据库存放所有的数据)
         - [2.3 代码演示: Controller、参数解析、 Velocity](#23-代码演示-controller参数解析-velocity)
-        - [2.4 代码演示：Request/Response/Session](#24-代码演示requestresponsesession)
+        - [2.4 代码演示：Request/Response/Session【HttpServletReques、HttpServletResponse、HttpSession】](#24-代码演示requestresponsesessionhttpservletrequeshttpservletresponsehttpsession)
         - [2.5 重定向](#25-重定向)
     - [2.6 Error页面](#26-error页面)
     - [2.7 IOC：控制反转/依赖注入](#27-ioc控制反转依赖注入)
     - [2.8 AOP/Aspect：面向切面编程：面向切面，所有业务都要处理的任务。比如日志，是大家都要做的](#28-aopaspect面向切面编程面向切面所有业务都要处理的任务比如日志是大家都要做的)
 - [第三周 数据库交互mybatis集成](#第三周-数据库交互mybatis集成)
     - [总结构：controller网页入口、DAO数据库层、service、model模型【和数据库里面都是一一匹配的】：controller调用service【你想读取还是做什么操作都在这里】，service去调用 DAO【定义了对数据库的操作，比如增删改查等】](#总结构controller网页入口dao数据库层servicemodel模型和数据库里面都是一一匹配的controller调用service你想读取还是做什么操作都在这里service去调用-dao定义了对数据库的操作比如增删改查等)
-    - [3.1 数据库的设计](#31-数据库的设计)
+    - [3.1 数据库的设计【四张表：user表、站内信（Message）、资讯（News）、评论（Comment）】](#31-数据库的设计四张表user表站内信message资讯news评论comment)
     - [3.2 数据库的创建](#32-数据库的创建)
         - [3.2.1 数据库常用数据类型：int、varchar(n)【可变字符串】、datetime【一般都有个字段叫create_time】、float(m,d)【前面有几位，小数点后面几位】、text,65535【长的文本】](#321-数据库常用数据类型intvarcharn可变字符串datetime一般都有个字段叫create_timefloatmd前面有几位小数点后面几位text65535长的文本)
     - [3.3 CRUD操作](#33-crud操作)
@@ -26,8 +26,8 @@
         - [4) DELETE FROM 表名称WHERE 列名称= 值](#4-delete-from-表名称where-列名称-值)
     - [3.4 MyBatis集成](#34-mybatis集成)
     - [3.4.2 为什么要用框架，因为正常情况下JDBC数据库操作读取数据这些是非常麻烦的：](#342-为什么要用框架因为正常情况下jdbc数据库操作读取数据这些是非常麻烦的)
-    - [3.5 ViewObject和DateTool【自带的时间的工具】](#35-viewobject和datetool自带的时间的工具)
-        - [3.5.1  ViewObject:方便传递任何数据到Velocity；实质就是一个map,把字段和对象对应起来](#351--viewobject方便传递任何数据到velocity实质就是一个map把字段和对象对应起来)
+    - [3.5 ViewObject【视图对象】和DateTool【自带的时间的工具】](#35-viewobject视图对象和datetool自带的时间的工具)
+        - [3.5.1  ViewObject:方便传递任何数据到Velocity，给模板提供数据；实质就是一个map,把字段和对象对应起来](#351--viewobject方便传递任何数据到velocity给模板提供数据实质就是一个map把字段和对象对应起来)
     - [3.6 首页开发](#36-首页开发)
         - [3.6.1 windows下关闭某个端口所处的进程](#361-windows下关闭某个端口所处的进程)
             - [1. netstat -ano |findstr  端口号    得到进程号   (findstr 很像linux下的grep命令)](#1-netstat--ano-findstr--端口号----得到进程号---findstr-很像linux下的grep命令)
@@ -264,7 +264,7 @@
         * resourse：
             * static：网站相关的动态，比如css,图片，JavaScript等文件
             * templates：模板，你页面想显示什么，就放在这里
-            * application.properties：配置文件，Spring容器？
+            * application.properties：配置文件，Spring容器？【Spring Boot使用了一个全局的配置文件application.properties，放在src/main/resources目录下。Sping Boot的全局配置文件的作用是对一些默认配置的配置值进行修改。】
     test：
 ## 2.2 最简单的服务器：包含Contoller、service、DAO、database
 ### 1) controller：把URL做解析等
@@ -383,7 +383,7 @@ public class IndexController {
 </html>
 ```
 
-### 2.4 代码演示：Request/Response/Session
+### 2.4 代码演示：Request/Response/Session【HttpServletReques、HttpServletResponse、HttpSession】
 * 浏览器：右键->检查，即可打开开发者环境，里面的network,按F12可显示name
 * request：参数解析、cookie读取、http请求字段、文件上传
     * HttpServletResponse
@@ -395,6 +395,7 @@ public class IndexController {
         * request.getMethod()
         * request.getPathInfo()
         * request.getQueryString
+* //会自动把http请求信息包装成request，返回信息包装成response这两个变量
 ```Java
  //网页请求与回复
     @RequestMapping(value = {"/request"})
@@ -540,13 +541,14 @@ public class LogAspect {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
     //在执行这些函数之前都要执行beforeMethod
-    @Before("execution(* com.nowcode.toutiao.controller.*Controller.*(..))")  //长这样的类的所有方法，正则表达式
+    @Before("execution(* com.nowcode.toutiao.controller.*Controller.*(..))")  
+    //长这样的类的所有方法，正则表达式（..）表任意参数
     public void beforeMethod(JoinPoint joinPoint) {  //把交互的这个口做了一个包装，叫切点
         StringBuilder sb = new StringBuilder();
         for (Object arg : joinPoint.getArgs()) {
             sb.append("arg:" + arg.toString() + "|");
         }
-        logger.info("before method: " + sb.toString());
+        logger.info("before method: " + sb.toString());  //打印到控制台
     }
 
     //在执行这些函数之后要执行afterMethod
@@ -563,7 +565,7 @@ public class LogAspect {
 
 * 利用mybatis这框架从数据库读取数据，并在页面上显示：把每天的资讯在页面上分成小块，数据的来源是数据库，用户也是从数据库中读取过来的，做一个最基本的数据库的读取和velocity前端的展示连起来
 * * mybatis框架就是为了把数据库的表和你的model做一个映射，你有一张user表，一般就有一个user的model，方便你读取
-## 3.1 数据库的设计
+## 3.1 数据库的设计【四张表：user表、站内信（Message）、资讯（News）、评论（Comment）】
 * 收到产品经理的原稿后怎么设计：数据库是一张张的表，有些表与表之间是关联的。
 * 目标：做一个头条资讯的网站，每个人都可以发新闻，用户可以点赞，站内信
     * 1）分析产品，有哪些东西是看得见的，看得见的东西分实体(单元)
@@ -867,8 +869,8 @@ public class InitDatabaseTests {
 * 5.数据转化
 * 6.资源释放
 
-## 3.5 ViewObject和DateTool【自带的时间的工具】
-### 3.5.1  ViewObject:方便传递任何数据到Velocity；实质就是一个map,把字段和对象对应起来
+## 3.5 ViewObject【视图对象】和DateTool【自带的时间的工具】
+### 3.5.1  ViewObject:方便传递任何数据到Velocity，给模板提供数据；实质就是一个map,把字段和对象对应起来
 ```Java
 public class ViewObject {
     private Map<String, Object> objs = new HashMap<String, Object>();
@@ -1716,7 +1718,7 @@ public class PassportInterceptor implements HandlerInterceptor {
             LoginTicket loginTicket = loginTicketDAO.selectByTicket(ticket);
             // 1）判断这个ticket是否是真的存在，有效期过期没，以及这个ticket是否还有效
             if (loginTicket == null || loginTicket.getExpired().before(new Date()) || loginTicket.getStatus() !=0){
-                return true;
+                return true; //如果返回false，那么后面的postHandle这些都不会执行了，所以要返回true
             }
 
             // 2）通过上方的验证，那么我知道你是谁了,我就要把你记录下来，
@@ -3450,6 +3452,76 @@ public class MailSender implements InitializingBean {
 ```
 
 * 2.3 ) 然后你的 EventConsumer 从队列里取得事件，让需要处理这件事的 Handle 去处理，比如 LoginExceptionHandler 
+```java
+@Service //用于处理掉队列里的事件，是消费出口
+public class EventConsumer implements InitializingBean ,ApplicationContextAware {
+    @Autowired
+    JedisAdapter jedisAdapter;
+
+    private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
+    private Map<EventType, List<EventHandle>> config = new HashMap<>(); //对某个事件，找到所有需要对它进行处理的Handler
+    private ApplicationContext applicationContext; //应用上下文
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 一 、初始化：需要一个映射表 config，来了一个事件，我要用哪些handler 来处理 ，
+        // 在Spring 一启动后就把这些初始化好，步骤如下：
+        // 1) 找出spring中所有实现了EventHandle 的类
+        Map<String,EventHandle> beans = applicationContext.getBeansOfType(EventHandle.class);
+        if (beans != null) {
+            // 2) 遍历这些handler，找到它支持的type；比如LIKE(0),COMMENT(1),LOGIN(2),MAIL(3);
+            for (Map.Entry<String, EventHandle> entry : beans.entrySet()) {
+                List<EventType> eventTypes = entry.getValue().getSupportEventType();
+                // 3） 对它支持的每一个事件类型，把自己注册进去，即让每个事件对应上处理它的 Handler
+                for (EventType type : eventTypes) {
+                    if (!config.containsKey(type)) {
+                        config.put(type, new ArrayList<EventHandle>());
+                    }
+                    //把自己注册了进去，即把handler 加入事件对应的 handler 链表中
+                    config.get(type).add(entry.getValue());
+                }
+            }
+        }
+
+        // 二、开一个线程去不断处理事件（从阻塞队列获取事件，然后根据事件知道它需要被哪些 Handler处理）
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){  //不断处理事件
+                    String key = RedisKeyUtil.getEventQueueKey();  //从哪个队列取事件，队列名称
+                    // 1）取得事件：lpush - brpop 阻塞队列，有事件我就处理，没有事件就阻塞等着,0表示一直等待
+                    List<String> events = jedisAdapter.brpop(0,key);
+                    // 2） 处理事件
+                    for(String message:events){
+                        if(message.equals(key)){ //list 的第一个是阻塞队列名字
+                            continue;
+                        }
+                        // 2.1 反序列化得到事件
+                        EventModel eventModel = JSON.parseObject(message,EventModel.class);
+                        // 如果这个事件没有被注册过，说明我们没有定义它的处理方法
+                        if(!config.containsKey(eventModel.getType())){
+                            logger.error("不能识别的事件");
+                            continue;
+                        }
+                        // 2.2 根据事件类型 遍历需要处理它的handler 来处理它
+                        for (EventHandle handle : config.get(eventModel.getType())){
+                            handle.doHandle(eventModel);
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
+}
+
+```
+* 2.4) 比如 LoginExceptionHandler
 ```java
 @Component
 public class LoginExceptionHandler implements EventHandle {
