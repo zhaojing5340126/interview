@@ -12,7 +12,7 @@
         - [2.4 代码演示：Request/Response/Session【HttpServletReques、HttpServletResponse、HttpSession】](#24-代码演示requestresponsesessionhttpservletrequeshttpservletresponsehttpsession)
         - [2.5 重定向](#25-重定向)
     - [2.6 Error页面](#26-error页面)
-    - [2.7 IOC：控制反转/依赖注入](#27-ioc控制反转依赖注入)
+    - [2.7 IOC：控制反转/依赖注入：思想：把它的实现放在一个地方，用到它的时候用最简单的方式把它注入进来](#27-ioc控制反转依赖注入思想把它的实现放在一个地方用到它的时候用最简单的方式把它注入进来)
     - [2.8 AOP/Aspect：面向切面编程：面向切面，所有业务都要处理的任务。比如日志，是大家都要做的](#28-aopaspect面向切面编程面向切面所有业务都要处理的任务比如日志是大家都要做的)
 - [第三周 数据库交互mybatis集成](#第三周-数据库交互mybatis集成)
     - [总结构：controller网页入口、DAO数据库层、service、model模型【和数据库里面都是一一匹配的】：controller调用service【你想读取还是做什么操作都在这里】，service去调用 DAO【定义了对数据库的操作，比如增删改查等】](#总结构controller网页入口dao数据库层servicemodel模型和数据库里面都是一一匹配的controller调用service你想读取还是做什么操作都在这里service去调用-dao定义了对数据库的操作比如增删改查等)
@@ -82,8 +82,8 @@
         - [代码演示](#代码演示)
             - [1）创建一个拦截器PassportInterceptor：每次访问之前，拦截器先插进来先找这个用户](#1创建一个拦截器passportinterceptor每次访问之前拦截器先插进来先找这个用户)
             - [2）在model里创建一个HostHolder 类，用于存放这一次访问里面的用户是谁 【不同线程有自己的用户】](#2在model里创建一个hostholder-类用于存放这一次访问里面的用户是谁-不同线程有自己的用户)
-            - [3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类](#3拦截器写好后要注册要-mvc-里面创建一个configuration包创建以一个toutiaowebconfiguration类)
-    - [4.4 权限的认证：某个页面要登陆了才能访问，未登录就跳转到首页去](#44-权限的认证某个页面要登陆了才能访问未登录就跳转到首页去)
+            - [3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类继承 WebMvcConfigurerAdapter，实现它的addInterceptors方法](#3拦截器写好后要注册要-mvc-里面创建一个configuration包创建以一个toutiaowebconfiguration类继承-webmvcconfigureradapter实现它的addinterceptors方法)
+    - [4.4 可以有多个拦截器：比如某个页面要登陆了才能访问，未登录就跳转到首页去【只针对/setting开头的页面】【不算项目内容】](#44-可以有多个拦截器比如某个页面要登陆了才能访问未登录就跳转到首页去只针对setting开头的页面不算项目内容)
     - [4.5 为了用户数据安全，我们要做的事：](#45-为了用户数据安全我们要做的事)
         - [1.HTTPS注册页：网页访问http是明文的，https是加密的](#1https注册页网页访问http是明文的https是加密的)
         - [2.公钥加密私钥解密，支付宝h5页面的支付密码加密：用户打开页面时，服务器下发一个公钥，你会用这个公钥对数据加密，加密后再提交到服务器，只有服务器又私钥可以解密](#2公钥加密私钥解密支付宝h5页面的支付密码加密用户打开页面时服务器下发一个公钥你会用这个公钥对数据加密加密后再提交到服务器只有服务器又私钥可以解密)
@@ -499,8 +499,7 @@ public class IndexController {
 
 ```
 
-## 2.7 IOC：控制反转/依赖注入
-* 思想：把它的实现放在一个地方，用到它的时候用最简单的方式把它注入进来
+## 2.7 IOC：控制反转/依赖注入：思想：把它的实现放在一个地方，用到它的时候用最简单的方式把它注入进来
 * 业务在service实现，创建com.nowcode.toutiao.service.ToutiaoService，这是业务，之前的代码在controller包，现在的代码在service包
 ```Java
 package com.nowcode.toutiao.service;
@@ -541,20 +540,21 @@ public class LogAspect {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
     //在执行这些函数之前都要执行beforeMethod
-    @Before("execution(* com.nowcode.toutiao.controller.*Controller.*(..))")  
-    //长这样的类的所有方法，正则表达式（..）表任意参数
+    @Before("execution(* com.nowcode.toutiao.controller.*Controller.*(..))")
     public void beforeMethod(JoinPoint joinPoint) {  //把交互的这个口做了一个包装，叫切点
         StringBuilder sb = new StringBuilder();
         for (Object arg : joinPoint.getArgs()) {
             sb.append("arg:" + arg.toString() + "|");
         }
-        logger.info("before method: " + sb.toString());  //打印到控制台
+
+        sb.append(joinPoint.getTarget().getClass().getName());  //记录切点所在的类
+        logger.info("before method: " + sb.toString());
     }
 
     //在执行这些函数之后要执行afterMethod
     @After("execution(* com.nowcode.toutiao.controller.*Controller.*(..))")
     public void afterMethod(JoinPoint joinPoint) {
-        logger.info("after method: ");
+        logger.info("after method: "+joinPoint.getTarget().getClass().getName());
     }
 }
 
@@ -1781,7 +1781,7 @@ public class HostHolder {  //用于存当前的用户是谁
                 #end
             </ul>
 ```
-#### 3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类
+#### 3）拦截器写好后要注册要 MVC 里面，创建一个configuration包，创建以一个ToutiaoWebConfiguration类继承 WebMvcConfigurerAdapter，实现它的addInterceptors方法
 ```java
 //你可以继承某些类，能帮你初始化某些配置
 @Component
@@ -1789,17 +1789,22 @@ public class ToutiaoWebConfiguration extends WebMvcConfigurerAdapter {
     @Autowired
     PassportInterceptor passportInterceptor;
 
+    @Autowired
+    LoginRequiredInterceptor loginRequiredInterceptor;
+
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry){
-        registry.addInterceptor(passportInterceptor);  //我写的拦截器注册进来了
+    public void addInterceptors(InterceptorRegistry registry){ //注册拦截器
+        registry.addInterceptor(passportInterceptor);  //这个拦截器用于拦截看看用户是谁，用于全局所有的页面
+        //用于拦截看看它访问的页面我是否符合要求,且这个拦截器只处理/setting开头的页面
+        registry.addInterceptor(loginRequiredInterceptor).addPathPatterns("/setting*");
         super.addInterceptors(registry);
     }
 }
 
 ```
 
-## 4.4 权限的认证：某个页面要登陆了才能访问，未登录就跳转到首页去
+## 4.4 可以有多个拦截器：比如某个页面要登陆了才能访问，未登录就跳转到首页去【只针对/setting开头的页面】【不算项目内容】
 * 再弄一个拦截器，然后这些页面全部都要做一个登陆的判断
 ```java
 @Component
