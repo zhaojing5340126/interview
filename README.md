@@ -5,7 +5,6 @@
 
 ## 面试 :memo:
 - [自己的小问题](https://github.com/zhaojing5340126/interview/blob/master/problem.md)
-- [JVM 常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewJVM.md)
 - [java 面试常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewReady.md)
 
 ## 算法 :pencil2:
@@ -37,6 +36,7 @@
 - [深入理解Java虚拟机](https://github.com/zhaojing5340126/interview/blob/JVM/JVM.md)
 
 来自深入理解Java虚拟机和CyC2018
+- [JVM 常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewJVM.md)
 
 ## 数据库 :floppy_disk:
 - [MySQL课程](https://github.com/zhaojing5340126/interview/blob/databases/MYSQL.md)
