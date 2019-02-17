@@ -9,7 +9,7 @@
 
 ## 算法 :pencil2:
 - [算法初级](https://github.com/zhaojing5340126/interview/blob/Niuke_class/Niuke_class.md)
-- [算法进阶](https://github.com/zhaojing5340126/interview/blob/master/进阶.md)
+- [算法进阶](https://github.com/zhaojing5340126/interview/blob/master/进阶课.md)
 - [剑指offer 题选](https://github.com/zhaojing5340126/interview/blob/Niuke_class/myoffer66.md)
 
 来自牛客课程
