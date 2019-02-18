@@ -34,7 +34,7 @@
 - [图解http](https://github.com/CyC2018/CS-Notes/blob/master/notes/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C.md)
 
 ## 面向对象 :couple:
-- [深入理解Java虚拟机](https://github.com/zhaojing5340126/interview/blob/JVM/JVM.md)
+- [深入理解Java虚拟机](https://github.com/zhaojing5340126/interview/blob/master/JVM/JVM.md)
 
 来自深入理解Java虚拟机和CyC2018
 - [JVM 常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewJVM.md)
