@@ -2,7 +2,6 @@
 
 - [一、Java集合](#一java集合)
     - [1、Arraylist 、 LinkedList 、Vector 异同？](#1arraylist-与-linkedlist-与-Vector-异同)
-    - [2、ArrayList 与 Vector 区别？](#2arraylist-与-vector-区别)
     - [3、JDK1.7 和1.8 HashMap的底层实现](#3jdk17-和18-hashmap的底层实现)
     - [4、JDK1.8 HashMap 和 Hashtable 的区别？](#4jdk18-hashmap-和-hashtable-的区别)
     - [5、HashMap 的长度为什么是2的幂次方？](#5hashmap-的长度为什么是2的幂次方)
