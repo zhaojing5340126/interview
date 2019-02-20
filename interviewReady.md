@@ -1,7 +1,7 @@
 <!-- TOC -->
 
 - [一、Java集合](#一java集合)
-    - [1、Arraylist 与 LinkedList 异同？](#1arraylist-与-linkedlist-异同)
+    - [1、Arraylist 、 LinkedList 、Vector 异同？](#1arraylist-与-linkedlist-与-Vector-异同)
     - [2、ArrayList 与 Vector 区别？](#2arraylist-与-vector-区别)
     - [3、JDK1.7 和1.8 HashMap的底层实现](#3jdk17-和18-hashmap的底层实现)
     - [4、JDK1.8 HashMap 和 Hashtable 的区别？](#4jdk18-hashmap-和-hashtable-的区别)
@@ -40,20 +40,12 @@
 
 <!-- /TOC -->
 # 一、Java集合
-## 1、Arraylist 与 LinkedList 异同？
-* 1） ArrayList 和 LinkedList 都是不同步的，即不保证线程安全
-* 2） Arraylist 底层使用的是Object数组；LinkedList 底层使用的是双向链表数据结构
-* 3） ArrayList 采用数组存储，所以插入和删除元素的时间复杂度受元素位置的影响【比如在i 位置插入元素，会先将i 及i之后的元素右移一位，近似O(n)】。 LinkedList 采用链表存储，所以插入和删除元素时间复杂度不受元素位置的影响，都是近似 O（1）而数组为近似 O（n）。
-* 4）ArrayList 支持快速随机访问，而LinkedList 不支持。【快速随机访问就是通过元素的序号快速获取元素对象(对应于get(int index) 方法)】
-* 5）ArrayList 的空间浪费主要体现在 数组会预留一定的容量空间，而LinkedList 的每一个元素都需要消耗比ArrayList更多的空间（因为要存放直接后继和直接前驱以及数据）。
-![](https://camo.githubusercontent.com/42fe5da84eacd9b33e1143f3d6fe6d8153d46989/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d382d32312f38383736363732372e6a7067)
-* 补充：
-    * RandomAccess接口中什么都没有定义，它只是一个标识而已，标识 implement 这个接口的类具有随机访问功能.【ArraysList 实现了 RandomAccess 接口，就表明了他具有快速随机访问功能。 RandomAccess 接口只是标识，并不是说 ArraysList 实现 RandomAccess 接口才具有快速随机访问功能的！而是它本身能快速随机访问，才用这个接口来标识它】
-    * 实现了RadmoAcces接口的list，优先选择普通for循环 ，其次foreach。没实现就优先foreach
+## 1、Arraylist 与 LinkedList 与 Vector 异同？
+*  1) 从使用方法的角度分析。ArrayList属于非线程安全，而Vector则属于线程安全。如果是开发中没有线程同步的需求，推荐优先使用ArrayList。因此其内部没有synchronized，执行效率会比Vector快很多。 
+*  2) 从数据结构的角度分析。ArrayList是一个数组结构（Vector同理），数组在内存中是一片连续存在的片段，在查找元素的时候数组能够很方便的通过内存计算直接找到对应的元素内存。但是它也有很大的缺点。我们假设需要往数组插入或删除数据的位置为i，数组元素长度为n，则需要搬运数据n-i次才能完成插入、删除操作，导致其效率不如LinkedList。 
+* 3) LinkedList的底层是一个双向链表结构，在进行查找操作的时候需要花费非常非常多的时间来遍历整个链表（哪怕只遍历一半），这就是LinkedList在查找效率不如ArrayList快的原因。但是由于其链表结构的特殊性，在插入、删除数据的时候，只需要修改链表节点的前后指针就可以完成操作，其的效率远远高于ArrayList。
+![8a29da8662acdc29bc3008a6e92567ca.jpeg](evernotecid://D2D8A4E3-5956-4E24-92CA-9D53D605CCCD/appyinxiangcom/17498476/ENResource/p49)
 
-## 2、ArrayList 与 Vector 区别？
-* Vector类的所有方法都是同步的，线程安全。但是一个线程访问Vector的话代码要在同步操作上耗费大量的时间。
-* Arraylist不是同步的，所以在不需要保证线程安全时时建议使用Arraylist
 
 ## 3、JDK1.7 和1.8 HashMap的底层实现
 * JDK1.7 HashMap 底层是 数组和链表 结合在一起使用【拉链法】。
