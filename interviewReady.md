@@ -42,7 +42,7 @@
 # 一、Java集合
 ## 1、Arraylist 与 LinkedList 异同？
 * 1） ArrayList 和 LinkedList 都是不同步的，即不保证线程安全
-* 2） Arraylist 底层使用的是Object数组；LinkedList 底层使用的是双向循环链表数据结构
+* 2） Arraylist 底层使用的是Object数组；LinkedList 底层使用的是双向链表数据结构
 * 3） ArrayList 采用数组存储，所以插入和删除元素的时间复杂度受元素位置的影响【比如在i 位置插入元素，会先将i 及i之后的元素右移一位，近似O(n)】。 LinkedList 采用链表存储，所以插入和删除元素时间复杂度不受元素位置的影响，都是近似 O（1）而数组为近似 O（n）。
 * 4）ArrayList 支持快速随机访问，而LinkedList 不支持。【快速随机访问就是通过元素的序号快速获取元素对象(对应于get(int index) 方法)】
 * 5）ArrayList 的空间浪费主要体现在 数组会预留一定的容量空间，而LinkedList 的每一个元素都需要消耗比ArrayList更多的空间（因为要存放直接后继和直接前驱以及数据）。
