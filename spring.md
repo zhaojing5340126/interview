@@ -44,13 +44,21 @@
             - [1）创建配置类：该类包含在spring应用上下文如何创建bean的细节，并装配bean【bean之间的依赖关系】——你用的时候还是用@Autowire，在应用上下文中找对应的bean](#1创建配置类该类包含在spring应用上下文如何创建bean的细节并装配beanbean之间的依赖关系你用的时候还是用autowire在应用上下文中找对应的bean)
     - [三、基于XML的显式配置(spring从xml中获取信息来创建bean)：](#三基于xml的显式配置spring从xml中获取信息来创建bean)
         - [3.1 步骤：](#31-步骤)
-- [第四章、面向切面的spring](#第四章面向切面的spring)
-    - [一、概述：](#一概述)
-        - [1.1 横切关注点：是散布于应用中多处的功能。（日志、事务、安全）](#11-横切关注点是散布于应用中多处的功能日志事务安全)
-        - [1.2 依赖注入有助于应用对象之间的解耦，而AOP可以实现横切关注点与它们所影响的对象之间的解耦](#12-依赖注入有助于应用对象之间的解耦而aop可以实现横切关注点与它们所影响的对象之间的解耦)
-    - [二、术语：](#二术语)
-        - [1.1 通知：通知包含了需要应用于多个应用对象的横切行为。](#11-通知通知包含了需要应用于多个应用对象的横切行为)
-        - [](#)
+- [第五章 构建spring web应用程序](#第五章-构建spring-web应用程序)
+    - [1、 Spring MVC 基于模型-视图-控制器（model-view-controller，MVC）模式实现，能构建灵活和松耦合的web应用程序。](#1-spring-mvc-基于模型-视图-控制器model-view-controllermvc模式实现能构建灵活和松耦合的web应用程序)
+    - [2、 跟踪 Spring MVC 的请求](#2-跟踪-spring-mvc-的请求)
+        - [2.1 请求先到达前端控制器 DispatcherServlet【将请求委托给应用程序的其他组件来执行实际的处理，这是 Spring MVC 的核心】](#21-请求先到达前端控制器-dispatcherservlet将请求委托给应用程序的其他组件来执行实际的处理这是-spring-mvc-的核心)
+        - [2.2 DispatcherServlet 会查询一个或者多个处理器映射（handler mapping）来确定请求到哪个控制器。【处理器映射会根据请求所携带的URL信息来进行决策】](#22-dispatcherservlet-会查询一个或者多个处理器映射handler-mapping来确定请求到哪个控制器处理器映射会根据请求所携带的url信息来进行决策)
+        - [2.3 DispatcherServlet 然后将请求发送到选中的 Spring MVC 控制器](#23-dispatcherservlet-然后将请求发送到选中的-spring-mvc-控制器)
+        - [2.4 请求到达控制器，控制器完成处理后会将模型数据打包，并且标示出用于渲染输出的视图名，然后将请求连同模型和视图名发送回 DispatcherServlet](#24-请求到达控制器控制器完成处理后会将模型数据打包并且标示出用于渲染输出的视图名然后将请求连同模型和视图名发送回-dispatcherservlet)
+        - [2.5 DispatcherServlet 使用视图解析器将逻辑视图名匹配为一个特定的视图实现。【解析为实际的视图】](#25-dispatcherservlet-使用视图解析器将逻辑视图名匹配为一个特定的视图实现解析为实际的视图)
+        - [2.6 DispatcherServlet 知道由哪个视图渲染结果后，最后就是视图的实现，它交付模型数据，视图将使用模型数据渲染输出。](#26-dispatcherservlet-知道由哪个视图渲染结果后最后就是视图的实现它交付模型数据视图将使用模型数据渲染输出)
+        - [2.7 这个输出会通过响应对象传递给客户端](#27-这个输出会通过响应对象传递给客户端)
+    - [3、 控制器 （方法上添加了@RequestMapping 注解的类，该注解声明了他们要处理的请求）](#3-控制器-方法上添加了requestmapping-注解的类该注解声明了他们要处理的请求)
+        - [3.1 Spring MVC 允许以多种方式将客户端的数据传送到控制器的处理器方法中](#31-spring-mvc-允许以多种方式将客户端的数据传送到控制器的处理器方法中)
+            - [1）查询参数 @RequestParam 【因为查询参数都是string类型，所以defaultValue要是】](#1查询参数-requestparam-因为查询参数都是string类型所以defaultvalue要是)
+            - [2）路径变量](#2路径变量)
+            - [3）表单参数](#3表单参数)
 
 <!-- /TOC -->
 
@@ -248,5 +256,53 @@ public CDPlayer cdplayer(CompactDisc compactDisc){
 ## 三、基于XML的显式配置(spring从xml中获取信息来创建bean)：
 ### 3.1 步骤：
 
+
+# 第五章 构建spring web应用程序
+## 1、 Spring MVC 基于模型-视图-控制器（model-view-controller，MVC）模式实现，能构建灵活和松耦合的web应用程序。
+## 2、 跟踪 Spring MVC 的请求
+* spring 将请求在调度servlet、处理器映射、控制器、以及视图解析器之间移动
+* 当 DispatcherServlet 启动的时候，会创建 spring 应用上下文，一般加载包含web组件的bean，如控制器、视图解析器及处理器映射
+* Spring MVC 通常还有另一个应用上下文，由 Servlet监听器 ContextLoaderListener 创建，通常加载应用中的其他bean，一般是驱动应用后端的中间层和数据层组件。
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/b289d941b0e7940273a8482aef1e1a84.png?raw=true)
+### 2.1 请求先到达前端控制器 DispatcherServlet【将请求委托给应用程序的其他组件来执行实际的处理，这是 Spring MVC 的核心】
+### 2.2 DispatcherServlet 会查询一个或者多个处理器映射（handler mapping）来确定请求到哪个控制器。【处理器映射会根据请求所携带的URL信息来进行决策】
+### 2.3 DispatcherServlet 然后将请求发送到选中的 Spring MVC 控制器
+* 控制器是一个用于处理请求的spring组件
+### 2.4 请求到达控制器，控制器完成处理后会将模型数据打包，并且标示出用于渲染输出的视图名，然后将请求连同模型和视图名发送回 DispatcherServlet
+* 通常会产生一些信息给用户并在浏览器上显示。这些信息被称为模型model
+* 模型需要以用户友好的方式进行格式化，一般是HTML，所以信息需要发送给一个视图view。
+
+### 2.5 DispatcherServlet 使用视图解析器将逻辑视图名匹配为一个特定的视图实现。【解析为实际的视图】
+### 2.6 DispatcherServlet 知道由哪个视图渲染结果后，最后就是视图的实现，它交付模型数据，视图将使用模型数据渲染输出。
+### 2.7 这个输出会通过响应对象传递给客户端
+
+## 3、 控制器 （方法上添加了@RequestMapping 注解的类，该注解声明了他们要处理的请求）
+* @Controller 是一个构造型的注解，它基于@Component ，目的是辅助实现组件扫描，对Spring MVC 本身的影响不大
+### 3.1 Spring MVC 允许以多种方式将客户端的数据传送到控制器的处理器方法中
+```java
+@Controller
+public class IndexController {
+
+    @RequestMapping(path = {"/","/index"})  //地址的处理入口，指定接收的URL，一旦访问的是这个地址，我就用这个函数来处理
+    @ResponseBody          //因为有返回，即有body
+    public String index(){
+        return "hello nowcode";
+    }
+
+
+    //value和path互为别名，等价
+    @RequestMapping(value = {"/profile/{groupId}/{userId}"}) //整体叫path，{groupId}叫path里的变量
+    @ResponseBody
+    public String profile(@PathVariable("groupId") String groupId, //我们把path变量值groupId定义为int类型的变量，叫groupId
+                          @PathVariable("userId") int userId, //"userId"双引号里面的值代表的是传进来的实际值
+                          @RequestParam(value = "type",defaultValue = "1") int type,
+                          @RequestParam(value = "key",defaultValue = "nowcoder") String key){
+        return String.format("{%s},{%d},{%d},{%s}",groupId,userId,type,key);
+    }
+}
+```
+#### 1）查询参数 @RequestParam 【因为查询参数都是string类型，所以defaultValue要是】
+#### 2）路径变量
+#### 3）表单参数
 
 
