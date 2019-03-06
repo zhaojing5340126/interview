@@ -3365,7 +3365,7 @@ public class MinPath {
 
 #### 7.3 动态规划版本：考虑状态之间的依赖关系
 
-![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.jpg?raw=true)
+![](https://github.com/zhaojing5340126/interview/blob/master/picture/%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.jpg)
 
 ```Java
     public static int minPath2(int[][] m){
