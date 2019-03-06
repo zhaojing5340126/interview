@@ -6,6 +6,8 @@
     - [3） queue.offer(3); queue.poll(); queue.peek()](#3-queueoffer3-queuepoll-queuepeek)
     - [4) String[] s = str.split(" ");xstr.length() == 0;](#4-string-s--strsplit-xstrlength--0)
     - [5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
+    - [6) private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
+    
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
     - [题目描述](#题目描述)
@@ -101,6 +103,7 @@
 ## 3） queue.offer(3); queue.poll(); queue.peek()
 ## 4) String[] s = str.split(" ");xstr.length() == 0;
 ## 5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();
+## 6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);
 
 
 # 2. 实现 Singleton
