@@ -7,6 +7,7 @@
     - [4) String[] s = str.split(" ");xstr.length() == 0;](#4-string-s--strsplit-xstrlength--0)
     - [5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
     - [6) private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
+    - [7) Array.sort排序问题：要用Integer[]和Character[],不能用int[]和char[]](#7-Array-sort排序问题)
     
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
@@ -104,6 +105,31 @@
 ## 4) String[] s = str.split(" ");xstr.length() == 0;
 ## 5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();
 ## 6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);
+## 7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]
+```java
+	Integer[] a = new Integer[10];
+        for(int i =0 ;i<10 ;i++){
+            a[i] =i;
+        }
+        Arrays.sort(a,(o1,o2)-> {
+            return o2 - o1;
+        });
+
+        Arrays.sort(a,new Comparator<Integer>(){
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2-o1;
+            }
+        });
+
+        Character[] characters = new Character[10];
+        for (int i=0; i<10; i++){
+            characters[i] = 'a';
+        }
+        Arrays.sort(characters,((o1, o2) -> (""+o1+o2).compareTo(""+o2+o1));
+
+    }
+```
 
 
 # 2. 实现 Singleton
