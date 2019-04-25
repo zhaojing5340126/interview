@@ -8,7 +8,7 @@
 - [java 面试常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewReady.md)
 
 ## 算法 :pencil2:
-- [算法初级](https://github.com/zhaojing5340126/interview/blob/Niuke_class/Niuke_class.md)
+- [算法初级](https://github.com/zhaojing5340126/interview/blob/master/初级课.md)
 - [算法进阶](https://github.com/zhaojing5340126/interview/blob/master/进阶课.md)
 - [剑指offer 题选](https://github.com/zhaojing5340126/interview/blob/Niuke_class/myoffer66.md)
 - [leedcode 题选](https://github.com/zhaojing5340126/interview/blob/master/leedcode.md)
