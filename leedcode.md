@@ -1,94 +1,108 @@
-# 图
-## BFS
-### 题一：单词接龙
+# 数学和位运算
+## 直线上最多的点数
 ```
-给定两个单词（beginWord 和 endWord）和一个字典，找到从 beginWord 到 endWord 的最短转换序列的长度。转换需遵循如下规则：
+给定一个二维平面，平面上有 n 个点，求最多有多少个点在同一条直线上。
 
-每次转换只能改变一个字母。
-转换过程中的中间单词必须是字典中的单词。
-说明:
-
-如果不存在这样的转换序列，返回 0。
-所有单词具有相同的长度。
-所有单词只由小写字母组成。
-字典中不存在重复的单词。
-你可以假设 beginWord 和 endWord 是非空的，且二者不相同。
-```
-```
 示例 1:
 
-输入:
-beginWord = "hit",
-endWord = "cog",
-wordList = ["hot","dot","dog","lot","log","cog"]
-
-输出: 5
-
-解释: 一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog",
-     返回它的长度 5。
-```
-```
+输入: [[1,1],[2,2],[3,3]]
+输出: 3
+解释:
+^
+|
+|        o
+|     o
+|  o  
++------------->
+0  1  2  3  4
 示例 2:
 
-输入:
-beginWord = "hit"
-endWord = "cog"
-wordList = ["hot","dot","dog","lot","log"]
-
-输出: 0
-
-解释: endWord "cog" 不在字典中，所以无法进行转换。
+输入: [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+输出: 4
+解释:
+^
+|
+|  o
+|     o        o
+|        o
+|  o        o
++------------------->
+0  1  2  3  4  5  6
 ```
-* 【分析】：一层一层的来，看那一层找到了endword,其层数就是节点个数，beginword是第一层
+* 【分析】：除数为0；重复点；double(3/6) = 0.0 改为 double(3/6.0) = 0.5
 
 
-![](https://note.youdao.com/yws/public/resource/383f28fda2c91ea9736e71a189c80718/xmlnote/7A708ED3F757417FBA33335539AF17D3/12977)
+# 图
+## BFS
+# 动态规划
+```
+给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）使得它们的和等于 n。你需要让组成和的完全平方数的个数最少。
+
+示例 1:
+
+输入: n = 12
+输出: 3 
+解释: 12 = 4 + 4 + 4.
+示例 2:
+
+输入: n = 13
+输出: 2
+解释: 13 = 4 + 9.
+```
+* 【分析】：递归：numSqures(n)表示数为n 时返回最少的组成和的完全平方数个数
 ```java
 class Solution {
-       public int ladderLength(String beginWord, String endWord, List<String> wordList) {
-        if(wordList == null || !wordList.contains(endWord)){
+    public int numSquares(int n) {
+        if(n < 0) {
+            return Integer.MAX_VALUE;
+        }
+        if(n == 0){
             return 0;
         }
-        Queue<String> q = new LinkedList<>();
-        Set<String> words = new HashSet<>(wordList);  //要用set更快才能不超时*******
-        q.offer(beginWord);
-        int count =1; //记录当前层数，现在头结点是第一层
-        while (!q.isEmpty()){
-            int size = q.size();
-            count++; //我们即将遍历第二层
-            for(int i=0; i<size; i++){ //我们每次只能遍历一层，一层一层的来才能统计层数
-                String word = q.poll();//对当前层的每一个数，开始扫描它的下一层
-                List<String> nexts = getNexts(word,words);
-                //得到它的下一层节点，我们不需要判断是否之前已经存在在队列了，是因为之前入了队列的我们都从wordList删除了
-                for(String next : nexts){
-                    if(next.equals(endWord)){ //在当前层找到了，那么返回当前层层数
-                        return count;
-                    }
-                    q.offer(next);
-                }
-            }
+        if(n == 1){
+            return 1;
         }
-        return 0; //BFS 宽度优先遍历完成了都没有找到，那么说明不存在这样的转换，返回0
+        if(n == 2){
+            return 2;
+        }
+        if(n == 3){
+            return 3;
+        }
+        int min = Integer.MAX_VALUE;
+        for(int i =1 ; n - i*i >=0; i++){
+            min = Math.min(min,numSquares(n-i*i)+1);
+        }
+        return min;
     }
 
-    private List<String> getNexts(String word, Set<String> wordList) {
-        List<String> cardidates = new LinkedList<>();
-        StringBuilder sb = new StringBuilder(word);
-        for(int i=0; i<sb.length(); i++){ //对sb的每一个字母都用a-z替换一次，找wordList中有没有一样的，一样说明可以转换，是下一个
-            char temp = sb.charAt(i);
-            for(char c = 'a'; c<='z' ;c++){
-                if(temp == c){
-                    continue; //因为转换了还是自身，比如从hit转换成hit，没必要，也不符合转换的要求
-                }
-                sb.setCharAt(i,c);
-                String newWord = sb.toString();
-                if(wordList.remove(newWord)){ //返回true，说明删除成功，即这个转换是可以的
-                    cardidates.add(newWord);
-                }
-            }
-            sb.setCharAt(i,temp); // 记得要转回去，因为还要对下一位的字符进行变化
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println(solution.numSquares(12));
+    }
+}
+```
+* 改为动态规划
+```java
+class Solution {
+    public int numSquares(int n) {  //先写一下递归
+      //dp[n]代表和等于n时，所需要最少的完全平方数。
+    //dp[n]=min(dp[n-i*i]+1),n-i*i>=0&&i>=1
+    //这里的+1就是加上这个i*i平方数。n-i*i=0就是这个数就是个完全平方数（4）。
+        if(n<=3)
+            return n;
+        int[]dp=new int[n+1];
+        
+        //1=1;2=1+1;3=1+1+1
+        dp[1]=1;
+        dp[2]=2;
+        dp[3]=3;
+        for(int i=4;i<=n;i++)
+        {
+            dp[i]=i;
+            for(int t=1;i-t*t>=0;t++)
+                dp[i]=Math.min(dp[i],dp[i-t*t]+1);
         }
-        return cardidates;
+        return dp[n];
     }
 }
 ```
