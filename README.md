@@ -57,6 +57,6 @@
 
 ## 编码实践 :speak_no_evil:
 - [sdgsag](https://github.com/zhaojing5340126/interview/blob/Niuke_class/notebook.md)
-- [精简版](https://github.com/zhaojing5340126/interview/blob/master/notebook.md)
+- [精简版](https://github.com/zhaojing5340126/interview/blob/master/%E7%AE%80%E5%8D%95%E7%89%88%E9%A1%B9%E7%9B%AE.md)
 
 
