@@ -33,7 +33,7 @@
 
 - [网络常见面试题](https://github.com/zhaojing5340126/interview/blob/Niuke_class/simpleNet.md)
 
-- [图解http](https://github.com/CyC2018/CS-Notes/blob/master/notes/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C.md)
+- [图解http](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/HTTP.md)
 
 ## 面向对象 :couple:
 - [深入理解Java虚拟机](https://github.com/zhaojing5340126/interview/blob/master/JVM/JVM.md)
@@ -44,7 +44,7 @@
 ## 数据库 :floppy_disk:
 - [MySQL课程](https://github.com/zhaojing5340126/interview/blob/databases/MYSQL.md)<br>
 来自姜承尧课程<br>
-- [高性能MySQL](https://github.com/zhaojing5340126/interview/blob/Niuke_class/highmysql.md)
+- [高性能MySQL](https://github.com/zhaojing5340126/interview/blob/master/highmysql.md)
 
 
 ## Java :coffee:
@@ -57,5 +57,6 @@
 
 ## 编码实践 :speak_no_evil:
 - [sdgsag](https://github.com/zhaojing5340126/interview/blob/Niuke_class/notebook.md)
+- [精简版](https://github.com/zhaojing5340126/interview/blob/master/notebook.md)
 
 
