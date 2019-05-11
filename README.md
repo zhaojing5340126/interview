@@ -5,7 +5,6 @@
 
 ## 面试 :memo:
 - [自己的小问题](https://github.com/zhaojing5340126/interview/blob/master/problem.md)
-- [java 面试常见题目](https://github.com/zhaojing5340126/interview/blob/Niuke_class/interviewReady.md)
 
 ## 算法 :pencil2:
 - [算法初级](https://github.com/zhaojing5340126/interview/blob/master/初级课.md)
@@ -30,8 +29,6 @@
 - [计算机网络常见面试题](https://github.com/Snailclimb/Java_Guide/blob/master/计算机网络与数据通信/计算机网络.md)
 
 来自SnailClimb
-
-- [网络常见面试题](https://github.com/zhaojing5340126/interview/blob/Niuke_class/simpleNet.md)
 
 - [图解http](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/HTTP.md)
 
