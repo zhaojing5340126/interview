@@ -2,12 +2,13 @@
 
 - [1.常用注意](#1常用注意)
     - [1） String s = String.valueOf(chars);//将字符数组转化为字符串（其他类型数组不可以）](#1-string-s--stringvalueofchars将字符数组转化为字符串其他类型数组不可以)
-    - [2）char[] chars = str.toCharArray();//将字符串转化为字符数组](#2char-chars--strtochararray将字符串转化为字符数组)
+    - [2） char[] chars = str.toCharArray();//将字符串转化为字符数组](#2char-chars--strtochararray将字符串转化为字符数组)
     - [3） queue.offer(3); queue.poll(); queue.peek()](#3-queueoffer3-queuepoll-queuepeek)
-    - [4) String[] s = str.split(" ");xstr.length() == 0;](#4-string-s--strsplit-xstrlength--0)
-    - [5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
-    - [6) private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
-    - [7) Array.sort排序问题：要用Integer[]和Character[],不能用int[]和char[]](#7-Array-sort排序问题)
+    - [4)  String[] s = str.split(" ");xstr.length() == 0;](#4-string-s--strsplit-xstrlength--0)
+    - [5)  likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
+    - [6)  private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
+    - [7)  Array.sort排序问题：要用Integer[]和Character[],不能用int[]和char[]](#7-Array-sort排序问题)
+    - [8)  int[][] arr = new int[3][];，这样出来的arr[0]==null;  int[][] arr = new int[0][]; 这样出来的arr.length==0 ,使用arr[0]会报越界异常。
     
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
