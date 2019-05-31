@@ -6,9 +6,8 @@
     - [3） queue.offer(3); queue.poll(); queue.peek()](#3-queueoffer3-queuepoll-queuepeek)
     - [4) String[] s = str.split(" ");xstr.length() == 0;](#4-string-s--strsplit-xstrlength--0)
     - [5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
-    - [6) private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
-    - [7) Array.sort排序问题：要用Integer[]和Character[],不能用int[]和char[]](#7-Array-sort排序问题)
-    
+    - [6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);](#6private-priorityqueueinteger-left--new-priorityqueueo1-o2---o2---o1)
+    - [7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]](#7arraysort排序问题要用integer和character不能用int和char)
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
     - [题目描述](#题目描述)
@@ -63,7 +62,7 @@
 - [64. 求 1+2+3+...+n](#64-求-123n)
     - [题目描述](#题目描述-14)
     - [解题思路](#解题思路-16)
-- [62. 圆圈中最后剩下的数【约瑟夫环，简单方法没懂？】](#62-圆圈中最后剩下的数约瑟夫环简单方法没懂)
+- [62. 圆圈中最后剩下的数【约瑟夫环】](#62-圆圈中最后剩下的数约瑟夫环)
     - [题目描述](#题目描述-15)
     - [解题思路](#解题思路-17)
 - [65. 不用加减乘除做加法](#65-不用加减乘除做加法)
@@ -1029,46 +1028,38 @@ public int Sum_Solution(int n) {
 }
 ```
 
-# 62. 圆圈中最后剩下的数【约瑟夫环，简单方法没懂？】
+# 62. 圆圈中最后剩下的数【约瑟夫环】
 
 [NowCoder](https://www.nowcoder.com/practice/f78a359491e64a50bce2d89cff857eb6?tpId=13&tqId=11199&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
 ## 题目描述
-
-让小朋友们围成一个大圈。然后，随机指定一个数 m，让编号为 0 的小朋友开始报数。每次喊到 m-1 的那个小朋友要出列唱首歌，然后可以在礼品箱中任意的挑选礼物，并且不再回到圈中，从他的下一个小朋友开始，继续 0...m-1 报数 .... 这样下去 .... 直到剩下最后一个小朋友，可以不用表演。
+约瑟夫环是一个数学的应用问题：已知n个人（以编号0,1，2，3...n-1分别表示）围坐在一张圆桌周围。从编号为k的人开始报数，数到m的那个人出列；他的下一个人又从1开始报数，数到m的那个人又出列；依此规律重复下去，直到圆桌周围的人全部出列。
 
 ## 解题思路
-
-约瑟夫环，圆圈长度为 n 的解可以看成长度为 n-1 的解再加上报数的长度 m。因为是圆圈，所以最后需要对 n 取余。
+https://www.liangzl.com/get-article-detail-14811.html
+* 方法一：通过数组循环实现：通过一个数组，数组中每个元素都是一个人，然后对数组进行循环处理，每当数组中的人数到m时，将其标记为淘汰。直到最后数组中只有一个人未被淘汰。
 ```java
 public class Solution {
     public int LastRemaining_Solution(int n, int m) {
-        if(n <= 0){
-            return -1;
-        }
-        int[] child=new int[n];
-        int count = n;
-        int j = 0;
-        int cur=0;
-        while(count > 1){
-            for(int i=0; i<m ;i++){
-                while(child[j] == -1){  //找到没有领到礼物的孩子报数
-                    j++;
-                    if(j==n){
-                        j %=n;
-                    }
-                }
-                cur =j; //用于记录当前报数的孩子
-                j++; //j++是当前报数的孩子的下一个位置（这个位置的孩子可能存在，也可能不存在）
-                if(j == n){
-                    j%=n;
+        boolean[] flag = new boolean[n]; //n个人有没有出局的状态，为true表示已经不在了
+        int count = 0; //表示这是第几个报数的
+        int peopleLeft = n; //表示圈子里还剩下多少人
+        int index =0; //数组遍历的下标
+        while (peopleLeft > 1){ //我们要留下最后一个人
+            if(flag[index] == false){ //如果这个人还存在，他就可以报数了
+                count++;  //他是第几个报数
+                if(count == m){  //第m个，那么就是他淘汰
+                    count = 0;
+                    flag[index] = true;
+                    peopleLeft--; //还存在的人少了一个
                 }
             }
-            count--; //有一个孩子领到了礼物，一圈m已经报完数
-            child[cur] = -1; //领到礼物的孩子标记为-1；
+            if(++index == n){ //++index，是下一个尝试报数的人的下标
+                index = 0;
+            }
         }
-        for(int i =0; i<child.length; i++){
-            if(child[i] != -1){
+        for(int i=0; i<n; i++){
+            if(flag[i] == false){
                 return i;
             }
         }
@@ -1076,7 +1067,36 @@ public class Solution {
     }
 }
 ```
-方法二：综上，约瑟夫环的公式是： 
+* 方法二：基于LinkedList链表来实现 *****建议使用，空间时间消耗更少
+```java
+public class Solution {
+    public int LastRemaining_Solution(int n, int m) {
+        if(n<=0 || m<=0){
+            return -1;
+        }
+        List<Integer> list = new LinkedList<>();
+        for(int i= 0; i<n; i++){
+            list.add(i); //链表里存放的是活着的人，i表示活着的人的标号
+        }
+        int index=0;
+        int count =0;
+        while (list.size()>1){
+            if(++count == m){ //count表示这是第几个报数了
+                list.remove(index);   //这是第m个报数的人，要把他去除
+                index--;
+                count=0;
+            }
+            index++; //下一个要报数的下标。
+            if(index == list.size()){
+                index = 0;
+            }
+        }
+        return list.get(0);
+    }
+}
+```
+
+* 方法三：综上，约瑟夫环的公式是： 
 f(n, m) = 0           (n = 1) 
 f(n, m) = [f(n-1, m) +m] % n  (n > 1)
 ```java
