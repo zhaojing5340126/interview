@@ -8,7 +8,7 @@
     - [5)  likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
     - [6)  private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);]
     - [7)  Array.sort排序问题：要用Integer[]和Character[],不能用int[]和char[]](#7-Array-sort排序问题)
-    - [8)  int[][] arr = new int[3][];，这样出来的arr[0]==null;  int[][] arr = new int[0][]; 这样出来的arr.length==0 ,使用arr[0]会报越界异常。
+    - [8)   if(ints == null || ints.length==0 ||ints[0] == null || ints[0].length==0)
     
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
