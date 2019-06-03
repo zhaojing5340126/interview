@@ -18,7 +18,7 @@
 - [15. * 二进制中 1 的个数](#15--二进制中-1-的个数)
     - [题目描述](#题目描述-2)
         - [Integer.bitCount()](#integerbitcount)
-- [16. *  数值的整数次方](#16---数值的整数次方)
+- [16. *  数值的整数次方*******](#16---数值的整数次方)
     - [题目描述](#题目描述-3)
     - [解题思路](#解题思路-2)
 - [22. * 链表中倒数第 K 个结点](#22--链表中倒数第-k-个结点)
@@ -26,7 +26,7 @@
 - [26. * 树的子结构](#26--树的子结构)
     - [题目描述](#题目描述-4)
     - [解题思路](#解题思路-4)
-- [31. * 栈的压入、弹出序列](#31--栈的压入弹出序列)
+- [31. * 栈的压入、弹出序列 *******](#31--栈的压入弹出序列-)
     - [题目描述](#题目描述-5)
     - [解题思路](#解题思路-5)
 - [33. * 二叉搜索树的后序遍历序列](#33--二叉搜索树的后序遍历序列)
@@ -208,8 +208,35 @@ inorder =  [9,3,15,20,7]
 
 前序遍历的第一个值为根节点的值，使用这个值将中序遍历结果分成两部分，左部分为树的左子树中序遍历结果，右部分为树的右子树中序遍历的结果。
 * 实质就是，对先序遍历的每一个数，建立以其为根的子树
+```java
+
+public class Solution {
+    int preIndex = 0;//先序数组pre的指针，对先序遍历的每个数字挨个挨个的建树
+    public TreeNode reConstructBinaryTree(int [] pre,int [] in) {
+        HashMap<Integer,Integer> map = new HashMap<>();
+        for(int i=0; i<in.length; i++){
+            map.put(in[i],i);
+        }
+        return process(pre,in,0,in.length-1,map);
+    }
+
+    private TreeNode process(int[] pre, int[] in, int left, int right, HashMap<Integer,Integer> map) {
+        if(left>right){
+            return null;
+        }
+        TreeNode root = new TreeNode(pre[preIndex]);
+        int InIndex = map.get(pre[preIndex]);
+        preIndex++;
+        root.left = process(pre,in,left,InIndex-1,map);
+        root.right = process(pre,in,InIndex+1,right,map);
+        return root;
+    }
+}
+```
 
 ```java
+
+//繁杂，不建议使用
 /**
  * Definition for binary tree
  * public class TreeNode {
@@ -223,7 +250,7 @@ import java.util.HashMap;
 import java.util.Map;
 
     public class Solution {
-        private int preIndex = 0; //先序数组pre的指针，对先序遍历的每个数字挨个挨个的建树
+        private int preIndex = 0; 
 
         public TreeNode reConstructBinaryTree(int [] pre,int [] in) {
             if (pre == null || in==null || pre.length == 0 ){
@@ -314,7 +341,7 @@ public int NumberOf1(int n) {
 ```
 
 
-# 16. *  数值的整数次方
+# 16. *  数值的整数次方*******
 
 [NowCoder](https://www.nowcoder.com/practice/1a834e5e3e1a4b7ba251417554e07c00?tpId=13&tqId=11165&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -414,27 +441,37 @@ public class Solution {
 * A、B对应位置值相等才算B是A的子结构
 
 ```java
-public boolean HasSubtree(TreeNode root1, TreeNode root2) {
-    if (root1 == null || root2 == null) //这两棵树有一棵为空，那么一个root2 就肯定不是root1 的子结构
-        return false;
-    return isSubtreeWithRoot(root1, root2) || HasSubtree(root1.left, root2) || HasSubtree(root1.right, root2); 
-    //root1、root2两棵树长得不一样，我们两个结构不一样。则看root2 是不是root1左右子树中的结构
-}
+public class Solution {
+    public boolean HasSubtree(TreeNode root1,TreeNode root2) {
+        if(root1 == null || root2 == null){
+            return false;
+        }
+        return isSubtree(root1,root2);
+    }
 
+    private boolean isSubtree(TreeNode root1, TreeNode root2) {
+        if(root1 == null){
+            return false;
+        }
+        return isEqual(root1,root2) || isSubtree(root1.left,root2)|| isSubtree(root1.right,root2);
+    }
 
-//判断root1、root2两棵树是不是长得一样
-private boolean isSubtreeWithRoot(TreeNode root1, TreeNode root2) {
-    if (root2 == null)  //结束，要把root2 走遍
-        return true;
-    if (root1 == null)
-        return false;
-    if (root1.val != root2.val)
-        return false;
-    return isSubtreeWithRoot(root1.left, root2.left) && isSubtreeWithRoot(root1.right, root2.right);
+    private boolean isEqual(TreeNode root1, TreeNode root2) {
+        if(root2 == null){
+            return true;
+        }
+        if(root1 == null){
+            return false;
+        }
+        if(root1.val != root2.val){
+            return false;
+        }
+        return isEqual(root1.left,root2.left) && isEqual(root1.right,root2.right);
+    }
 }
 ```
 
-# 31. * 栈的压入、弹出序列
+# 31. * 栈的压入、弹出序列 *******
 
 [NowCoder](https://www.nowcoder.com/practice/d77d11405cc7470d82554cb392585106?tpId=13&tqId=11174&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
