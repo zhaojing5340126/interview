@@ -435,7 +435,7 @@ public class Solution {
 ## 题目描述
 
 输入两棵二叉树A，B，判断B是不是A的子结构。（ps：我们约定空树不是任意一个树的子结构）
-![](https://github.com/CyC2018/CS-Notes/raw/master/pics/4583e24f-424b-4d50-8a14-2c38a1827d4a.png)
+![](./pics/4583e24f-424b-4d50-8a14-2c38a1827d4a.png)
 
 ## 解题思路
 * A、B对应位置值相等才算B是A的子结构
@@ -542,7 +542,7 @@ public class Solution {
 
 例如，下图是后序遍历序列 1,3,2 所对应的二叉搜索树。
 
-![](https://github.com/CyC2018/CS-Notes/raw/master/pics/836a4eaf-4798-4e48-b52a-a3dab9435ace.png)
+![](./pics/836a4eaf-4798-4e48-b52a-a3dab9435ace.png)
 
 ## 解题思路
 * 【分析】：对于一个二叉树的后序遍历序列来说，最后一个数一定是根节点，然后前面的数中，从最开始到第一个大于根节点的数都是左子树中的数，而后面到倒数第二个数应该都是大于根节点的，是右子树，如果后面的数中有小于根节点的，那么说明这个序列不是二叉搜索树的后序遍历序列
@@ -576,7 +576,7 @@ private boolean verify(int[] sequence, int first, int last) {
 
 输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向。
 
-![](https://github.com/CyC2018/CS-Notes/raw/master/pics/79b12431-6d9d-4a7d-985b-1b79bc5bf5fb.png)
+![](./pics/79b12431-6d9d-4a7d-985b-1b79bc5bf5fb.png)
 
 ## 解题思路
 * 【分析】：搜索二叉树的中序遍历就是排序的。
