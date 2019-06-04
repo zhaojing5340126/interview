@@ -8,6 +8,7 @@
     - [5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();](#5-likedlistremovefirst--likedlistremovelinkedlistremovelast)
     - [6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);](#6private-priorityqueueinteger-left--new-priorityqueueo1-o2---o2---o1)
     - [7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]](#7arraysort排序问题要用integer和character不能用int和char)
+    - [8） if(ints == null || ints.length==0 ||ints[0] == null || ints[0].length==0)](#8-ifints--null--intslength0-ints0--null--ints0length0)
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
     - [题目描述](#题目描述)
@@ -29,10 +30,10 @@
 - [31. * 栈的压入、弹出序列 *******](#31--栈的压入弹出序列-)
     - [题目描述](#题目描述-5)
     - [解题思路](#解题思路-5)
-- [33. * 二叉搜索树的后序遍历序列](#33--二叉搜索树的后序遍历序列)
+- [33. * 二叉搜索树的后序遍历序列 *******](#33--二叉搜索树的后序遍历序列-)
     - [题目描述](#题目描述-6)
     - [解题思路](#解题思路-6)
-- [36. * 二叉搜索树与双向链表](#36--二叉搜索树与双向链表)
+- [36. * 二叉搜索树与双向链表 *******](#36--二叉搜索树与双向链表-)
     - [题目描述](#题目描述-7)
     - [解题思路](#解题思路-7)
 - [34. 二叉树中和为某一值的路径](#34-二叉树中和为某一值的路径)
@@ -42,57 +43,57 @@
     - [解题思路](#解题思路-9)
         - [快速选择算法【来源于快速排序算法】](#快速选择算法来源于快速排序算法)
         - [大小为 K 的最小堆](#大小为-k-的最小堆)
-- [43. 从 1 到 n 整数中 1 出现的次数*****【未】](#43-从-1-到-n-整数中-1-出现的次数未)
+- [43. 从 1 到 n 整数中 1 出现的次数******************](#43-从-1-到-n-整数中-1-出现的次数)
     - [解题思路](#解题思路-10)
-- [49. 丑数](#49-丑数)
+- [49. 丑数 ***********************](#49-丑数-)
     - [题目描述](#题目描述-9)
     - [解题思路](#解题思路-11)
-- [53. * 数字在排序数组中出现的次数](#53--数字在排序数组中出现的次数)
+- [53. * 数字在排序数组中出现的次数  ***********](#53--数字在排序数组中出现的次数--)
     - [题目描述](#题目描述-10)
     - [解题思路](#解题思路-12)
-- [56. 数组中只出现一次的数字](#56-数组中只出现一次的数字)
+- [56. 数组中只出现一次的数字  *************](#56-数组中只出现一次的数字--)
     - [题目描述](#题目描述-11)
     - [解题思路](#解题思路-13)
-- [57.2 和为 S 的连续正数序列](#572-和为-s-的连续正数序列)
+- [57.2 和为 S 的连续正数序列************](#572-和为-s-的连续正数序列)
     - [题目描述](#题目描述-12)
     - [解题思路](#解题思路-14)
-- [58.1 翻转单词顺序列](#581-翻转单词顺序列)
+- [58.1 翻转单词顺序列***************](#581-翻转单词顺序列)
     - [题目描述](#题目描述-13)
     - [解题思路](#解题思路-15)
-- [64. 求 1+2+3+...+n](#64-求-123n)
+- [64. 求 1+2+3+...+n  *********](#64-求-123n--)
     - [题目描述](#题目描述-14)
     - [解题思路](#解题思路-16)
-- [62. 圆圈中最后剩下的数【约瑟夫环】](#62-圆圈中最后剩下的数约瑟夫环)
+- [62. 圆圈中最后剩下的数【约瑟夫环】 ********](#62-圆圈中最后剩下的数约瑟夫环-)
     - [题目描述](#题目描述-15)
     - [解题思路](#解题思路-17)
-- [65. 不用加减乘除做加法](#65-不用加减乘除做加法)
+- [65. 不用加减乘除做加法 ********](#65-不用加减乘除做加法-)
     - [题目描述](#题目描述-16)
     - [解题思路](#解题思路-18)
-- [3. 数组中重复的数字](#3-数组中重复的数字)
+- [3. 数组中重复的数字  ************](#3-数组中重复的数字--)
     - [题目描述](#题目描述-17)
     - [解题思路](#解题思路-19)
-- [66. 构建乘积数组](#66-构建乘积数组)
+- [66. 构建乘积数组  ************](#66-构建乘积数组--)
     - [题目描述](#题目描述-18)
     - [解题思路](#解题思路-20)
-- [19. 正则表达式匹配](#19-正则表达式匹配)
+- [19. 正则表达式匹配  ****************](#19-正则表达式匹配--)
     - [题目描述](#题目描述-19)
     - [解题思路](#解题思路-21)
-- [20. 表示数值的字符串](#20-表示数值的字符串)
+- [20. 表示数值的字符串 *****************](#20-表示数值的字符串-)
     - [题目描述](#题目描述-20)
     - [解题思路](#解题思路-22)
-- [23. 链表中环的入口结点](#23-链表中环的入口结点)
+- [23. 链表中环的入口结点 **************](#23-链表中环的入口结点-)
     - [题目描述](#题目描述-21)
     - [解题思路](#解题思路-23)
-- [18.2 删除链表中重复的结点](#182-删除链表中重复的结点)
+- [18.2 删除链表中重复的结点 **********](#182-删除链表中重复的结点-)
     - [题目描述](#题目描述-22)
     - [解题描述](#解题描述)
-- [32.3 * 按之字形顺序打印二叉树](#323--按之字形顺序打印二叉树)
+- [32.3 * 按之字形顺序打印二叉树 ************************](#323--按之字形顺序打印二叉树-)
     - [题目描述](#题目描述-23)
     - [解题思路](#解题思路-24)
-- [41.1 数据流中的中位数](#411-数据流中的中位数)
+- [41.1 数据流中的中位数 ************](#411-数据流中的中位数-)
     - [题目描述](#题目描述-24)
     - [解题思路](#解题思路-25)
-- [59.*  滑动窗口的最大值](#59--滑动窗口的最大值)
+- [59.*  滑动窗口的最大值  ************* [看进阶课]](#59--滑动窗口的最大值---看进阶课)
     - [题目描述](#题目描述-25)
     - [解题思路](#解题思路-26)
 
@@ -105,6 +106,7 @@
 ## 5) likedlist.removeFirst() == likedlist.remove();linkedlist.removeLast();
 ## 6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);
 ## 7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]
+## 8） if(ints == null || ints.length==0 ||ints[0] == null || ints[0].length==0)
 ```java
 	Integer[] a = new Integer[10];
         for(int i =0 ;i<10 ;i++){
@@ -532,7 +534,7 @@ public class Solution {
 }
 ```
 
-# 33. * 二叉搜索树的后序遍历序列
+# 33. * 二叉搜索树的后序遍历序列 *******
 
 [NowCoder](https://www.nowcoder.com/practice/a861533d45854474ac791d90e447bafd?tpId=13&tqId=11176&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -558,7 +560,7 @@ private boolean verify(int[] sequence, int first, int last) {
     if (last - first <= 1)
         return true;
     int rootVal = sequence[last];
-    int cutIndex = first;
+    int cutIndex = first; // *** 
     while (cutIndex < last && sequence[cutIndex] <= rootVal)
         cutIndex++;  //搜索二叉树：数组前半部分小于根，后半部分大于根
     for (int i = cutIndex; i < last; i++) //cutIndex及其之后属于右子树，搜索二叉树右子树所有节点都要大于根
@@ -568,7 +570,7 @@ private boolean verify(int[] sequence, int first, int last) {
 }
 ```
 
-# 36. * 二叉搜索树与双向链表
+# 36. * 二叉搜索树与双向链表 *******
 
 [NowCoder](https://www.nowcoder.com/practice/947f6eb80d944a84850b0538bf0ec3a5?tpId=13&tqId=11179&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -583,25 +585,32 @@ private boolean verify(int[] sequence, int first, int last) {
 * 此题或者也可以加一个队列来存，再遍历，这需要额外的空间
 
 ```java
-private TreeNode pre = null;
-private TreeNode head = null;
+public class Solution {
+    TreeNode pre = null;
+    TreeNode head = null;
+    public TreeNode Convert(TreeNode root) {
+        if(root == null) {
+            return null;
+        }
+        convert(root);
+        return head;
+    }
 
-public TreeNode Convert(TreeNode root) {
-    inOrder(root);
-    return head;
-}
-
-private void inOrder(TreeNode node) {
-    if (node == null)
-        return;
-    inOrder(node.left);
-    node.left = pre;
-    if (pre != null)
-        pre.right = node;
-    pre = node;
-    if (head == null)
-        head = node;
-    inOrder(node.right);
+    private void convert(TreeNode root) {
+        if(root == null){
+            return;
+        }
+        convert(root.left);  //左边转换好了
+        if(head == null){
+            head = root;
+        }
+        if(pre != null){
+            pre.right = root;
+        }
+        root.left = pre;
+        pre = root;  //连接上左边
+        convert(root.right); //然后用新的pre去连接右边
+    }
 }
 ```
 
@@ -687,6 +696,7 @@ public class Solution {
 
 [NowCoder](https://www.nowcoder.com/practice/6a296eb82cf844ca8539b57c23e6e9bf?tpId=13&tqId=11182&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
+https://blog.csdn.net/u013132035/article/details/82936032
 ## 解题思路
 
 ### 快速选择算法【来源于快速排序算法】
@@ -772,18 +782,19 @@ public ArrayList<Integer> GetLeastNumbers_Solution(int[] nums, int k) {
 }
 ```
 
-# 43. 从 1 到 n 整数中 1 出现的次数*****【未】
+# 43. 从 1 到 n 整数中 1 出现的次数******************
 
 [NowCoder](https://www.nowcoder.com/practice/bd7f978302044eee894445e244c7eee6?tpId=13&tqId=11184&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
 ## 解题思路
+https://www.cnblogs.com/xuanxufeng/p/6854105.html
 
 ```java
 public int NumberOf1Between1AndN_Solution(int n) {
     int cnt = 0;
     for (int m = 1; m <= n; m *= 10) {
         int a = n / m, b = n % m;
-        cnt += (a + 8) / 10 * m + (a % 10 == 1 ? b + 1 : 0);
+        cnt += (a + 8) / 10 * m + (a % 10 == 1 ? b + 1 : 0);  //统计每位为1的个数
     }
     return cnt;
 }
@@ -791,7 +802,7 @@ public int NumberOf1Between1AndN_Solution(int n) {
 
 > [Leetcode : 233. Number of Digit One](https://leetcode.com/problems/number-of-digit-one/discuss/64381/4+-lines-O(log-n)-C++JavaPython)
 
-# 49. 丑数
+# 49. 丑数 ***********************
 
 [NowCoder](https://www.nowcoder.com/practice/6aa9e04fc3794f68acf8778237ba065b?tpId=13&tqId=11186&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -841,9 +852,12 @@ public class Solution {
 }
 ```
 
-# 53. * 数字在排序数组中出现的次数
+# 53. * 数字在排序数组中出现的次数  ***********
 
 [NowCoder](https://www.nowcoder.com/practice/70610bf967994b22bb1c26f9ae901fa2?tpId=13&tqId=11190&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+https://www.jianshu.com/p/1f156c0997a2
+
 
 ## 题目描述
 
@@ -859,27 +873,32 @@ Output:
 ## 解题思路
 
 ```java
-public int GetNumberOfK(int[] nums, int K) {
-    int first = binarySearch(nums, K);
-    int last = binarySearch(nums, K + 1);
-    return (first == nums.length || nums[first] != K) ? 0 : last - first;
-}
-
-private int binarySearch(int[] nums, int K) {
-    int l = 0, h = nums.length;
-    while (l < h) {
-        int m = l + (h - l) / 2;
-        if (nums[m] >= K)
-            h = m;
-        else
-            l = m + 1;
+public class Solution {
+    public int GetNumberOfK(int[] nums, int K) {
+        int first = binarySearch(nums, K); //在一个有重复元素的数组中查找 key 的最左位置的实现
+        int last = binarySearch(nums, K + 1);
+        return (first == nums.length || nums[first] != K) ? 0 : last - first;
     }
-    return l;
+
+    private int binarySearch(int[] nums, int K) {
+        int l = 0, h = nums.length;
+        while (l < h) {
+            int m = l + (h - l) / 2;
+            if (nums[m] == K){
+                h = m;
+            }else if(nums[m] > K){
+                h = m-1;
+            }else {
+                l = m + 1;
+            }
+        }
+        return l;
+    }
 }
 ```
 
 
-# 56. 数组中只出现一次的数字
+# 56. 数组中只出现一次的数字  *************
 
 [NowCoder](https://www.nowcoder.com/practice/e02fdb54d7524710a7d664d082bb7811?tpId=13&tqId=11193&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -926,7 +945,7 @@ public class Solution {
 ```
 
 
-# 57.2 和为 S 的连续正数序列
+# 57.2 和为 S 的连续正数序列************
 
 [NowCoder](https://www.nowcoder.com/practice/c451a3fd84b64cb19485dad758a55ebe?tpId=13&tqId=11194&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -984,7 +1003,7 @@ public class Solution {
     }
 }
 ```
-# 58.1 翻转单词顺序列
+# 58.1 翻转单词顺序列***************
 
 [NowCoder](https://www.nowcoder.com/practice/3194a4f4cf814f63919d0790578d51f3?tpId=13&tqId=11197&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1023,7 +1042,7 @@ public class Solution {
             j++;
         }
         reverse(chars,0,n-1);
-        return String.valueOf(chars);
+        return String.valueOf(chars);  //chars.toString（）是不可以的***********
     }
     
     private void reverse(char[] chars,int i,int j){
@@ -1041,7 +1060,7 @@ public class Solution {
     }
 }
 ```
-# 64. 求 1+2+3+...+n
+# 64. 求 1+2+3+...+n  *********
 
 [NowCoder](https://www.nowcoder.com/practice/7a0da8fc483247ff8800059e12d7caf1?tpId=13&tqId=11200&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1065,7 +1084,7 @@ public int Sum_Solution(int n) {
 }
 ```
 
-# 62. 圆圈中最后剩下的数【约瑟夫环】
+# 62. 圆圈中最后剩下的数【约瑟夫环】 ********
 
 [NowCoder](https://www.nowcoder.com/practice/f78a359491e64a50bce2d89cff857eb6?tpId=13&tqId=11199&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1145,7 +1164,7 @@ public int LastRemaining_Solution(int n, int m) {
     return (LastRemaining_Solution(n - 1, m) + m) % n;
 }
 ```
-# 65. 不用加减乘除做加法
+# 65. 不用加减乘除做加法 ******** 
 
 [NowCoder](https://www.nowcoder.com/practice/59ac416b4b944300b617d4f7f111b215?tpId=13&tqId=11201&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1183,7 +1202,7 @@ public class Solution {
 
 
 ```
-# 3. 数组中重复的数字
+# 3. 数组中重复的数字  ************
 
 [NowCoder](https://www.nowcoder.com/practice/623a5ac0ea5b4e5f95552655361ae0a8?tpId=13&tqId=11203&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1244,8 +1263,7 @@ private void swap(int[] nums, int i, int j) {
 }
 ```
 
-# 66. 构建乘积数组
-
+# 66. 构建乘积数组  ************
 [NowCoder](https://www.nowcoder.com/practice/94a4d381a68b47b7a8bed86f2975db46?tpId=13&tqId=11204&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
 ## 题目描述
@@ -1255,7 +1273,7 @@ private void swap(int[] nums, int i, int j) {
 ## 解题思路
 * 【分析}：可以把B[i]=A[0]*A[1]*.....*A[i-1]*A[i+1]*.....*A[n-1].看成A[0]*A[1]*.....*A[i-1]和
 A[i+1]*.....A[n-2]*A[n-1]两部分的乘积。因此，数组B可以用一个矩阵来创建。在图中，B[i]为矩阵中第i行所有元素的乘积.
-![]{https://images2015.cnblogs.com/blog/947994/201604/947994-20160430170929925-1177273395.png}
+![](https://images2015.cnblogs.com/blog/947994/201604/947994-20160430170929925-1177273395.png)
 
 ```java
 public int[] multiply(int[] A) {
@@ -1270,7 +1288,7 @@ public int[] multiply(int[] A) {
 ```
 
 
-# 19. 正则表达式匹配
+# 19. 正则表达式匹配  ****************
 
 [NowCoder](https://www.nowcoder.com/practice/45327ae22b7b413ea21df13ee7d6429c?tpId=13&tqId=11205&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1336,7 +1354,7 @@ public class Solution {
 }
 ```
 
-# 20. 表示数值的字符串
+# 20. 表示数值的字符串 *****************
 
 [NowCoder](https://www.nowcoder.com/practice/6f8c901d091949a5837e24bb82a731f2?tpId=13&tqId=11206&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1445,7 +1463,7 @@ public class Solution {
 }
 ```
 
-# 23. 链表中环的入口结点
+# 23. 链表中环的入口结点 **************
 
 [NowCoder](https://www.nowcoder.com/practice/253d2c59ec3e4bc68da16833f79a38e4?tpId=13&tqId=11208&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1487,13 +1505,13 @@ public class Solution {
 }
 ```
 
-# 18.2 删除链表中重复的结点
+# 18.2 删除链表中重复的结点 **********
 
 [NowCoder](https://www.nowcoder.com/practice/fc533c45b73a41b0b44ccba763f866ef?tpId=13&tqId=11209&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
 ## 题目描述
 
-<div align="center"> <img src="../pics//8433fbb2-c35c-45ef-831d-e3ca42aebd51.png" width="500"/> </div><br>
+![](./pics//8433fbb2-c35c-45ef-831d-e3ca42aebd51.png)
 
 ## 解题描述
 
@@ -1543,7 +1561,7 @@ public class Solution {
 }
 ```
 
-# 32.3 * 按之字形顺序打印二叉树
+# 32.3 * 按之字形顺序打印二叉树 ************************
 
 [NowCoder](https://www.nowcoder.com/practice/91b69814117f4e8097390d107d2efbe0?tpId=13&tqId=11212&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1599,7 +1617,7 @@ public class Solution {
 ```
 
 
-# 41.1 数据流中的中位数
+# 41.1 数据流中的中位数 ************
 
 [NowCoder](https://www.nowcoder.com/practice/9be0172896bd43948f8a32fb954e1be1?tpId=13&tqId=11216&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
@@ -1640,7 +1658,7 @@ public Double GetMedian() {
 }
 ```
 
-# 59.*  滑动窗口的最大值
+# 59.*  滑动窗口的最大值  ************* [看进阶课]
 
 [NowCoder](https://www.nowcoder.com/practice/1624bc35a45c42c0bc17d17fa0cba788?tpId=13&tqId=11217&tPage=1&rp=1&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
