@@ -1,4 +1,531 @@
+<!-- TOC -->
 
+- [数组](#数组)
+    - [除自身以外数组的乘积](#除自身以外数组的乘积)
+    - [递增的三元子序列](#递增的三元子序列)
+    - [打乱数组](#打乱数组)
+    - [移动零](#移动零)
+    - [求众数](#求众数)
+    - [乘积最大子序列](#乘积最大子序列)
+- [堆、栈、队列](#堆栈队列)
+    - [扁平化嵌套列表迭代器](#扁平化嵌套列表迭代器)
+    - [基本计算器 II](#基本计算器-ii)
+    - [数组中的第K个最大元素](#数组中的第k个最大元素)
+- [字符串](#字符串)
+    - [验证回文串](#验证回文串)
+    - [分割回文串](#分割回文串)
+    - [3、单词拆分](#3单词拆分)
+    - [2、单词拆分2](#2单词拆分2)
+    - [3、212. 单词搜索 II](#3212-单词搜索-ii)
+- [动态规划](#动态规划)
+    - [1、至少有K个重复字符的最长子串](#1至少有k个重复字符的最长子串)
+    - [2、二叉树中的最大路径和](#2二叉树中的最大路径和)
+    - [3、最长连续序列](#3最长连续序列)
+    - [4、打家劫舍](#4打家劫舍)
+    - [5、完全平方数](#5完全平方数)
+    - [6、 最长上升子序列](#6-最长上升子序列)
+    - [](#)
+- [数学和位运算](#数学和位运算)
+    - [1、直线上最多的点数](#1直线上最多的点数)
+    - [2、分数到小数](#2分数到小数)
+    - [3、给定一个整数 n，返回 n! 结果尾数中零的数量。](#3给定一个整数-n返回-n-结果尾数中零的数量)
+        - [4、](#4)
+        - [5、位 1 的个数](#5位-1-的个数)
+        - [6、求一个数是不是质数](#6求一个数是不是质数)
+        - [7、计数质数](#7计数质数)
+        - [8、n个数的序列，找出 0 .. n 中没有出现在序列中的那个数。](#8n个数的序列找出-0--n-中没有出现在序列中的那个数)
+        - [9、给定一个整数，写一个函数来判断它是否是 3 的幂次方。](#9给定一个整数写一个函数来判断它是否是-3-的幂次方)
+- [图](#图)
+    - [BFS](#bfs)
+- [动态规划](#动态规划-1)
+
+<!-- /TOC -->
+# 数组
+## 除自身以外数组的乘积
+```
+给定长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。
+
+示例:
+
+输入: [1,2,3,4]
+输出: [24,12,8,6]
+说明: 请不要使用除法，且在 O(n) 时间复杂度内完成此题。
+
+进阶：
+你可以在常数空间复杂度内完成这个题目吗？（ 出于对空间复杂度分析的目的，输出数组不被视为额外空间。）
+```
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int[] res = new int[nums.length];
+        int k = 1;
+        for(int i = 0; i < res.length; i++){
+            res[i] = k;
+            k = k * nums[i]; // 此时数组存储的是除去当前元素左边的元素乘积
+        }
+        k = 1;
+        for(int i = res.length - 1; i >= 0; i--){
+            res[i] *= k; // k为该数右边的乘积。
+            k *= nums[i]; // 此时数组等于左边的 * 该数右边的。
+        }
+        return res;
+    }
+}
+
+```
+* 【分析】：乘积 = 当前数左边的乘积 * 当前数右边的乘积
+## 递增的三元子序列
+* 【分析】：只需遍历一遍列表，同时维护两个值： 最小值 和 次小值 。首先将两个值都定义为超大的数字，先判断最小值，因为最小值必须保持在次小值之前，再判断次小值，若在最小值和次小值之间，则更新次小值，若大于次小值，则满足条件。
+
+注： 会发现一个问题，若出现有一个位于次小值之后的值比最小值还小，那么更新后是否就违背了“次小值必须出现在最小值之后”。事实上，这并不影响最后的结果，因为若后面出现了大于次小值的数字，则与更新前的“最小值-次小值-当前值”构成三元子序列。这里更新最小值只是为了获得更小的“最小值-次小值”二元子序列而不放过可能的结果。
+3个连续递增子序列 有3个槽位，a,b,c 满足条件 a < b < c，即可 需要将合适的元素填入这3个槽位
+
+```java
+class Solution {
+    public boolean increasingTriplet(int[] nums) {
+        int one = Integer.MAX_VALUE;
+        int two = Integer.MAX_VALUE;
+        for(int n: nums){
+            if(n <= one){  //*** = 不能少
+                one =n ;
+            }else if( n <= two){ //*** = 不能少
+                two = n;
+            }else {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+##  打乱数组
+```
+打乱一个没有重复元素的数组。
+
+示例:
+
+// 以数字集合 1, 2 和 3 初始化数组。
+int[] nums = {1,2,3};
+Solution solution = new Solution(nums);
+
+// 打乱数组 [1,2,3] 并返回结果。任何 [1,2,3]的排列返回的概率应该相同。
+solution.shuffle();
+
+// 重设数组到它的初始状态[1,2,3]。
+solution.reset();
+
+// 随机返回数组[1,2,3]打乱后的结果。
+solution.shuffle();
+```
+* 【分析】
+* 乱序算法不像排序算法，结果唯一可以很容易检验，因为「乱」可以有很多种，你怎么能证明你的算法是「真的乱」呢？
+
+所以我们面临两个问题：
+
+什么叫做「真的乱」？
+设计怎样的算法来打乱数组才能做到「真的乱」？
+这种算法称为「随机乱置算法」或者「洗牌算法」。
+
+本文分两部分，第一部分详解最常用的洗牌算法。因为该算法的细节容易出错，且存在好几种变体，虽有细微差异但都是正确的，所以本文要介绍一种简单的通用思想保证你写出正确的洗牌算法。第二部分讲解使用「蒙特卡罗方法」来检验我们的打乱结果是不是真的乱。蒙特卡罗方法的思想不难，但是实现方式也各有特点的。
+
+一、洗牌算法：此类算法都是靠随机选取元素交换来获取随机性
+
+* **分析洗牌算法正确性的准则：产生的结果必须有 n! 种可能，否则就是错误的。**这个很好解释，因为一个长度为 n 的数组的全排列就有 n! 种，也就是说打乱结果总共有 n! 种。算法必须能够反映这个事实，才是正确的。
+```java
+class Solution {
+
+    int[] origin ,temp;
+    public Solution(int[] nums) {
+        origin = nums;
+        temp = new int[nums.length];
+        for(int i=0; i<nums.length; i++){
+            temp[i] = nums[i];
+        }
+    }
+
+    /** Resets the array to its original configuration and return it. */
+    public int[] reset() {
+        return origin;
+    }
+
+    /** Returns a random shuffling of the array. */
+    public int[] shuffle() {
+        for (int i=temp.length-1 ; i>=0; i--){
+            int index = (int) (Math.random()*(i+1)); //****int后面的要加括号
+            int t = temp[index];
+            temp[index] = temp[i];
+            temp[i] = t;
+        }
+        return temp;
+    }
+}
+```
+## 移动零
+```
+给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+示例:
+
+输入: [0,1,0,3,12]
+输出: [1,3,12,0,0]
+说明:
+
+必须在原数组上操作，不能拷贝额外的数组。
+尽量减少操作次数。
+```
+* 【分析】：思路：可以先把所有非0的元素移到前面，然后将后面的位置补0。 使用指针i，指向需要插入的下标，使用指针j指向遍历的下标。遍历一遍，如果j指向的位置为0，则i不变，j++后移；如果j指向的位置不为0，则将j位置的元素值赋值到i位置，然后i++。
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int i=0;   //i:插入位置下标 ; j:查找位置下标
+        for (int j=0; j<nums.length; j++){
+            if(nums[j] != 0){
+                nums[i] = nums[j];
+                i++;
+            }
+        }
+        for(; i<nums.length; i++){
+            nums[i] = 0;
+        }
+    }
+}
+```
+## 求众数
+```
+给定一个大小为 n 的数组，找到其中的众数。众数是指在数组中出现次数大于 ⌊ n/2 ⌋ 的元素。
+
+你可以假设数组是非空的，并且给定的数组总是存在众数。
+
+示例 1:
+
+输入: [3,2,3]
+输出: 3
+示例 2:
+
+输入: [2,2,1,1,1,2,2]
+输出: 2
+```
+* 【分析】：从第一个数开始count=1，遇到相同的就加1，遇到不同的就减1，减到0就重新换个数（作为众数的候选者）开始计数，总能找到最多的那个【最后剩下的一定是众数，因为>n/2，我们的算法是不相等的两个数两两抵消，不是众数的数一定会被抵消完，最后剩下的一定是众数】
+```java
+public class Solution {
+    public int majorityElement(int[] nums) {
+        int cand = nums[0];  //候选人
+        int count = 1;
+        for (int i =1 ;i<nums.length; i++){
+            if(count != 0){
+                if(cand == nums[i]){
+                    count++;
+                }else {
+                    count--;
+                }
+            }else {
+                cand = nums[i];
+                count = 1;
+            }
+        }
+        return cand;
+    }
+}
+```
+## 乘积最大子序列
+```
+给定一个整数数组 nums ，找出一个序列中乘积最大的连续子序列（该序列至少包含一个数）。
+
+示例 1:
+
+输入: [2,3,-2,4]
+输出: 6
+解释: 子数组 [2,3] 有最大乘积 6。
+示例 2:
+
+输入: [-2,0,-1]
+输出: 0
+解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+```
+* 【分析】：遍历数组时计算当前最大值，不断更新；令imax为当前最大值，则当前最大值为 imax = max(imax * nums[i], nums[i])；由于存在负数，那么会导致最大的变最小的，最小的变最大的。因此还需要维护当前最小值imin，imin = min(imin * nums[i], nums[i])；当负数出现时则imax与imin进行交换再进行下一步计算；前 n 位的乘积最大子序列分以下3种情况：
+
+    * 1. 前n - 1位的乘积最小子序列的乘积 * A[n]最大
+
+    * 2. 前n - 1位的乘积最大子序列的乘积 * A[n]最大
+
+    * 3. 前n - 1位的乘积最大子序列和乘积最小子序列的乘积 * A[n]都不是最大，而A[n]本身最大。
+```java
+//动态规划版本
+class Solution {
+    public int maxProduct(int[] nums) {
+        int max = Integer.MIN_VALUE;
+        int cur = 1,imax=1,imin =1;
+        for(int i=0;i <nums.length; i++){
+            cur = nums[i];
+            if(cur < 0){  //当当前数<0时，当前最大值在imin和cur之间产生。
+                int temp = imax;
+                imax = imin;
+                imin = temp;
+            }
+            imax = Math.max(imax*cur,cur);
+            imin = Math.min(imin*cur,cur);
+            max = Math.max(max, imax);
+        }
+        return max;
+    }
+}
+```
+
+
+```java
+//暴力版本
+
+class Solution {
+    public int maxProduct(int[] nums) {
+        int max = Integer.MIN_VALUE;
+        for(int i=0;i <nums.length; i++){
+            int cur = nums[i];
+            max = Math.max(cur,max);
+            for(int j=i+1; j<nums.length; j++){
+                cur *=nums[j];
+                max = Math.max(cur,max);
+            }
+        }
+        return max;
+    }
+}
+```
+# 堆、栈、队列
+
+##  扁平化嵌套列表迭代器
+```
+
+给定一个嵌套的整型列表。设计一个迭代器，使其能够遍历这个整型列表中的所有整数。
+
+列表中的项或者为一个整数，或者是另一个列表。
+
+示例 1:
+
+输入: [[1,1],2,[1,1]]
+输出: [1,1,2,1,1]
+解释: 通过重复调用 next 直到 hasNext 返回false，next 返回的元素的顺序应该是: [1,1,2,1,1]。
+示例 2:
+
+输入: [1,[4,[6]]]
+输出: [1,4,6]
+解释: 通过重复调用 next 直到 hasNext 返回false，next 返回的元素的顺序应该是: [1,4,6]。
+```
+* 【分析】：利用一个栈来实现。首先将所有的元素倒叙压入栈中（倒叙入栈，输出顺序才是正序）（也可以用队列，并没有什么区别），由于迭代过程是先判断hasNext然后再next获取值，这样我们就可以在hasNest中进行处理：
+    * 首先判断栈顶元素是否为一个整数，若是，则证明next可以直接拿值，返回true；
+    * 若不是，则是一个嵌套，我们将该元素弹出并转化成一个列表，将列表中元素倒叙入栈。
+    * 重复上述过程直到栈顶元素是一个值为止。
+
+```java
+
+/**
+ * // This is the interface that allows for creating nested lists.
+ * // You should not implement it, or speculate about its implementation
+ * public interface NestedInteger {
+ *
+ *     // @return true if this NestedInteger holds a single integer, rather than a nested list.
+ *     public boolean isInteger();
+ *
+ *     // @return the single integer that this NestedInteger holds, if it holds a single integer
+ *     // Return null if this NestedInteger holds a nested list
+ *     public Integer getInteger();
+ *
+ *     // @return the nested list that this NestedInteger holds, if it holds a nested list
+ *     // Return null if this NestedInteger holds a single integer
+ *     public List<NestedInteger> getList();
+ * }
+ */
+public class NestedIterator implements Iterator<Integer> {
+    Stack<NestedInteger> stack = new Stack<>();
+    public NestedIterator(List<NestedInteger> nestedList) {
+        for(int i=nestedList.size()-1; i>=0; i--){
+            stack.push(nestedList.get(i));
+        }
+    }
+
+    @Override
+    public Integer next() {
+        return stack.pop().getInteger();
+    }
+
+    @Override
+    public boolean hasNext() {
+        while (!stack.isEmpty()){
+            NestedInteger n = stack.peek();
+            if(n.isInteger()){
+                return true;
+            }
+            List<NestedInteger> list = stack.pop().getList();
+            for(int i = list.size()-1; i>=0; i--){
+                stack.push(list.get(i));
+            }
+        }
+        return false;
+    }
+}
+```
+
+##  基本计算器 II
+```
+实现一个基本的计算器来计算一个简单的字符串表达式的值。
+
+字符串表达式仅包含非负整数，+， - ，*，/ 四种运算符和空格  。 整数除法仅保留整数部分。
+
+示例 1:
+
+输入: "3+2*2"
+输出: 7
+示例 2:
+
+输入: " 3/2 "
+输出: 1
+示例 3:
+
+输入: " 3+5 / 2 "
+输出: 5
+说明：
+
+你可以假设所给定的表达式都是有效的。
+请不要使用内置的库函数 eval。
+```
+
+* 【分析】：一般需要符号栈、数据栈，两个。但是，看到网上一个写的不错的算法，只用了一个数据栈。主要思想如下：
+
+将减法转化为加法（取相反数）
+
+由于乘除法优先级高，直接计算
+
+整数不仅一位，会>10
+
+表达式中没有括号
+
+注意：
+
+加减乘除空格的ASCII码都小于'0'，ASCII对照表如下：http://tool.oschina.net/commons?type=4
+
+先做减法，避免int溢出
+
+char类型，不能使用switch
+
+```java
+class Solution {
+    static int i=0;
+    public int calculate(String s) {
+        char[] chars = s.toCharArray();
+        Stack<Integer> opo = new Stack<>();
+        i=0;  //*************一定要置为0哈，不然测试数据公用这个 i 出现问题。
+        for (; i<chars.length; ){
+            char c= chars[i];
+            if(c == ' '){
+                i++;
+            }else if(c >= '0' && c<='9'){
+                opo.push(getDigit(chars));
+            }else if(c == '+' || c == '-'){
+                i++;
+                int n2 = getDigit(chars);
+                if(c =='+'){
+                    opo.push(n2);
+                }else {
+                    opo.push(-n2);
+                }
+            }else if(c == '*' || c=='/'){
+                i++;
+                int n1 = opo.pop();
+                int n2 = getDigit(chars);
+                if(c == '*'){
+                    opo.push(n1*n2);
+                }else {
+                    opo.push(n1/n2);
+                }
+            }
+        }
+        int res =0;
+        while (!opo.isEmpty()){
+            res += opo.pop();
+        }
+        return res;
+    }
+
+    public int getDigit(char[] chars){  //取得 i 位置后面跟着的数字
+        char ch2 = chars[i];
+        while (ch2 == ' '){
+            ch2 = chars[++i];
+        }
+        int n2 = 0;
+        while (i<chars.length){
+            ch2 = chars[i];
+            if(ch2 >='0' && ch2<='9'){
+                n2 = ch2-'0' + n2*10;
+                i++;
+            }else {
+                break;
+            }
+        }
+        return n2;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println(solution.calculate("3/2"));
+    }
+}
+
+```
+## 数组中的第K个最大元素
+```
+在未排序的数组中找到第 k 个最大的元素。请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+
+示例 1:
+
+输入: [3,2,1,5,6,4] 和 k = 2
+输出: 5
+示例 2:
+
+输入: [3,2,3,1,2,4,5,5,6] 和 k = 4
+输出: 4
+说明:
+
+你可以假设 k 总是有效的，且 1 ≤ k ≤ 数组的长度。
+```
+
+* 用快排的改进算法
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        QuickSort(nums,0,nums.length-1,k-1);
+        return nums[k-1];
+    }
+
+    private void QuickSort(int[] nums, int l, int r, int k) {
+        if(l<r){
+            int p = partition(nums,l,r);
+            if(p == k ){
+                return;
+            }else if(p < k){
+                QuickSort(nums,p+1,r,k);
+            }else {
+                QuickSort(nums,l,p-1,k);
+            }
+        }
+    }
+
+    private int partition(int[] nums, int l, int r) {
+        int pivot = nums[l];
+        while (l < r){
+            while (l<r && nums[r] <= pivot){
+                r--;
+            }
+            nums[l] = nums[r];
+            while (l<r && nums[l] >= pivot){
+                l++;
+            }
+            nums[r] = nums[l];
+        }
+        nums[l] = pivot;
+        return l;
+    }
+}
+```
 
 # 字符串
 ## 验证回文串

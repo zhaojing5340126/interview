@@ -9,6 +9,8 @@
     - [6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);](#6private-priorityqueueinteger-left--new-priorityqueueo1-o2---o2---o1)
     - [7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]](#7arraysort排序问题要用integer和character不能用int和char)
     - [8） if(ints == null || ints.length==0 ||ints[0] == null || ints[0].length==0)](#8-ifints--null--intslength0-ints0--null--ints0length0)
+    - [9） 用Collection来排序map， List<Map.Entry<Integer,Integer>> list = new ArrayList<>(map.entrySet());    Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>()](#9-用collection来排序map-listmapentryintegerinteger-list--new-arraylistmapentryset----collectionssortlist-new-comparatormapentryinteger-integer)
+    - [10) if(s.equals("+")||s.equals("-")||s.equals("*")||s.equals("/")){  //****要用equals，而不是 == [String类重写了equals方法，所有String.equals可以比较两个字符串内容是否相等。](#10-ifsequalssequals-sequalssequals--要用equals而不是--string类重写了equals方法所有stringequals可以比较两个字符串内容是否相等)
 - [2. 实现 Singleton](#2-实现-singleton)
 - [5. * 替换空格](#5--替换空格)
     - [题目描述](#题目描述)
@@ -107,6 +109,17 @@
 ## 6）private PriorityQueue<Integer> left = new PriorityQueue<>((o1, o2) -> o2 - o1);
 ## 7）Array.sort排序问题:要用Integer[]和Character[],不能用int[]和char[]
 ## 8） if(ints == null || ints.length==0 ||ints[0] == null || ints[0].length==0)
+## 9） 用Collection来排序map， List<Map.Entry<Integer,Integer>> list = new ArrayList<>(map.entrySet());    Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>()
+ {
+            @Override
+            public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
+                return o2.getValue()-o1.getValue();
+            }
+        });
+        
+## 10) if(s.equals("+")||s.equals("-")||s.equals("*")||s.equals("/")){  //****要用equals，而不是 == [String类重写了equals方法，所有String.equals可以比较两个字符串内容是否相等。
+
+ ]
 ```java
 	Integer[] a = new Integer[10];
         for(int i =0 ;i<10 ;i++){
