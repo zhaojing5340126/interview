@@ -1,5 +1,8 @@
 <!-- TOC -->
 
+- [树](#树)
+    - [二叉树的序列化与反序列化](#二叉树的序列化与反序列化)
+    - [二叉树的最近公共祖先](#二叉树的最近公共祖先)
 - [数组](#数组)
     - [除自身以外数组的乘积](#除自身以外数组的乘积)
     - [递增的三元子序列](#递增的三元子序列)
@@ -40,6 +43,226 @@
 - [动态规划](#动态规划-1)
 
 <!-- /TOC -->
+# 树
+## 二叉树的序列化与反序列化
+```
+序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
+
+请设计一个算法来实现二叉树的序列化与反序列化。这里不限定你的序列 / 反序列化算法执行逻辑，你只需要保证一个二叉树可以被序列化为一个字符串并且将这个字符串反序列化为原始的树结构。
+
+示例: 
+
+你可以将以下二叉树：
+
+    1
+   / \
+  2   3
+     / \
+    4   5
+
+序列化为 "[1,2,3,null,null,4,5]"
+提示: 这与 LeetCode 目前使用的方式一致，详情请参阅 LeetCode 序列化二叉树的格式。你并非必须采取这种方式，你也可以采用其他的方法解决这个问题。
+
+说明: 不要使用类的成员 / 全局 / 静态变量来存储状态，你的序列化和反序列化算法应该是无状态的。
+```
+```java
+//先序
+public class Codec {
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        if(root == null){
+            return "#,";
+        }
+        String s = root.val+",";
+        s+=serialize(root.left);
+        s+=serialize(root.right);
+        return s;
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        String[] s = data.split(",");
+        Queue<String> queue = new LinkedList<>();
+        for(String i : s){
+            queue.add(i);
+        }
+        return process(queue);
+    }
+
+    private TreeNode process(Queue<String> queue) {
+        String s = queue.poll();
+        if(s.equals("#")){
+            return null;
+        }
+        TreeNode node = new TreeNode(Integer.valueOf(s));
+        node.left = process(queue);
+        node.right = process(queue);
+        return node;
+    }
+}
+
+```
+```java
+//层序
+package test;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Codec {
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        Queue<TreeNode> q = new LinkedList<>();
+        StringBuffer s = new StringBuffer();
+        if(root == null){
+            return "[]";
+        }
+        q.offer(root);
+        s.append("["+root.val);
+        while (!q.isEmpty()){
+            TreeNode cur = q.poll();
+            if(cur.left !=null){
+                q.offer(cur.left);
+                s.append(","+cur.left.val);
+            }else {
+                s.append(",null");
+            }
+            if(cur.right !=null){
+                q.offer(cur.right);
+                s.append(","+cur.right.val);
+            }else {
+                s.append(",null");
+            }
+        }
+//        while(s.substring(s.length()-1).equals("null")){
+//            s.delete(s.length()-1,s.length());
+//        }
+        s.append("]");
+        return s.toString();
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        if(data == null||data == "[]"){
+            return null;
+        }
+        data = data.replace("[","").replace("]","");
+        String[] s = data.split(",");
+        Queue<TreeNode> q = new LinkedList<>();
+        int i=0;
+        TreeNode root = new TreeNode(Integer.valueOf(s[i++]));
+        q.offer(root);
+        while (!q.isEmpty()){
+            TreeNode cur = q.poll();
+            if(i<s.length&&!s[i].equals("null")){
+                cur.left = new TreeNode(Integer.valueOf(s[i]));
+                q.offer(cur.left);
+            }
+            i++;
+            if(i<s.length&&!s[i].equals("null")){
+                cur.right = new TreeNode(Integer.valueOf(s[i]));
+                q.offer(cur.right);
+            }
+            i++;
+        }
+        return root;
+    }
+
+    public static void main(String[] args) {
+        Codec codec = new Codec();
+        String s = new String("[1,null,2]");
+        System.out.println(codec.serialize(codec.deserialize(s)));
+
+    }
+}
+
+```
+## 二叉树的最近公共祖先
+```
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+百度百科中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”
+
+例如，给定如下二叉树:  root = [3,5,1,6,2,0,8,null,null,7,4]
+```
+![(https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/15/binarytree.png)]
+```
+示例 1:
+
+输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输出: 3
+解释: 节点 5 和节点 1 的最近公共祖先是节点 3。
+示例 2:
+
+输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+输出: 5
+解释: 节点 5 和节点 4 的最近公共祖先是节点 5。因为根据定义最近公共祖先节点可以为节点本身。
+ 
+
+说明:
+
+所有节点的值都是唯一的。
+p、q 为不同节点且均存在于给定的二叉树中。
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
+```
+```java
+public class Solution {  
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {  
+        //发现目标节点则通过返回值标记该子树发现了某个目标结点  
+        if(root == null || root == p || root == q) return root;  
+        //查看左子树中是否有目标结点，没有为null  
+        TreeNode left = lowestCommonAncestor(root.left, p, q);  
+        //查看右子树是否有目标节点，没有为null  
+        TreeNode right = lowestCommonAncestor(root.right, p, q);  
+        //都不为空，说明做右子树都有目标结点，则公共祖先就是本身  
+        if(left!=null&&right!=null) return root;  
+        //如果发现了目标节点，则继续向上标记为该目标节点  
+        return left == null ? right : left;  
+    }  
+}  
+
+```
+
+* 自己的做法，错在哪里？
+```java
+class Solution {
+    boolean[] find ;
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        find = new boolean[2];
+        return process(root,p,q);
+
+    }
+
+    private TreeNode process(TreeNode root, TreeNode p, TreeNode q) {
+        if(root == null){
+            return null;
+        }
+        TreeNode leftResult = process(root.left,p,q);
+        if(leftResult != null){
+            return leftResult;
+        }
+        TreeNode rightResutl = process(root.right,p,q);
+        if(rightResutl != null){
+            return rightResutl;
+        }
+        if(root == p){
+            find[0] = true;
+        }
+        if(root == q){
+            find[1] = true;
+        }
+        if(find[0] && find[1]){
+            return root;
+        }else {
+            return null;
+        }
+    }
+}
+```
 # 数组
 ## 除自身以外数组的乘积
 ```
