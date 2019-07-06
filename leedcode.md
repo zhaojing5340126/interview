@@ -1,5 +1,13 @@
 <!-- TOC -->
 
+- [排序](#排序)
+    - [](#)
+- [LRU缓存机制](#lru缓存机制)
+    - [法一：Java使用HashMap+双链表实现；](#法一java使用hashmap双链表实现)
+    - [法二：利用LinkedHashMap 实现 LRU 算法](#法二利用linkedhashmap-实现-lru-算法)
+- [链表](#链表)
+    - [判断两个链表是否相交](#判断两个链表是否相交)
+    - [在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序。](#在 on log n-时间复杂度和常数级空间复杂度下对链表进行排序)
 - [树](#树)
     - [二叉树的序列化与反序列化](#二叉树的序列化与反序列化)
     - [二叉树的最近公共祖先](#二叉树的最近公共祖先)
@@ -27,7 +35,7 @@
     - [4、打家劫舍](#4打家劫舍)
     - [5、完全平方数](#5完全平方数)
     - [6、 最长上升子序列](#6-最长上升子序列)
-    - [](#)
+    - [](#-1)
 - [数学和位运算](#数学和位运算)
     - [1、直线上最多的点数](#1直线上最多的点数)
     - [2、分数到小数](#2分数到小数)
@@ -43,6 +51,304 @@
 - [动态规划](#动态规划-1)
 
 <!-- /TOC -->
+# 排序
+## 
+* 法一：时间复杂度（O(nlongn)）,空间复杂度O(n)
+* 【分析】：思路：这道题先对数组进行排序，然后把数组一分为二，分为左半部分left和右半部分right，每次取左半部分的最右边的元素和右半部分最右边的元素组成一队，然后一直到结束。解法很简单，但是问题来了，为什么必须取左右部分最右的元素呢，按道理说左半部分的元素都应该比右半部分小，所以随便取就行了，但是这样是不对的，我们注意数组不是严格递增的，可能会出现等于的情况，而一旦等于的情况跨越左右半边，其他的情况就不行了。比如：4,5,5,6。
+
+其他情况包括：
+
+A：取左半部分最左边和右半部分最左边     4,5     5,6
+
+B：取左半部分最右边和右半部分最左边     5,5     4,6
+
+C：取左半部分最左边和右半部分最右边     4,6     5,5
+
+D：取左半部分最右边和右半部分最右边     5,6     4,5
+
+只有第四种情况满足题意，因为提议要求：A<B>C<D，前三种情况都会出现C不能小于B（可能会有等于的情况出现）的情况，具体大家分析下情况就知道了，只有第四种严格满足要求。
+```java
+class Solution {
+    //快排，错位放置
+    public void wiggleSort(int[] nums) {
+        int[] temp = nums.clone();
+        Arrays.sort(temp);
+        int k = (nums.length+1)/2;
+        int j = nums.length;
+        for(int i=0;i<nums.length;i++){
+            nums[i] = i%2==0?temp[--k]:temp[--j];
+        }
+    }
+}
+```
+* 法二：
+三向切分
+
+寻找第 k 大的元素，这里选择第 n/2 大元素，即寻找中位数，假设它的值是 mid，可以使用 O(n) 搞定它。因为 cpp 库已经提供了 nth_element 这个函数了，就不重复造轮子了，感兴趣的同学，参考 215 题：https://leetcode-cn.com/problems/kth-largest-element-in-an-array/comments/64977
+三向切分，整个数组被切分成 [------,======,+++++]，即荷兰国旗问题，参考 75 题：https://leetcode-cn.com/problems/sort-colors/comments/64938 。三向切分注意，我们需要把比 mid 大的数安排到 mid 左边，比 mid 小的数安排到 mid 右边，最后数组大概像是这样 [++++++,=====,-------].
+当你掌握了上面两个基础技术后（强烈建议去做一下 75、215)。
+
+怎么把一个三向切分好的数组变成摆数组，可以使用“索引”映射这个方法（有人称为索引改写，有人称为虚拟索引，怎么说都行，我也是从大神那里学习过来的），假设数组大小是 6
+
+ 0 1 2 3 4 5
+[1 1 1 3 4 5]
+
+[3 1 4 1 5 1]
+0->1
+1->3
+2->5
+3->0
+4->2
+5->4
+意思是说，做映射后，把位置 0 的元素安排到位置 1 上，把位置 1 安排到位置 3 上，位置 2 安排到位置 5 上，位置 3 安排到位置 0 上，位置 4 安排到位置 2 上，而位置 5 安排到位置 4 上。这样安排后，数组就变以了摆动数组。
+
+实际上，我们可以把三向切分的过程，和数组索引映射合并到一起完成。在程序里，我们定义映射后的数组为 a(i) = nums[2*i+1] % (n|1)，在三向切分的时候，对 a(i) 进行操作即可。
+
+* 这个代码是错误的，错在哪不知道**************************
+```java
+class Solution {
+    //快排，错位放置
+    public void wiggleSort(int[] nums) {
+        int[] temp = nums.clone();
+        int mid = (temp.length+1)/2;
+        bfprt(temp, 0, temp.length - 1, mid);  //返回从小到大，位于 k-1 位置的数字，就是第 k 大的数
+        int k = 0;
+        int j = nums.length%2 ==0?mid+1:mid;
+        for(int i=0;i<nums.length;i++){
+            nums[i] = i%2==0?temp[k++]:temp[j++];
+        }
+    }
+    // 在 l,r 范围上，找到从小到大排序为 i 的数，即为第 i+1 小的数
+    public static void bfprt(int[] arr, int l, int r, int i) {
+        if (l == r) {
+            return ;
+        }
+        //法一：随机选择一个数来划分
+        int num = arr[ l + (int)Math.random()*(r-l+1)];  // ** 不能少了 l
+        int[] p = partition(arr, l, r, num);
+        if (i >= p[0] && i <= p[1]) {
+          return;
+        } else if (i < p[0]) {
+            bfprt(arr, l, p[0] - 1, i);
+        } else {
+           bfprt(arr, p[1] + 1, r, i);
+        }
+    }
+
+    // 根据数 num 对arr[] 上l,r范围进行划分，（荷兰国旗）
+    public static int[] partition(int[] arr, int l, int r, int num){
+        int less = l-1;
+        int more = r+1;
+        int cur =l;
+        while (cur < more){
+            if(arr[cur] < num){
+                swap(arr, ++less, cur++);
+            }else if(arr[cur] > num){
+                swap(arr, --more, cur);
+            }else {
+                cur++;
+            }
+        }
+        return new int[]{less+1,more-1};
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+```
+# LRU缓存机制 
+## 法一：Java使用HashMap+双链表实现； 
+一，初始化时
+维护一个双向链表，其中越近使用的数据越排在后面，越久没有使用的数据排在前面。
+维护一个HashMap中，以便能在O(1)的时间找到数据
+
+二，插入时，首先确认是否有这个数据？
+如果有，直接在HashMap里进行更新。
+如果没有，接着判断现在HashMap中是否还有剩余空间？
+如果没有剩余空间，需要将双向链表中头结点指向的数据删除，同时把这个数据从HashMap里删除。
+之后将要插入的数据放到双向链表的尾部并且加入到HashMap中。
+
+三， 获取时，先查找HashMap中是否有这个数据？ 如果有这个数据， 我们首先应该将这个数据与它的前驱和后驱断开，然后将这个数据移动到尾结点。 如果没有这个数据，返回-1。
+
+```java
+public class LRUCache {
+    class Node{
+        Node pre;
+        Node next;
+        int key;
+        int value;
+        public Node(int key,int val){
+            this.key = key;
+            this.value = val;
+        }
+    }
+    HashMap<Integer,Node> map = new HashMap<>();
+    int capacity;
+    Node head;
+    Node tail;
+    public LRUCache(int capacity){
+        this.capacity = capacity;
+        head = new Node(-1,-1);
+        tail = new Node(-1,-1);
+        head.next = tail;
+        tail.pre = head;
+    }
+
+    public int get(int key) {
+        if(map.containsKey(key)){
+            Node node = map.get(key);
+            node.next.pre = node.pre;
+            node.pre.next = node.next;
+            moveToTail(node);
+            return node.value;
+        }
+        return -1;
+    }
+
+
+    public void put(int key, int value) {
+        if(map.containsKey(key)){//如果已经存在，就是更新，记得要移动到最后面
+            Node node = map.get(key);
+            node.value = value;
+            node.next.pre = node.pre;
+            node.pre.next = node.next;
+            moveToTail(node);
+            return;
+        }
+
+        //移除最近最久未访问元素
+        if(map.size() == capacity){
+            Node node = head.next;
+            map.remove(node.key);
+            head.next = node.next;
+            node.next.pre = head;
+        }
+        //插入元素
+        Node node = new Node(key,value);
+        map.put(key,node);
+        moveToTail(node);
+    }
+
+    private void moveToTail(Node node) {
+        node.next = tail;
+        node.pre = tail.pre;
+        tail.pre.next = node;
+        tail.pre = node;
+    }
+
+}
+```
+## 法二：利用LinkedHashMap 实现 LRU 算法
+* 3.3  LinkedListMap 与 LRU 小结【访问标志accessOrder是决定put和get时要不要按访问顺序，removeEldestEntry方法是决定何时删除最近最久未访问节点，默认是返回false，即不会删除，若要删除即要实现LRU，你只需要重写这个方法】
+    * 1、使用 LinkedHashMap 实现 LRU 的必要前提是将 accessOrder 标志位设为 true 以便开启按访问顺序排序的模式。我们可以看到，无论是 put 方法还是 get 方法，都会导致目标 Entry 成为最近访问的 Entry，因此就把该 Entry 加入到了双向链表的末尾：get 方法通过调用 recordAccess 方法来实现。
+    * 2、put 方法在插入新的 Entry 时，通过createEntry 中的 addBefore 方法来实现插入链表尾部；在覆盖已有 key 的情况下，通过 recordAccess 方法来实现将更新的entry放到链表尾部。get操作也通过recordAccess 方法将该entry放到链表尾部。多次操作后，双向链表前面的 Entry 便是最近没有使用的。
+    * 3、在每次put插入新的Entry时，都会根据你重写的removeEldestEntry方法来决定是否要删除最近最久未访问元素（默认返回false，你可以重写成当节点个数大于多少时返回true），这样当节点个数大于某个数时，就会删除最前面的 Entry（head后面的那个Entry），因为它就是最近最久未使用的 Entry
+如下所示，笔者使用 LinkedHashMap 实现一个符合 LRU 算法的数据结构，该结构最多可以缓存 6 个元素，但元素多于 6 个时，会自动删除最近最久没有被使用的元素，如下所示：
+```java
+public class LRU<K,V> extends LinkedHashMap<K, V> {
+ 
+	private static final long serialVersionUID = 1L;
+	
+	public LRU(int initialCapacity, float loadFactor, boolean accessOrder){
+		super(initialCapacity, loadFactor, accessOrder);
+	}
+	
+	// 重写LinkdHashMap中的removeEldestEntry方法，当LRU中元素多于6个时，删除最不经常使用的元素
+	@Override
+	public boolean removeEldestEntry(Map.Entry<K, V> eldest){
+		if(size() > 6){
+			return true;
+		}
+		return false;
+	}
+}
+```
+# 链表
+## 判断两个链表是否相交
+* 【分析】：根据题目意思 如果两个链表相交，那么相交点之后的长度是相同的
+
+我们需要做的事情是，让两个链表从同距离末尾同等距离的位置开始遍历。这个位置只能是较短链表的头结点位置。 为此，我们必须消除两个链表的长度差
+
+指针pA指向A链表，指针pB指向B链表，依次往后遍历
+如果pA到了末尾，则pA = headB 继续遍历
+如果pB到了末尾，则pB = headA 继续遍历
+比较长的链表指针指向较短链表head时，长度差就消除了
+如此，只需要将最短链表遍历两次即可找到位置<br>
+![](https://pic.leetcode-cn.com/e86e947c8b87ac723b9c858cd3834f9a93bcc6c5e884e41117ab803d205ef662-%E7%9B%B8%E4%BA%A4%E9%93%BE%E8%A1%A8.png)
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if(headA == null || headB == null) return null;
+        ListNode pA = headA,pB = headB;
+        while (pA != pB){
+            pA = pA == null ? headB:pA.next;
+            pB = pB == null ? headA:pB.next;
+        }
+        return pA;
+    }
+}
+```
+## 在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序。
+```
+在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序。
+
+示例 1:
+
+输入: 4->2->1->3
+输出: 1->2->3->4
+示例 2:
+
+输入: -1->5->3->4->0
+输出: -1->0->3->4->5
+```
+* 【分析】：题目要求排序算法的时间复杂度为 O(n log n) ，空间复杂度为 O(n) ，直接想到 归并排序。
+
+归并排序 是采用分治法的一种排序算法：
+
+分，就是把数列一分二，二分四...最后分成两两一组的最小子集
+治，就是把分开后的子集，一一排序后归并在一起
+最后由局部有序成为全部有序，和数组的归并排序相比，链表多出的一步就是如何找到链表的中点？
+
+```java
+class Solution {
+    public ListNode sortList(ListNode head) {
+        if(head == null || head.next == null){
+            return head;
+        }
+        ListNode slow=head,fast=head.next;
+        while (fast != null && fast.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        ListNode mid = slow;
+        ListNode right = sortList(mid.next);
+        mid.next = null;
+        ListNode left = sortList(head);
+        return merge(left,right);
+    }
+
+    private ListNode merge(ListNode left, ListNode right) {
+        ListNode temp = new ListNode(0);
+        ListNode cur = temp;
+        while (left != null && right != null){
+            if(left.val <=right.val){
+                cur.next = left;
+                left = left.next;
+            }else{
+                cur.next = right;
+                right = right.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = left == null?right:left;
+        return temp.next;
+    }
+}
+```
 # 树
 ## 二叉树的序列化与反序列化
 ```
