@@ -771,6 +771,52 @@ public class Solution {
     }
 }
 ```
+```java
+import java.util.ArrayList;
+public class Solution {
+    public ArrayList<Integer> GetLeastNumbers_Solution(int [] nums, int k) {
+
+        ArrayList<Integer> result = new ArrayList<Integer>();
+
+        if (k > nums.length || k <= 0 || nums == null)
+            return result ;
+        quickSort(nums,0,nums.length-1,k);
+        for(int i=0; i<k; i++){
+            result.add(nums[i]);
+        }
+        return result;
+    }
+
+    private void quickSort(int[] nums, int l, int r, int k) {
+        if(l<r){
+            int p = partition(nums,l,r);
+            if(p < k){
+                quickSort(nums,p+1,r,k);
+            }else if(p > k){
+                quickSort(nums,l,p-1,k);
+            }else {
+                return;
+            }
+        }
+    }
+
+    private int partition(int[] nums, int l, int r) {
+        int pivot = nums[l];
+        while (l<r){
+            while (l<r && nums[r]>=pivot){
+                r--;
+            }
+            nums[l] = nums[r];
+            while (l<r && nums[l] <= pivot){
+                l++;
+            }
+            nums[r] = nums[l];
+        }
+        nums[l] = pivot;
+        return l;
+    }
+}
+```
 
 ### 大小为 K 的最小堆
 
@@ -833,7 +879,7 @@ public int NumberOf1Between1AndN_Solution(int n) {
         * 那么下一个丑数应该是 M2 M3 M5 这三个数中的最小者
     * 改进：
         * 并不需要把已有的每个丑数分别 乘以2、3、5,只需要记住三个位置 t2 t3 t5，并在每次生成新的丑数的时候去更新它们即可。
-        * 因为丑数是按顺序的，所以对于乘以2，肯定存在某个位置 t2，排在它之前的丑数乘以 2 都会小于已有的最大丑数 M ，在它之后的每个丑数乘以 2得到的结果都会太大。 
+        * 因为丑数是按顺序的，所以对于乘以2，肯定存在某个位置 t2，排在它之前的丑数乘以 2 都会小于已有的最大丑数 M ，在它及其之后的每个丑数乘以 2得到的结果都会太大。 
 
 ```java
 import java.util.*;
@@ -888,24 +934,30 @@ Output:
 ```java
 public class Solution {
     public int GetNumberOfK(int[] nums, int K) {
-        int first = binarySearch(nums, K); //在一个有重复元素的数组中查找 key 的最左位置的实现
+        int first = binarySearch(nums, K);
         int last = binarySearch(nums, K + 1);
         return (first == nums.length || nums[first] != K) ? 0 : last - first;
     }
 
-    private int binarySearch(int[] nums, int K) {
-        int l = 0, h = nums.length;
-        while (l < h) {
-            int m = l + (h - l) / 2;
-            if (nums[m] == K){
-                h = m;
-            }else if(nums[m] > K){
-                h = m-1;
-            }else {
-                l = m + 1;
-            }
-        }
-        return l;
+    private int binarySearch(int[] arr, int val) {
+       int low = 0;
+		int high = arr.length - 1;
+		while(low <= high){
+			int mid = low + ((high - low) >> 1);  //***记得要加（），因为>>优先级小于+
+			if(arr[mid] > val){
+				high = mid - 1;
+			}else if(arr[mid] < val){
+				low = mid + 1;
+			}else{
+				// 如果a[mid]=val，且a[mid - 1] != val，则a[mid]就是我们要找的第一个值为val的元素
+				if(mid == 0 || (arr[mid - 1]) != val){
+					return mid;
+				}else{
+					high = mid - 1;
+				}
+			}
+		}
+		return low;//如果存在，该位置应该在的位置
     }
 }
 ```
